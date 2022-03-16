@@ -229,7 +229,7 @@ def add_photo():
     cap.release()
     cv2.destroyAllWindows()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(img,(img_size,img_size))
+    img = cv2.resize(img,(640,490))
     return img
 
 def analyse_dataset(data_dir):

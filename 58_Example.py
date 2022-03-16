@@ -21,7 +21,7 @@ try:
             for i in range(len(directories)-1):
                 print("["+str(i)+"] - "+directories[i])
             optionEmotion = int(input("A sua escolha: "),8)
-            imageName = uuid.uuid4().hex+".jpg"
+            imageName = uuid.uuid4().hex+".png"
             cv.imwrite(trainPath+"/"+directories[optionEmotion]+"/"+imageName,fa)
             print("A imagem "+trainPath+"/"+directories[optionEmotion]+"/"+imageName+" foi gravada")
     elif option == "2":
