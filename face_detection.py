@@ -50,7 +50,7 @@ def rotate_image(image, angle):
     rot_mat = cv2.getRotationMatrix2D((width/2, height/2), angle, 0.9)
     result = cv2.warpAffine(image, rot_mat, (width, height), flags=cv2.INTER_LINEAR)
     return result
-
+  
 def rotate_point(pos, img, angle):
     if angle == 0: return pos
     x = pos[0] - img.shape[1]*0.4
@@ -58,6 +58,9 @@ def rotate_point(pos, img, angle):
     newx = x*cos(radians(angle)) + y*sin(radians(angle)) + img.shape[1]*0.4
     newy = -x*sin(radians(angle)) + y*cos(radians(angle)) + img.shape[0]*0.4
     return int(newx), int(newy), pos[2], pos[3]
+
+#def face_alignment():
+
 
 def crop_faces(file_path):
     
@@ -78,16 +81,16 @@ def crop_faces(file_path):
     model = svm.SVC()
     model.fit(train_X,train_y)
 
-    perm_importance = permutation_importance(model, val_X,val_y,n_repeats=30, random_state=0)
-    features = np.array(feature_names)
+    #perm_importance = permutation_importance(model, val_X,val_y,n_repeats=30, random_state=0)
+    #features = np.array(feature_names)
     
-    sorted_idx = perm_importance.importances_mean.argsort()
-    plt.barh(features[sorted_idx], perm_importance.importances_mean[sorted_idx])
-    plt.xlabel("Permutation Importance")
-    plt.show()
+    #sorted_idx = perm_importance.importances_mean.argsort()
+    #plt.barh(features[sorted_idx], perm_importance.importances_mean[sorted_idx])
+    #plt.xlabel("Permutation Importance")
+    #plt.show()
 
-    perm = PermutationImportance(model, random_state=1).fit(val_X, val_y)
-    print(eli5.format_as_text(eli5.explain_weights(perm,top=100,feature_names=feature_names)))
+    #perm = PermutationImportance(model, random_state=1).fit(val_X, val_y)
+    #print(eli5.format_as_text(eli5.explain_weights(perm,top=100,feature_names=feature_names)))
 
 
     predictions = model.predict(val_X)
@@ -100,7 +103,7 @@ def crop_faces(file_path):
     labels = next(os.walk("./input/Train"))[1]
 
     face = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")
-
+    eye = cv2.CascadeClassifier("haarcascade_eye.xml")
     # Inicializa o detetor de rostos
     detector = dlib.get_frontal_face_detector()
     # Inicializa o previsor de landmarks nos rostos
@@ -113,25 +116,37 @@ def crop_faces(file_path):
     while True:
         # Ler imagem de input
         ret, img = cap.read()
-
-        # Detetar os rostos
-        for angle in [0, -25, 25]:
-            rimg = rotate_image(img, angle)
-            # deteção de rostos por Haarcascade
-            detected = face.detectMultiScale(rimg, **settings)
-            if len(detected):
-                detected = [rotate_point(detected[-1], img, -angle)]
-                break
-        
+  
+        detected = face.detectMultiScale(img, 1.3, 5)
+   
         # Make a copy as we don't want to draw on the original image:
         for x, y, w, h in detected[-1:]:
             roi_color = img[y:y+h, x:x+w]
-
+            
             # Converte para escala de cinza
             gray = cv2.cvtColor(roi_color, cv2.COLOR_BGR2GRAY)
             equalized = cv2.equalizeHist(gray)
-
             resized_img = cv2.resize(equalized, (img_size, img_size)) # Reshaping images to preferred size
+            
+            eyes = eye.detectMultiScale(img)
+ 
+            index = 0
+            for (eye_x, eye_y, eye_w, eye_h) in eyes:
+                print(eye_y, eye_h, h)
+                if (eye_y - eye_h) < h:
+                    continue
+                if index == 0:
+                    eye_1 = (eye_x, eye_y, eye_w, eye_h)
+                elif index == 1:
+                    eye_2 = (eye_x, eye_y, eye_w, eye_h)
+                
+                cv2.rectangle(img,(eye_x, eye_y),(eye_x+eye_w, eye_y+eye_h), (0, 255,255), 2)
+                index = index + 1
+            cv2.imshow('Face Alignment', img)
+            # Termina com ESC pressionado
+            k = cv2.waitKey(30) & 0xff
+            if(k == ESC):
+                break
 
             # Deteta os rostos da imagem cortada
             faces = detector(resized_img)
