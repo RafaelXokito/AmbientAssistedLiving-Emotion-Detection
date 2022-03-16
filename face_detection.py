@@ -20,6 +20,7 @@ from sqlalchemy import desc
 
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
+
 import eli5
 from eli5.sklearn import PermutationImportance
 
@@ -260,7 +261,7 @@ def analyse_dataset(data_dir):
 
         cv2.putText(img_map, label, (int((class_num*50)+10), int(img_size+150)), cv2.FONT_HERSHEY_COMPLEX, 0.30, color, 1)
 
-        for img in tqdm(os.listdir(path)[:limitFilesPerFolder], desc=label+" "+str(class_num)+"/"+str(len(labels))):
+        for img in tqdm(os.listdir(path)[:limitFilesPerFolder], desc=label+" "+str(class_num+1)+"/"+str(len(labels))):
             try:
                 img = cv2.imread(os.path.join(path, img))
 
@@ -351,28 +352,13 @@ def analyse_dataset(data_dir):
     df.columns = header
     df.to_csv(data_dir+'/train_data.csv', index = False, header  = header)
     
-    dfByEmotion = df.groupby('emotion')
-    filter_col = [col for col in df if col.startswith('magnitude')]
-    
+    df["mouthOpenDistance"] = df["magnitude57"]-df["magnitude51"]
 
-    sns.set(style = "darkgrid")
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection = '3d')
-
-    x = df['emotion_ordinal']
-    y = df['magnitude48']
-    z = df['magnitude54']
-
-    ax.set_xlabel("Emotion")
-    ax.set_ylabel("Left Lip Magnitude")
-    ax.set_zlabel("Right Lip Magnitude")
-
-    ax.scatter(x, y, z)
+    sns.set_theme(style="ticks", color_codes=True)
+    sns.set_palette("Paired")
+    sns.scatterplot(data = df, x = "emotion", y = "mouthOpenDistance").set(title='Abertura da boca')
 
     plt.show()
-    
-
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     return data_dir+'/train_data.csv'
