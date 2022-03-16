@@ -59,7 +59,7 @@ def rotate_point(pos, img, angle):
     newy = -x*sin(radians(angle)) + y*cos(radians(angle)) + img.shape[0]*0.4
     return int(newx), int(newy), pos[2], pos[3]
 
-def crop_faces(file_path):
+def crop_faces(file_path,trainPath):
     
     emotion_data = pd.read_csv(file_path)
     
@@ -97,7 +97,7 @@ def crop_faces(file_path):
     # inicializa o systema de video para captura 
     cap = cv2.VideoCapture(0)
     
-    labels = next(os.walk("./input/Train"))[1]
+    labels = next(os.walk(trainPath))[1]
 
     face = cv2.CascadeClassifier("haarcascade_frontalface_alt2.xml")
 

@@ -1,7 +1,7 @@
 import cv2 as cv, sys, time, os, uuid
 from face_detection import crop_faces,add_photo,analyse_dataset
 
-trainPath = './input/Train'
+trainPath = './input/TrainAAL'
 
 try:
 
@@ -63,7 +63,7 @@ try:
             print("\n\n*** NOVA CAPTURA DE IMAGEM *** :)")
             print("\nPrima ESC na janela grafica para capturar a face")
             print("Prima CTRL+C na linha de comando para terminar o programa")
-            fa = crop_faces(trainPath+'/train_data.csv')
+            fa = crop_faces(trainPath+'/train_data.csv', trainPath)
             print("A gravar a imagem faces.jpg")
             cv.imwrite("faces.jpg",fa)
             print("A aguardar 0.5 segundos até nova captura ou CTRL+C para terminar")
