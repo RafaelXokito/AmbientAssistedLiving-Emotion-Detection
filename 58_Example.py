@@ -18,7 +18,7 @@ try:
             print("Qual a emoção da foto?")
             trainPath = './input/Train'
             directories = next(os.walk(trainPath))[1]
-            for i in range(len(directories)-1):
+            for i in range(len(directories)):
                 print("["+str(i)+"] - "+directories[i])
             optionEmotion = int(input("A sua escolha: "),8)
             imageName = uuid.uuid4().hex+".png"
