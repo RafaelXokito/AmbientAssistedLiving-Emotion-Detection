@@ -17,6 +17,11 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sqlalchemy import desc
 
+from sklearn.inspection import permutation_importance
+import matplotlib.pyplot as plt
+import eli5
+from eli5.sklearn import PermutationImportance
+
 ESC=27
 
 img_size = 224
@@ -57,15 +62,10 @@ def crop_faces(file_path):
     
     y = emotion_data["emotion_ordinal"]
 
-    # Pontos importantes inicialmente [19,21,22,24,48,51,54,57]
-    feature_names = ["magnitude19","direction19",
-                    "magnitude21","direction21",
-                    "magnitude22","direction22",
-                    "magnitude24","direction24",
-                    "magnitude48","direction48",
-                    "magnitude51","direction51",
-                    "magnitude54","direction54",
-                    "magnitude57","direction57"]
+    feature_names = []
+    for landmark in important_landmarks:
+        feature_names.append("magnitude"+str(landmark))
+        feature_names.append("direction"+str(landmark))
     
     X = emotion_data[feature_names]
     print(X.describe())
@@ -74,6 +74,18 @@ def crop_faces(file_path):
 
     model = svm.SVC()
     model.fit(train_X,train_y)
+
+    perm_importance = permutation_importance(model, val_X,val_y,n_repeats=30, random_state=0)
+    features = np.array(feature_names)
+    
+    sorted_idx = perm_importance.importances_mean.argsort()
+    plt.barh(features[sorted_idx], perm_importance.importances_mean[sorted_idx])
+    plt.xlabel("Permutation Importance")
+    plt.show()
+
+    perm = PermutationImportance(model, random_state=1).fit(val_X, val_y)
+    print(eli5.format_as_text(eli5.explain_weights(perm,top=100,feature_names=feature_names)))
+
 
     predictions = model.predict(val_X)
 
