@@ -1,3 +1,4 @@
+from ast import If
 from time import sleep
 import cv2
 from cv2 import sqrt
@@ -210,26 +211,33 @@ def crop_faces(file_path):
     cv2.destroyAllWindows()
     return img
 
-def add_photo():
-    # inicializa o systema de video para captura 
-    cap = cv2.VideoCapture(0)
+def add_photo(path = ""):
+    img = []
+    if path == "":
+        # inicializa o systema de video para captura 
+        cap = cv2.VideoCapture(0)
 
-    while True:
-        # Captura um frame
-        ret, img = cap.read()
+        while True:
+            # Captura um frame
+            ret, img = cap.read()
 
-        # Janela de video com o resultado
-        cv2.imshow('img', img)
-        
-        # Termina com ESC pressionado
-        k = cv2.waitKey(30) & 0xff
-        if(k == ESC):
-            break
+            # Janela de video com o resultado
+            cv2.imshow('img', img)
+            
+            # Termina com ESC pressionado
+            k = cv2.waitKey(30) & 0xff
+            if(k == ESC):
+                break
     
-    cap.release()
-    cv2.destroyAllWindows()
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(img,(640,490))
+        cap.release()
+        cv2.destroyAllWindows()
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(img,(640,490))
+    else:
+        img = cv2.imread(path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(img,(640,490))
+    
     return img
 
 def analyse_dataset(data_dir):
