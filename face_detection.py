@@ -8,7 +8,8 @@ import math
 import os
 import pandas as pd
 
-from sklearn.preprocessing import OrdinalEncoder
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from math import sin, cos, radians
 
@@ -335,7 +336,30 @@ def analyse_dataset(data_dir):
     
     #Criar o csv
     df = pd.DataFrame(data)
+    df.columns = header
     df.to_csv(data_dir+'/train_data.csv', index = False, header  = header)
+    
+    dfByEmotion = df.groupby('emotion')
+    filter_col = [col for col in df if col.startswith('magnitude')]
+    
+
+    sns.set(style = "darkgrid")
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection = '3d')
+
+    x = df['emotion_ordinal']
+    y = df['magnitude48']
+    z = df['magnitude54']
+
+    ax.set_xlabel("Emotion")
+    ax.set_ylabel("Left Lip Magnitude")
+    ax.set_zlabel("Right Lip Magnitude")
+
+    ax.scatter(x, y, z)
+
+    plt.show()
+    
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
