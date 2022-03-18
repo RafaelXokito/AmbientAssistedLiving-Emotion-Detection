@@ -29,7 +29,7 @@ ESC=27
 
 img_size = 224
 
-important_landmarks = [19,21,22,24,48,51,54,57]
+important_landmarks = [19,21,22,24,27,30,48,51,54,57]
 limitFilesPerFolder = 50
 
 settings = {
@@ -151,6 +151,8 @@ def crop_faces(file_path,trainPath):
 
                 # vetor de caracteristicas
                 feature_vector = []
+                noseTop = []
+                noseTip = [] 
                 for n in important_landmarks:
                     xl = landmarks.part(n).x-x1
                     yl = landmarks.part(n).y-y1
@@ -168,6 +170,18 @@ def crop_faces(file_path,trainPath):
                         direction = 0
                     else:
                         direction = math.degrees(math.atan((yc-yl)/(xc-xl)))
+                    if n == 27:  
+                        noseTop.append(xl + x1)
+                        noseTop.append(yl + y1) 
+                    if n == 30:
+                        noseTip = [xl+x1, yl+y1]
+                        cv2.line(resized_img,(noseTop[0],noseTop[1]), (noseTip[0],noseTip[1]), (255,255,0), 2)           
+                        cv2.line(resized_img,(0,120), (240, 120), (255,255,0), 2)
+                        if (noseTop[0] == noseTip[0]):
+                            angle = 0
+                        else:
+                            angle = math.degrees(math.atan(abs((noseTip[1]-noseTop[1])/(noseTip[0]-noseTop[0])))) 
+                            print("angle -> ",angle)
 
                     #feature_vector.append(xl)
                     #feature_vector.append(yl)
