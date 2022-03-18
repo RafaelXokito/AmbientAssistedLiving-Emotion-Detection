@@ -31,7 +31,7 @@ ESC=27
 
 img_size = 224
 
-important_landmarks = [17,19,21,22,24,26,27,30,36,37,39,40,42,43,45,46,48,51,54,57]
+important_landmarks = [17,19,21,22,24,26,30,36,37,39,40,42,43,45,46,48,51,54,57]
 limitFilesPerFolder = 70
 
 settings = {
@@ -151,11 +151,22 @@ def crop_faces(file_path,trainPath):
 
                 # Look for the landmarks
                 landmarks = predictor(image=resized_img, box=iface)
+                
+                # Prevent Rotation Angle
+                x27 = landmarks.part(27).x-x1
+                y27 = landmarks.part(27).y-y1
+                x30 = landmarks.part(30).x-x1
+                y30 = landmarks.part(30).y-y1
 
+                if (x27 == x30):
+                    directionLinha = 0
+                else:
+                    directionLinha = math.degrees(math.atan((y30-y27)/(x30-x27)))
+                if directionLinha < 0:
+                     directionLinha = directionLinha+180
+                print("angle ",directionLinha)    
                 # vetor de caracteristicas
                 feature_vector = []
-                noseTop = []
-                noseTip = [] 
                 for n in important_landmarks:
                     xl = landmarks.part(n).x-x1
                     yl = landmarks.part(n).y-y1
@@ -163,29 +174,21 @@ def crop_faces(file_path,trainPath):
                     
                     cv2.circle(img=resized_img, center=(xl+x1, yl+y1), radius=1, color=(0, 255, 0), thickness=-1)
                     
+                    # Prevent Rotation Angle
+                    xlLinha = xl * cos(directionLinha) - yl*sin(directionLinha)
+                    ylLinha = yl * sin(directionLinha) - xl*sin(directionLinha)
+
                     # Calcular a distâcia (Teorema de Pitágoras) => c^2 = a^2 + b^2
-                    a = xl - xc
-                    b = yl - yc
+                    a = xlLinha - xc
+                    b = ylLinha - yc
                     c = round(math.sqrt((a*a)+(b*b)), 2)
                     distance = c
 
                     # Calcular a direção
-                    if (xc == x):
+                    if (xc == xlLinha):
                         direction = 0
                     else:
-                        direction = math.degrees(math.atan((yc-yl)/(xc-xl)))
-                    if n == 27:  
-                        noseTop.append(xl + x1)
-                        noseTop.append(yl + y1) 
-                    if n == 30:
-                        noseTip = [xl+x1, yl+y1]
-                        cv2.line(resized_img,(noseTop[0],noseTop[1]), (noseTip[0],noseTip[1]), (255,255,0), 2)           
-                        cv2.line(resized_img,(0,120), (240, 120), (255,255,0), 2)
-                        if (noseTop[0] == noseTip[0]):
-                            angle = 0
-                        else:
-                            angle = math.degrees(math.atan(abs((noseTip[1]-noseTop[1])/(noseTip[0]-noseTop[0])))) 
-                            print("angle -> ",angle)
+                        direction = math.degrees(math.atan((yc-ylLinha)/(xc-xlLinha)))                  
 
                     #feature_vector.append(xl)
                     #feature_vector.append(yl)
