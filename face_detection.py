@@ -14,6 +14,8 @@ import seaborn as sns
 
 from math import sin, cos, radians
 
+from statistics import mode
+
 from sklearn import svm
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
@@ -29,8 +31,8 @@ ESC=27
 
 img_size = 224
 
-important_landmarks = [19,21,22,24,27,30,48,51,54,57]
-limitFilesPerFolder = 50
+important_landmarks = [17,19,21,22,24,26,27,30,36,37,39,40,42,43,45,46,48,51,54,57]
+limitFilesPerFolder = 70
 
 settings = {
     'scaleFactor': 1.3, 
@@ -81,13 +83,13 @@ def crop_faces(file_path,trainPath):
     perm_importance = permutation_importance(model, val_X,val_y,n_repeats=30, random_state=0)
     features = np.array(feature_names)
     
-    sorted_idx = perm_importance.importances_mean.argsort()
-    plt.barh(features[sorted_idx], perm_importance.importances_mean[sorted_idx])
-    plt.xlabel("Permutation Importance")
-    plt.show()
+    #sorted_idx = perm_importance.importances_mean.argsort()
+    #plt.barh(features[sorted_idx], perm_importance.importances_mean[sorted_idx])
+    #plt.xlabel("Permutation Importance")
+    #plt.show()
 
-    perm = PermutationImportance(model, random_state=1).fit(val_X, val_y)
-    print(eli5.format_as_text(eli5.explain_weights(perm,top=100,feature_names=feature_names)))
+    #perm = PermutationImportance(model, random_state=1).fit(val_X, val_y)
+    #print(eli5.format_as_text(eli5.explain_weights(perm,top=100,feature_names=feature_names)))
 
 
     predictions = model.predict(val_X)
@@ -109,6 +111,7 @@ def crop_faces(file_path,trainPath):
     resized_img = []
     previous_emotion = ""
     img_emotion = np.ones(shape=[100,img_size,3], dtype=np.uint8)
+    emotion_history = []
 
     while True:
         # Ler imagem de input
@@ -157,6 +160,7 @@ def crop_faces(file_path,trainPath):
                     xl = landmarks.part(n).x-x1
                     yl = landmarks.part(n).y-y1
 
+                    
                     cv2.circle(img=resized_img, center=(xl+x1, yl+y1), radius=1, color=(0, 255, 0), thickness=-1)
                     
                     # Calcular a distâcia (Teorema de Pitágoras) => c^2 = a^2 + b^2
@@ -189,9 +193,12 @@ def crop_faces(file_path,trainPath):
                     feature_vector.append(direction)
             
                 predictions = model.predict([feature_vector])
+                emotion_history.append(labels[int(predictions)])
+                if len(emotion_history) > 10:
+                    emotion_history = emotion_history[-9:]
                 print(labels[int(predictions)])
             cv2.rectangle(img, (x, y), (x+w, y+h), (255,0,0), 4)
-        
+
         # Output visual
         # Resize da imagem e tonalização em tons de cinza (o concat do cv2 apenas permite concat com tons igual)
         img2 = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (img_size, img_size)) # Reshaping images to preferred size
@@ -199,7 +206,7 @@ def crop_faces(file_path,trainPath):
         if len(resized_img) > 0:
             # Se foi detetado alguma emoção diferente
             if(labels[int(predictions)] != previous_emotion):
-                label = labels[int(predictions)]
+                label = mode(emotion_history)
 
                 # Preenchemos o "quadro" a branco para escrever a emoção nova
                 img_emotion.fill(255) # or img[:] = 255
@@ -329,6 +336,7 @@ def analyse_dataset(data_dir):
                             xl = landmarks.part(n).x-x1
                             yl = landmarks.part(n).y-y1
 
+                            #if important_landmarks.count(n) > 0:
                             cv2.circle(img=img_map, center=(xl+50, yl+50), radius=1, color=color, thickness=-1)
                             #cv2.circle(img=resized_img, center=(xl+x1, yl+y1), radius=1, color=(0, 255, 0), thickness=-1)
                             
