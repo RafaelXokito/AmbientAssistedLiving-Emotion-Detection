@@ -3,7 +3,7 @@ from tqdm import tqdm
 import os
 import cv2
 import pandas as pd
-import json
+import matplotlib.pyplot as plt
 
 data_dir = "input/Train"
 
@@ -12,7 +12,8 @@ limitFilesPerFolder = 5
 labels = next(os.walk(data_dir))[1]
 
 df_all = pd.DataFrame()
-columns = []
+
+accuracyByLabel = []
 
 sum = 0
 total = 0
@@ -21,7 +22,9 @@ for label in labels:
 
     path = os.path.join(data_dir, label)
 
-    for imgName in tqdm(os.listdir(path)[:limitFilesPerFolder]):
+    sumLabel = 0
+
+    for imgName in tqdm(os.listdir(path)[:limitFilesPerFolder], desc=label):
         try:
             imgPath = os.path.join(path, imgName)
             img = cv2.imread(imgPath)
@@ -32,6 +35,7 @@ for label in labels:
 
             if label == obj["dominant_emotion"]:
                 sum = sum +1
+                sumLabel = sumLabel +1
             
             total = total+1
 
@@ -44,7 +48,13 @@ for label in labels:
                 
         except Exception as e:
             print(e)
+        
+    accuracyByLabel.append(sumLabel/len(os.listdir(path)[:limitFilesPerFolder]))
     
 df_all.to_csv('DeepFaceAnalysis.csv', encoding='utf-8')
 
 print("\nOverall Accuracy: " +str((sum/total)*100)+" %")
+
+plt.bar(labels, accuracyByLabel)
+plt.suptitle('Precisão Por Emoção DeepFace')
+plt.show()
