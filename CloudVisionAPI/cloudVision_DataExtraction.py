@@ -13,7 +13,7 @@ def convertPercentage(description):
     return 1.0    
 
 #open file
-painAnalysisFile = open('painAnalysis.json')
+painAnalysisFile = open('cloudVision_painAnalysis.json')
  
 # convert json to dictionary
 dataPainAnalysis = json.load(painAnalysisFile)
@@ -38,6 +38,6 @@ for data in dataPainAnalysis['VisionAPIGoogle']:
 painAnalysisFile.close()
 
 # create the new file
-with open("painAnalysis_Processed.json", "w") as outfile:
+with open("cloudVision_painAnalysis_Processed.json", "w") as outfile:
     json.dump(dataPainAnalysis, outfile, indent=4)
 
