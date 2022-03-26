@@ -4,10 +4,10 @@
             "Image name": "1.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.8,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 80,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.83525056,
                     "landmarkingConfidence": 0.48728874
                 }
@@ -17,10 +17,10 @@
             "Image name": "2.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.85618395,
                     "landmarkingConfidence": 0.30463916
                 }
@@ -30,10 +30,10 @@
             "Image name": "3.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.86744165,
                     "landmarkingConfidence": 0.6284339
                 }
@@ -43,10 +43,10 @@
             "Image name": "4.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9518711,
                     "landmarkingConfidence": 0.7632489
                 }
@@ -56,10 +56,10 @@
             "Image name": "5.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.94664186,
                     "landmarkingConfidence": 0.57818973
                 }
@@ -69,10 +69,10 @@
             "Image name": "6.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9596762,
                     "landmarkingConfidence": 0.38811463
                 }
@@ -82,10 +82,10 @@
             "Image name": "7.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9612621,
                     "landmarkingConfidence": 0.41076025
                 }
@@ -95,10 +95,10 @@
             "Image name": "8.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.91340435,
                     "landmarkingConfidence": 0.6660361
                 }
@@ -108,10 +108,10 @@
             "Image name": "9.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.5393193,
                     "landmarkingConfidence": 0.8437055
                 }
@@ -121,10 +121,10 @@
             "Image name": "10.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.91983336,
                     "landmarkingConfidence": 0.7037
                 }
@@ -134,10 +134,10 @@
             "Image name": "11.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.84425,
                     "landmarkingConfidence": 0.8272146
                 }
@@ -147,10 +147,10 @@
             "Image name": "12.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.94452864,
                     "landmarkingConfidence": 0.7439283
                 }
@@ -160,10 +160,10 @@
             "Image name": "13.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.6836422,
                     "landmarkingConfidence": 0.2521789
                 }
@@ -173,10 +173,10 @@
             "Image name": "14.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.92090374,
                     "landmarkingConfidence": 0.4560259
                 }
@@ -186,10 +186,10 @@
             "Image name": "15.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.905463,
                     "landmarkingConfidence": 0.78192765
                 }
@@ -199,10 +199,10 @@
             "Image name": "16.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.641862,
                     "landmarkingConfidence": 0.3775277
                 }
@@ -212,10 +212,10 @@
             "Image name": "17.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9797702,
                     "landmarkingConfidence": 0.598949
                 }
@@ -225,10 +225,10 @@
             "Image name": "18.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.6,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 60,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9567355,
                     "landmarkingConfidence": 0.5522607
                 }
@@ -238,10 +238,10 @@
             "Image name": "19.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9773028,
                     "landmarkingConfidence": 0.35334754
                 }
@@ -251,10 +251,10 @@
             "Image name": "20.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9851475,
                     "landmarkingConfidence": 0.666431
                 }
@@ -264,10 +264,10 @@
             "Image name": "21.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8482416,
                     "landmarkingConfidence": 0.32280993
                 }
@@ -277,10 +277,10 @@
             "Image name": "22.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.5284681,
                     "landmarkingConfidence": 0.36981976
                 }
@@ -290,10 +290,10 @@
             "Image name": "23.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.48356146,
                     "landmarkingConfidence": 0.8477458
                 }
@@ -303,10 +303,10 @@
             "Image name": "24.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8286588,
                     "landmarkingConfidence": 0.13008146
                 }
@@ -316,10 +316,10 @@
             "Image name": "25.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.82790536,
                     "landmarkingConfidence": 0.2672636
                 }
@@ -329,10 +329,10 @@
             "Image name": "26.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8288685,
                     "landmarkingConfidence": 0.24471715
                 }
@@ -342,10 +342,10 @@
             "Image name": "27.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.7255511,
                     "landmarkingConfidence": 0.16361372
                 }
@@ -355,10 +355,10 @@
             "Image name": "28.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.96577525,
                     "landmarkingConfidence": 0.35827383
                 }
@@ -368,10 +368,10 @@
             "Image name": "29.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.63301814,
                     "landmarkingConfidence": 0.37827235
                 }
@@ -381,10 +381,10 @@
             "Image name": "30.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.20122409,
                     "landmarkingConfidence": 0.72219944
                 }
@@ -394,10 +394,10 @@
             "Image name": "31.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.92848873,
                     "landmarkingConfidence": 0.45505646
                 }
@@ -407,10 +407,10 @@
             "Image name": "32.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.95247334,
                     "landmarkingConfidence": 0.5160704
                 }
@@ -420,10 +420,10 @@
             "Image name": "33.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.95753556,
                     "landmarkingConfidence": 0.12965553
                 }
@@ -433,10 +433,10 @@
             "Image name": "34.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.44944805,
                     "landmarkingConfidence": 0.4789593
                 }
@@ -446,10 +446,10 @@
             "Image name": "35.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.31147984,
                     "landmarkingConfidence": 0.10132237
                 }
@@ -459,10 +459,10 @@
             "Image name": "36.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.30078942,
                     "landmarkingConfidence": 0.026650485
                 }
@@ -472,10 +472,10 @@
             "Image name": "37.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.619114,
                     "landmarkingConfidence": 0.09439858
                 }
@@ -485,10 +485,10 @@
             "Image name": "38.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8862442,
                     "landmarkingConfidence": 0.25568235
                 }
@@ -498,10 +498,10 @@
             "Image name": "39.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.95432633,
                     "landmarkingConfidence": 0.40810236
                 }
@@ -511,10 +511,10 @@
             "Image name": "40.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.4097649,
                     "landmarkingConfidence": 0.2029259
                 }
@@ -524,10 +524,10 @@
             "Image name": "41.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9764194,
                     "landmarkingConfidence": 0.8402029
                 }
@@ -537,10 +537,10 @@
             "Image name": "42.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.2688666,
                     "landmarkingConfidence": 0.013407165
                 }
@@ -550,10 +550,10 @@
             "Image name": "43.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.52441657,
                     "landmarkingConfidence": 0.36031651
                 }
@@ -563,10 +563,10 @@
             "Image name": "44.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 1.0,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 100,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.25590456,
                     "landmarkingConfidence": 0.42566985
                 }
@@ -576,10 +576,10 @@
             "Image name": "45.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.40387163,
                     "landmarkingConfidence": 0.08946296
                 }
@@ -589,10 +589,10 @@
             "Image name": "46.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.93550843,
                     "landmarkingConfidence": 0.5389417
                 }
@@ -602,10 +602,10 @@
             "Image name": "47.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.97123307,
                     "landmarkingConfidence": 0.634297
                 }
@@ -615,10 +615,10 @@
             "Image name": "48.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.76587766,
                     "landmarkingConfidence": 0.21428086
                 }
@@ -628,10 +628,10 @@
             "Image name": "49.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.842883,
                     "landmarkingConfidence": 0.28916016
                 }
@@ -641,10 +641,10 @@
             "Image name": "50.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.23503,
                     "landmarkingConfidence": 0.061478682
                 }
@@ -654,10 +654,10 @@
             "Image name": "51.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9416971,
                     "landmarkingConfidence": 0.44464096
                 }
@@ -667,10 +667,10 @@
             "Image name": "52.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.87354094,
                     "landmarkingConfidence": 0.16956383
                 }
@@ -680,10 +680,10 @@
             "Image name": "53.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.35583535,
                     "landmarkingConfidence": 0.015075155
                 }
@@ -693,10 +693,10 @@
             "Image name": "54.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9635806,
                     "landmarkingConfidence": 0.18193263
                 }
@@ -706,10 +706,10 @@
             "Image name": "55.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.91973317,
                     "landmarkingConfidence": 0.5964607
                 }
@@ -719,10 +719,10 @@
             "Image name": "56.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.6,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 60,
                     "detectionConfidence": 0.96746254,
                     "landmarkingConfidence": 0.6717998
                 },
@@ -1060,10 +1060,10 @@
             "Image name": "57.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.43273237,
                     "landmarkingConfidence": 0.036216006
                 }
@@ -1073,10 +1073,10 @@
             "Image name": "58.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.2757018,
                     "landmarkingConfidence": 0.26787522
                 }
@@ -1086,10 +1086,10 @@
             "Image name": "59.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.96579933,
                     "landmarkingConfidence": 0.28392747
                 },
@@ -1423,10 +1423,10 @@
             "Image name": "60.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.4,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 40,
                     "detectionConfidence": 0.66430694,
                     "landmarkingConfidence": 0.57819015
                 }
@@ -1436,10 +1436,10 @@
             "Image name": "61.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.7385002,
                     "landmarkingConfidence": 0.11578985
                 }
@@ -1449,10 +1449,10 @@
             "Image name": "62.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.4622969,
                     "landmarkingConfidence": 0.14665724
                 }
@@ -1462,10 +1462,10 @@
             "Image name": "63.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 1.0,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 100,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.98346883,
                     "landmarkingConfidence": 0.47575003
                 }
@@ -1475,10 +1475,10 @@
             "Image name": "64.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 1.0,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 100,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9595725,
                     "landmarkingConfidence": 0.7495621
                 }
@@ -1488,10 +1488,10 @@
             "Image name": "65.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.7980172,
                     "landmarkingConfidence": 0.0615519
                 }
@@ -1501,10 +1501,10 @@
             "Image name": "66.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.889106,
                     "landmarkingConfidence": 0.17323738
                 }
@@ -1514,10 +1514,10 @@
             "Image name": "67.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 1.0,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 100,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9792975,
                     "landmarkingConfidence": 0.5186153
                 }
@@ -1527,10 +1527,10 @@
             "Image name": "68.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 1.0,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 100,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8505624,
                     "landmarkingConfidence": 0.4535532
                 }
@@ -1540,10 +1540,10 @@
             "Image name": "69.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.5054157,
                     "landmarkingConfidence": 0.14231215
                 }
@@ -1553,10 +1553,10 @@
             "Image name": "70.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.8,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 80,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9035091,
                     "landmarkingConfidence": 0.50242746
                 }
@@ -1566,10 +1566,10 @@
             "Image name": "71.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.930223,
                     "landmarkingConfidence": 0.14422011
                 }
@@ -1579,10 +1579,10 @@
             "Image name": "72.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.95795095,
                     "landmarkingConfidence": 0.5951529
                 }
@@ -1592,10 +1592,10 @@
             "Image name": "73.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9608134,
                     "landmarkingConfidence": 0.46088538
                 }
@@ -1605,10 +1605,10 @@
             "Image name": "74.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.3001946,
                     "landmarkingConfidence": 0.16502097
                 }
@@ -1618,10 +1618,10 @@
             "Image name": "75.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.96120745,
                     "landmarkingConfidence": 0.30996823
                 }
@@ -1631,10 +1631,10 @@
             "Image name": "76.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.74311495,
                     "landmarkingConfidence": 0.04276484
                 }
@@ -1644,10 +1644,10 @@
             "Image name": "77.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.94072014,
                     "landmarkingConfidence": 0.55654
                 }
@@ -1657,10 +1657,10 @@
             "Image name": "78.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.655169,
                     "landmarkingConfidence": 0.22650093
                 },
@@ -1998,10 +1998,10 @@
             "Image name": "79.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9183958,
                     "landmarkingConfidence": 0.16056873
                 }
@@ -2011,10 +2011,10 @@
             "Image name": "80.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.67442304,
                     "landmarkingConfidence": 0.10372046
                 }
@@ -2024,10 +2024,10 @@
             "Image name": "81.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9309229,
                     "landmarkingConfidence": 0.15978989
                 }
@@ -2037,10 +2037,10 @@
             "Image name": "82.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.950689,
                     "landmarkingConfidence": 0.50758266
                 }
@@ -2050,10 +2050,10 @@
             "Image name": "83.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.90384924,
                     "landmarkingConfidence": 0.2818386
                 }
@@ -2063,10 +2063,10 @@
             "Image name": "84.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.92221445,
                     "landmarkingConfidence": 0.5409658
                 }
@@ -2076,10 +2076,10 @@
             "Image name": "85.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.6,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 60,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.956749,
                     "landmarkingConfidence": 0.39547282
                 }
@@ -2089,10 +2089,10 @@
             "Image name": "86.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9717134,
                     "landmarkingConfidence": 0.6936511
                 }
@@ -2102,10 +2102,10 @@
             "Image name": "87.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9703267,
                     "landmarkingConfidence": 0.6085101
                 }
@@ -2115,10 +2115,10 @@
             "Image name": "88.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.962921,
                     "landmarkingConfidence": 0.40110096
                 }
@@ -2128,10 +2128,10 @@
             "Image name": "89.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9013825,
                     "landmarkingConfidence": 0.23666579
                 }
@@ -2141,10 +2141,10 @@
             "Image name": "90.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9336224,
                     "landmarkingConfidence": 0.38919267
                 }
@@ -2154,10 +2154,10 @@
             "Image name": "91.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.91432,
                     "landmarkingConfidence": 0.17444736
                 }
@@ -2167,10 +2167,10 @@
             "Image name": "92.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.95604414,
                     "landmarkingConfidence": 0.40084866
                 }
@@ -2180,10 +2180,10 @@
             "Image name": "93.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.6,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 60,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.92166823,
                     "landmarkingConfidence": 0.2706504
                 }
@@ -2193,10 +2193,10 @@
             "Image name": "94.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.96152276,
                     "landmarkingConfidence": 0.40246448
                 }
@@ -2206,10 +2206,10 @@
             "Image name": "95.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.66393185,
                     "landmarkingConfidence": 0.18086535
                 },
@@ -2547,10 +2547,10 @@
             "Image name": "96.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.8,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 80,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8173159,
                     "landmarkingConfidence": 0.6784666
                 }
@@ -2560,10 +2560,10 @@
             "Image name": "97.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.4,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 40,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.8594779,
                     "landmarkingConfidence": 0.7123281
                 }
@@ -2573,10 +2573,10 @@
             "Image name": "98.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.4,
-                    "joyLikelihood": 0.4,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 40,
+                    "joyLikelihood": 40,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.9518091,
                     "landmarkingConfidence": 0.2867393
                 }
@@ -2586,10 +2586,10 @@
             "Image name": "99.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 0.2,
-                    "joyLikelihood": 0.8,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 20,
+                    "joyLikelihood": 80,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.97857374,
                     "landmarkingConfidence": 0.64300793
                 }
@@ -2599,10 +2599,10 @@
             "Image name": "100.jpg",
             "faceAnnotations": [
                 {
-                    "angerLikelihood": 1.0,
-                    "joyLikelihood": 0.2,
-                    "sorrowLikelihood": 0.2,
-                    "surpriseLikelihood": 0.2,
+                    "angerLikelihood": 100,
+                    "joyLikelihood": 20,
+                    "sorrowLikelihood": 20,
+                    "surpriseLikelihood": 20,
                     "detectionConfidence": 0.52038777,
                     "landmarkingConfidence": 0.2229745
                 }

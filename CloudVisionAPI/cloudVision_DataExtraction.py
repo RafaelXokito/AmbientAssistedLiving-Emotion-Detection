@@ -3,14 +3,14 @@ import json
 # Convert Description to Percentage
 def convertPercentage(description):
     if description == "VERY_UNLIKELY":
-        return 0.2
+        return 20
     if description == "UNLIKELY":
-        return 0.4
+        return 40
     if description == "POSSIBLE":
-        return 0.6       
+        return 60       
     if description == "LIKELY":
-        return 0.8        
-    return 1.0    
+        return 80        
+    return 100    
 
 #open file
 painAnalysisFile = open('cloudVision_painAnalysis.json')
