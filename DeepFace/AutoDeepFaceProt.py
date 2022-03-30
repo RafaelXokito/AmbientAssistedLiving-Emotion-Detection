@@ -85,10 +85,10 @@ for label in labels:
     cv2.waitKey(0)
     accuracyByLabel.append(sumLabel/len(os.listdir(path)[:limitFilesPerFolder]))
     
-df_all.to_csv('DeepFaceAnalysis.csv', encoding='utf-8')
+df_all.to_csv('deepFace_painAnalysis.csv', encoding='utf-8')
 
 print("\nOverall Accuracy: " +str((sum/total)*100)+" %")
 
 plt.bar(labels, accuracyByLabel)
-plt.suptitle('Precisão Por Emoção DeepFace')
+plt.suptitle('Precisão DeepFace para Pain Dataset (100 img)')
 plt.show()
