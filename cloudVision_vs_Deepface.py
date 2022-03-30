@@ -160,10 +160,11 @@ labels = ["angry","happy","surprise","sad"]
 figPie = plt.figure(figsize=(10,10),dpi=144)
 ax1 = figPie.add_subplot(121)
 ax1.pie(graphEmotionsCV, labels = labels, autopct=lambda pct: func(pct)) 
+ax1.title.set_text('Cloud Vision')
 
 ax2 = figPie.add_subplot(122)
 ax2.pie(graphEmotionsDF, labels = labels, autopct=lambda pct: func(pct))    
-
+ax2.title.set_text('Deep Face')
 plt.show()
 
 #Criar o csv
