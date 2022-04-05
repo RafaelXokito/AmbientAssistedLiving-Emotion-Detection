@@ -23,6 +23,7 @@ if tf_version == 2:
 	import logging
 	tf.get_logger().setLevel(logging.ERROR)
 
+
 def build_model(model_name):
 
 	"""
@@ -158,11 +159,9 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			pbar.set_description("Action: %s" % (action))
 
 			if action == 'emotion':
-				emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
+				emotion_labels = ["happy","pain"]#['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral','pain']
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
-
 				emotion_predictions = models['emotion'].predict(img)[0,:]
-
 				sum_of_predictions = emotion_predictions.sum()
 
 				resp_obj["emotion"] = {}
@@ -208,3 +207,4 @@ img = cv2.imread(imgPath) # ler a imagem
 obj = analyze(img, actions = ['emotion']) # DeepFace analisa a imagem inicial
 
 print(obj)
+
