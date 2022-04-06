@@ -1,3 +1,5 @@
+Found 28708 images belonging to 3 classes.
+Found 7178 images belonging to 3 classes.
 Epoch 1/10
 225/225 [==============================] - 81s 352ms/step - loss: 0.9634 - accuracy: 0.5805 - val_loss: 0.9268 - val_accuracy: 0.6202
 Epoch 2/10

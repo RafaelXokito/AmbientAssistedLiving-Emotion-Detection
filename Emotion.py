@@ -31,7 +31,7 @@ valid_path = datasetPath+'/test'
 
 IMAGE_SIZE = [48,48]
 
-batch_size = 128
+batch_size = 256
 
 images_files = glob(train_path+'/*/*.*')
 valid_images_files = glob(valid_path+'/*/*.*')
@@ -120,12 +120,12 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     r = model.fit_generator(
         train_generator,
         validation_data=valid_generator,
-        epochs=10,
+        epochs=100,
         steps_per_epoch = int(np.ceil(len(images_files)/ batch_size)),
         validation_steps = int(np.ceil(len(valid_images_files)/ batch_size)),
     )
 
-    model.save(filepath='weights/DeepFace_v4_binary_10_128.h5',include_optimizer=True)
+    model.save(filepath='weights/DeepFace_v5_binary_100_256.h5',include_optimizer=True)
 
     # convert the training history to a dataframe
     history_df = pd.DataFrame(r.history)
