@@ -23,11 +23,11 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.vgg16 import VGG16 as PreTrainedModel, \
     preprocess_input
 
-datasetPath = 'dataset'
-#datasetPath = 'FER-2013'
+#datasetPath = 'dataset'
+datasetPath = 'FER-2013'
 
-train_path = datasetPath+'/train'#'dataset/train'
-valid_path = datasetPath+'/test'#'dataset/test'
+train_path = datasetPath+'/train'
+valid_path = datasetPath+'/test'
 
 IMAGE_SIZE = [48,48]
 
@@ -92,8 +92,8 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     model = Model(inputs = ptm.input, outputs=x)
 
     model.compile(optimizer='adam', 
-                    loss='categorical_crossentropy', 
-                    metrics=['accuracy'])
+                    loss='binary_crossentropy', 
+                    metrics=['binary_accuracy'])
 
     image_generator = ImageDataGenerator(rotation_range=30,
                                         width_shift_range=0.1,
@@ -125,11 +125,14 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
         validation_steps = int(np.ceil(len(valid_images_files)/ batch_size)),
     )
 
+    model.save(filepath='weights/DeepFace_v4_binary_10_128.h5',include_optimizer=True)
+
     # convert the training history to a dataframe
     history_df = pd.DataFrame(r.history)
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
-    history_df.loc[5:, ['accuracy', 'val_accuracy']].plot()
+    history_df.loc[5:, ['binary_accuracy', 'val_binary_accuracy']].plot()
     plt.show()
+
     
     return model
