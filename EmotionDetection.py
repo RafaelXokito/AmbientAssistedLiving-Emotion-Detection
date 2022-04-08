@@ -31,19 +31,21 @@ def build_model(model_name):
 		model_name (string): face recognition or facial attribute model
 			VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
 			Age, Gender, Emotion, Race for facial attributes
-
 	Returns:
 		built deepface model
 	"""
 
 	global model_obj #singleton design pattern
 
-	model = Emotion.loadModel
+	models = {
+		'Emotion': Emotion.loadModel,
+	}
 
 	if not "model_obj" in globals():
 		model_obj = {}
 
 	if not model_name in model_obj.keys():
+		model = models.get(model_name)
 		if model:
 			model = model()
 			model_obj[model_name] = model
@@ -53,7 +55,7 @@ def build_model(model_name):
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -158,10 +160,12 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			pbar.set_description("Action: %s" % (action))
 
 			if action == 'emotion':
-				emotion_labels = ['positive', 'negative']
+				emotion_labels = next(os.walk(dataset_dir+'/train'))[1] # emotions class from dataset directory
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
 				emotion_predictions = models['emotion'].predict(img)[0,:]
+
+				print(emotion_labels,emotion_predictions)
 
 				sum_of_predictions = emotion_predictions.sum()
 
@@ -204,11 +208,14 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing import image
 
-imgPath = 'FER-2013/test/happy/PrivateTest_928647.jpg'
+#datasetPath = 'dataset'
+datasetPath = 'FER-2013'
+
+imgPath = datasetPath+'/test/positive/PrivateTest_928647.jpg'
 
 img = cv2.imread(imgPath) # ler a imagem
 
-obj = analyze(img, actions = ['emotion']) # DeepFace analisa a imagem inicial
+obj = analyze(imgPath, actions = ['emotion'],dataset_dir=datasetPath) # DeepFace analisa a imagem inicial
 
 print(obj)
 
