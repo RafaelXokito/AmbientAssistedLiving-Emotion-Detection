@@ -15,6 +15,7 @@ import pickle
 import cv2
 
 import Emotion
+import EmotionVGG
 import functions
 
 import tensorflow as tf
@@ -40,7 +41,8 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 	global model_obj #singleton design pattern
 
 	models = {
-		'Emotion': Emotion.loadModel
+		'Emotion': Emotion.loadModel,
+		'EmotionVGG': EmotionVGG.loadModel
 	}
 
 	if not "model_obj" in globals():
@@ -131,12 +133,14 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	if len(built_models) > 0:
 		if 'emotion' in built_models and 'emotion' not in actions:
 			actions.append('emotion')
-
+		if 'emotionVGG' in built_models and 'emotionVGG' not in actions:
+			actions.append('emotionVGG')		
 	#---------------------------------
 
 	if 'emotion' in actions and 'emotion' not in built_models:
 		models['emotion'] = build_model('Emotion', dataset_dir, modelPath,classIndicesPath,forceRetrain)
-
+	if 'emotionVGG' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
 	#---------------------------------
 
 	resp_objects = []
@@ -239,9 +243,9 @@ for filename in filesNames:
 	
 	result = analyze(
 		filename, 
-		actions = ['emotion'],
+		actions = ['emotionVGG'],
 		dataset_dir=datasetPath, 
-		modelPath='weights/DeepFace_v6_binary_500_128.h5',
+		modelPath='weights/VGG16_v6_binary_500_128.h5',
 		classIndicesPath='analysis/class_indices.json',
 		forceRetrain=True,
 	)
@@ -271,7 +275,7 @@ for filename in filesNames:
 	else:
 		df_all = df_all.append(df)
 	
-df_all.to_csv('analysis/DeepFace_v6_Analysis.csv', encoding='utf-8')
+df_all.to_csv('analysis/VGG16_v6_Analysis.csv', encoding='utf-8')
 
 # Data analysis
 print("Accuracy: "+str(round(correct/count,2)*100)+"%")
