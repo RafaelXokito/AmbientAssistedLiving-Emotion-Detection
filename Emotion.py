@@ -44,7 +44,7 @@ else:
 
 def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False):
     
-    if exists(modelPath) & forceRetrain == False:
+    if exists(modelPath) and forceRetrain == False:
         with open(classIndicesPath) as json_file:
             class_indices = json.load(json_file)
         return load_model(modelPath), class_indices

@@ -175,6 +175,15 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
+				if img == []:
+					resp_obj["emotion"] = {}
+					for i in range(0, len(emotion_labels)):
+						emotion_label = emotion_labels[i]
+						emotion_prediction = 0
+					
+					resp_obj["dominant_emotion"] = "Not Found"
+					break
+
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
 				sum_of_predictions = emotion_predictions.sum()
@@ -226,7 +235,9 @@ df_all = pd.DataFrame()
 
 # Este teste é baseado em validar a eficácia de um modelo treinado com o dataset FER-2013
 # testando com o dataset CK+
-filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
+# /Volumes/Extension/AmbientAssistedLiving/Images/042-ll042
+# filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
+filesNames = glob.glob('/Volumes/Extension/AmbientAssistedLiving/Images/*/*/*.png') # Todas as imagens do dataset PAINFUL
 
 # Calculate the accuracy
 count = 0
@@ -243,25 +254,27 @@ for filename in filesNames:
 	
 	result = analyze(
 		filename, 
-		actions = ['emotionVGG'],
+		actions = ['emotion'],
 		dataset_dir=datasetPath, 
-		modelPath='weights/VGG16_v6_binary_500_128.h5',
+		modelPath='weights/DeepFace_v6_binary_500_128.h5',
 		classIndicesPath='analysis/class_indices.json',
-		forceRetrain=True,
+		forceRetrain=False,
 	)
 	
 	# Acrescentar a label da imagem
-	result["label"] = "positive" if "positive" in filename else "negative"
+	result["label"] = "negative" #"positive" if "positive" in filename else "negative"
 	result["imagePath"] = filename
-
+	
 	count = count + 1	
 	if result["label"] == result["dominant_emotion"]:
 		correct = correct + 1
 	
+	"""
 	if result["label"] == 'positive':
 		countPositive = countPositive + 1
 		if result["label"] == result["dominant_emotion"]:
 			correctPositive = correctPositive + 1
+	"""
 
 	if result["label"] == 'negative':
 		countNegative = countNegative + 1
@@ -275,19 +288,19 @@ for filename in filesNames:
 	else:
 		df_all = df_all.append(df)
 	
-df_all.to_csv('analysis/VGG16_v6_Analysis.csv', encoding='utf-8')
+df_all.to_csv('analysis/DeepFace_v6_Analysis_PAINFUL.csv', encoding='utf-8')
 
 # Data analysis
 print("Accuracy: "+str(round(correct/count,2)*100)+"%")
 
-print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
+# print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
 print("Negative accuracy: "+str(round(correctNegative/countNegative,2)*100)+"%")
 
 import matplotlib.pyplot as plt
 
 data = {
 	'Overall': round(correct/count,2)*100, 
-	'Positive': round(correctPositive/countPositive,2)*100, 
+	# 'Positive': round(correctPositive/countPositive,2)*100, 
 	'Negative': round(correctNegative/countNegative,2)*100
 }
 
