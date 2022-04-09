@@ -165,7 +165,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     diffTime = after - before
     print("Time training: "+str(diffTime.seconds)+" seconds\n")
 
-    model.save(filepath='weights/DeepFace_v6_binary_500_128.h5',include_optimizer=True)
+    model.save(filepath=modelPath,include_optimizer=True)
 
     # convert the training history to a dataframe
     history_df = pd.DataFrame(r.history)

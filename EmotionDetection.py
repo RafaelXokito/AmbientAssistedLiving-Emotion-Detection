@@ -25,7 +25,7 @@ if tf_version == 2:
 
 class_indices = Emotion.getClassIndices()
 
-def build_model(model_name, dataset_dir, modelPath):
+def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain):
 
 	"""
 	This function builds a deepface model
@@ -49,7 +49,12 @@ def build_model(model_name, dataset_dir, modelPath):
 	if not model_name in model_obj.keys():
 		model = models.get(model_name)
 		if model:
-			model,class_indices = model(dataset_dir=dataset_dir, modelPath=modelPath)
+			model,class_indices = model(
+				dataset_dir=dataset_dir, 
+				modelPath=modelPath,
+				classIndicesPath=classIndicesPath,
+				forceRetrain=forceRetrain,
+			)
 			model_obj[model_name] = model
 			#print(model_name," built")
 		else:
@@ -57,7 +62,7 @@ def build_model(model_name, dataset_dir, modelPath):
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath=''):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -130,7 +135,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	#---------------------------------
 
 	if 'emotion' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('Emotion', dataset_dir, modelPath)
+		models['emotion'] = build_model('Emotion', dataset_dir, modelPath,classIndicesPath,forceRetrain)
 
 	#---------------------------------
 
@@ -276,7 +281,12 @@ print("Negative accuracy: "+str(round(correctNegative/countNegative,2)*100)+"%")
 
 import matplotlib.pyplot as plt
 
-data = {'Overall': round(correct/count,2)*100, 'Positive': round(correctPositive/countPositive,2)*100, 'Negative': round(correctNegative/countNegative,2)*100}
+data = {
+	'Overall': round(correct/count,2)*100, 
+	'Positive': round(correctPositive/countPositive,2)*100, 
+	'Negative': round(correctNegative/countNegative,2)*100
+}
+
 names = list(data.keys())
 values = list(data.values())
 
