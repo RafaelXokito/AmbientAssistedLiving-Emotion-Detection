@@ -23,7 +23,9 @@ if tf_version == 2:
 	import logging
 	tf.get_logger().setLevel(logging.ERROR)
 
-def build_model(model_name):
+class_indices = Emotion.getClassIndices()
+
+def build_model(model_name, dataset_dir, modelPath):
 
 	"""
 	This function builds a deepface model
@@ -38,7 +40,7 @@ def build_model(model_name):
 	global model_obj #singleton design pattern
 
 	models = {
-		'Emotion': Emotion.loadModel,
+		'Emotion': Emotion.loadModel
 	}
 
 	if not "model_obj" in globals():
@@ -47,7 +49,7 @@ def build_model(model_name):
 	if not model_name in model_obj.keys():
 		model = models.get(model_name)
 		if model:
-			model = model()
+			model,class_indices = model(dataset_dir=dataset_dir, modelPath=modelPath)
 			model_obj[model_name] = model
 			#print(model_name," built")
 		else:
@@ -55,7 +57,7 @@ def build_model(model_name):
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013'):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath=''):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -128,7 +130,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	#---------------------------------
 
 	if 'emotion' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('Emotion')
+		models['emotion'] = build_model('Emotion', dataset_dir, modelPath)
 
 	#---------------------------------
 
@@ -160,12 +162,11 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			pbar.set_description("Action: %s" % (action))
 
 			if action == 'emotion':
-				emotion_labels = next(os.walk(dataset_dir+'/train'))[1] # emotions class from dataset directory
+				emotion_labels = list(class_indices.keys())
+
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 
 				emotion_predictions = models['emotion'].predict(img)[0,:]
-
-				print(emotion_labels,emotion_predictions)
 
 				sum_of_predictions = emotion_predictions.sum()
 
@@ -208,16 +209,80 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing import image
 
-#datasetPath = 'dataset'
+import glob
+
 datasetPath = 'FER-2013'
 
-imgPath = datasetPath+'/test/positive/PrivateTest_928647.jpg'
+df_all = pd.DataFrame()
 
-img = cv2.imread(imgPath) # ler a imagem
+# Este teste é baseado em validar a eficácia de um modelo treinado com o dataset FER-2013
+# testando com o dataset CK+
+filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
 
-obj = analyze(imgPath, actions = ['emotion'],dataset_dir=datasetPath) # DeepFace analisa a imagem inicial
+# Calculate the accuracy
+count = 0
+correct = 0
 
-print(obj)
+countPositive = 0
+correctPositive = 0
 
-plt.imshow(img)
+countNegative = 0
+correctNegative = 0
+
+for filename in filesNames:
+	#img = cv2.imread(filename) # ler a imagem
+	
+	result = analyze(
+		filename, 
+		actions = ['emotion'],
+		dataset_dir=datasetPath, 
+		modelPath='weights/DeepFace_v6_binary_500_128.h5',
+		classIndicesPath='analysis/class_indices.json',
+		forceRetrain=True,
+	)
+	
+	# Acrescentar a label da imagem
+	result["label"] = "positive" if "positive" in filename else "negative"
+	result["imagePath"] = filename
+
+	count = count + 1	
+	if result["label"] == result["dominant_emotion"]:
+		correct = correct + 1
+	
+	if result["label"] == 'positive':
+		countPositive = countPositive + 1
+		if result["label"] == result["dominant_emotion"]:
+			correctPositive = correctPositive + 1
+
+	if result["label"] == 'negative':
+		countNegative = countNegative + 1
+		if result["label"] == result["dominant_emotion"]:
+			correctNegative = correctNegative + 1
+	
+	df = pd.json_normalize(result)
+
+	if df_all.empty:
+		df_all = df
+	else:
+		df_all = df_all.append(df)
+	
+df_all.to_csv('analysis/DeepFace_v6_Analysis.csv', encoding='utf-8')
+
+# Data analysis
+print("Accuracy: "+str(round(correct/count,2)*100)+"%")
+
+print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
+print("Negative accuracy: "+str(round(correctNegative/countNegative,2)*100)+"%")
+
+import matplotlib.pyplot as plt
+
+data = {'Overall': round(correct/count,2)*100, 'Positive': round(correctPositive/countPositive,2)*100, 'Negative': round(correctNegative/countNegative,2)*100}
+names = list(data.keys())
+values = list(data.values())
+
+plt.scatter(names, values)
+plt.suptitle('Accuracy %')
 plt.show()
+
+
+

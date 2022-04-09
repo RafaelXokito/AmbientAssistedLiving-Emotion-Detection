@@ -1,4 +1,5 @@
 import os
+from os.path import exists
 import gdown
 from pathlib import Path
 import zipfile
@@ -7,6 +8,7 @@ import functions
 import pandas as pd
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import json
 tf_version = int(tf.__version__.split(".")[0])
 
 if tf_version == 1:
@@ -24,17 +26,29 @@ import datetime
 
 if tf_version == 1:
     from keras import callbacks
+    from keras.models import load_model
 if tf_version == 2:
     from tensorflow.keras import callbacks
+    from tensorflow.keras.models import load_model
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications.vgg16 import VGG16 as PreTrainedModel, \
-    preprocess_input
 
 #url = 'https://drive.google.com/uc?id=13iUHHP3SlNg53qSuQZDdHDSDNdBP9nwy'
 
-def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5', dataset_dir = 'FER-2013'):
+class_indices = {}
+if exists('analysis/class_indices.json'):
+    with open('analysis/class_indices.json') as json_file:
+        class_indices = json.load(json_file)
+else:
+    class_indices = {'negative': 0, 'neutral': 1, 'positive': 2} # Default com três classes
+
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False):
     
+    if exists(modelPath) & forceRetrain == False:
+        with open(classIndicesPath) as json_file:
+            class_indices = json.load(json_file)
+        return load_model(modelPath), class_indices
+
     train_path = dataset_dir+'/train'
     valid_path = dataset_dir+'/test'
 
@@ -117,6 +131,11 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
                                                         color_mode="grayscale",
                                                         batch_size=batch_size)
     
+    class_indices = train_generator.class_indices
+    
+    with open('analysis/class_indices.json', 'w', encoding='utf-8') as f:
+        json.dump(class_indices, f, ensure_ascii=False, indent=4)
+    
     valid_generator = image_generator.flow_from_directory(
                                                         valid_path,
                                                         target_size=IMAGE_SIZE, 
@@ -135,7 +154,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     r = model.fit_generator(
         train_generator,
         validation_data=valid_generator,
-        epochs=1,
+        epochs=500,
         steps_per_epoch = int(np.ceil(len(images_files)/ batch_size)),
         validation_steps = int(np.ceil(len(valid_images_files)/ batch_size)),
         callbacks=[early_stopping],
@@ -152,8 +171,10 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     history_df = pd.DataFrame(r.history)
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
-    history_df.loc[5:, ['binary_accuracy', 'val_binary_accuracy']].plot()
+    history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot()
     plt.show()
 
-    
-    return model
+    return model,class_indices
+
+def getClassIndices():
+    return class_indices
