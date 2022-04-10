@@ -24,9 +24,11 @@ if tf_version == 2:
 	import logging
 	tf.get_logger().setLevel(logging.ERROR)
 
+import sys
+
 class_indices = Emotion.getClassIndices()
 
-def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain):
+def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode):
 
 	"""
 	This function builds a deepface model
@@ -56,6 +58,9 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 				modelPath=modelPath,
 				classIndicesPath=classIndicesPath,
 				forceRetrain=forceRetrain,
+				epochs=epochs, 
+				batch_size=batches,
+				mode=mode
 			)
 			model_obj[model_name] = model
 			#print(model_name," built")
@@ -64,7 +69,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False, epochs=100, batches=128, mode='categorical'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -138,9 +143,9 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	#---------------------------------
 
 	if 'emotion' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('Emotion', dataset_dir, modelPath,classIndicesPath,forceRetrain)
+		models['emotion'] = build_model('Emotion', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)
 	if 'emotionVGG' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
 	#---------------------------------
 
 	resp_objects = []
@@ -213,12 +218,49 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 		return resp_obj
 
+def parameters():
+	if len(sys.argv) != 9:
+		print("Missing parameters: -r run -e epochs -b batches -categorical yes")
+		exit()
+	for i, arg in enumerate(sys.argv):
+		if i == 0:
+			continue
+		if arg == '-e' or arg == '-b' or arg == '-r':
+			try:
+				number = int(sys.argv[i+1])
+			except ValueError as e:
+				print("Parameters are numeric")
+				exit()
+		elif arg=='-categorical':
+			if sys.argv[i+1]=='yes':
+				mode = 'categorical'
+			else:
+				mode = 'binary'
+		else: 
+			continue			
+		if number <= 0:
+			print("Numbers must be positive")
+			exit()
+
+		if arg == '-e': 
+			epochs = number
+            
+		elif arg == '-b':
+			batch = number
+
+		elif arg == '-r':
+			run = number
+	return run, epochs, batch, mode    
+  
 #---------------------------
 #main
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing import image
 
 import glob
+
+#validar os parametros
+params = parameters()
 
 datasetPath = 'FER-2013'
 
@@ -238,6 +280,10 @@ correctPositive = 0
 countNegative = 0
 correctNegative = 0
 
+run = params[0]
+epochs = params[1]
+batches = params[2]
+mode = params[3]
 for filename in filesNames:
 	#img = cv2.imread(filename) # ler a imagem
 	
@@ -245,9 +291,12 @@ for filename in filesNames:
 		filename, 
 		actions = ['emotionVGG'],
 		dataset_dir=datasetPath, 
-		modelPath='weights/VGG16_v6_binary_500_128.h5',
+		modelPath='weights/VGG16_'+str(run)+'_binary_'+str(epochs)+'_'+str(batches)+'.h5',
 		classIndicesPath='analysis/class_indices.json',
 		forceRetrain=True,
+		epochs=epochs,
+		batches=batches,
+		mode=mode
 	)
 	
 	# Acrescentar a label da imagem
@@ -275,7 +324,7 @@ for filename in filesNames:
 	else:
 		df_all = df_all.append(df)
 	
-df_all.to_csv('analysis/VGG16_v6_Analysis.csv', encoding='utf-8')
+df_all.to_csv('analysis/VGG16_v7_Analysis.csv', encoding='utf-8')
 
 # Data analysis
 print("Accuracy: "+str(round(correct/count,2)*100)+"%")
