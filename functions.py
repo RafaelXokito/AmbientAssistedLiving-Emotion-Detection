@@ -121,7 +121,8 @@ def detect_face(img, detector_backend = 'opencv', grayscale = False, enforce_det
 			if enforce_detection != True:
 				return img, img_region
 			else:
-				raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
+				return [], None
+				#raise ValueError("Face could not be detected. Please confirm that the picture is a face photo or consider to set enforce_detection param to False.")
 
 def normalize_input(img, normalization = 'base'):
 
@@ -176,6 +177,9 @@ def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_dete
 	base_img = img.copy()
 
 	img, region = detect_face(img = img, detector_backend = detector_backend, grayscale = grayscale, enforce_detection = enforce_detection, align = align)
+
+	if img == []: # In case didnt detect any face
+		return [], None
 
 	#--------------------------
 
