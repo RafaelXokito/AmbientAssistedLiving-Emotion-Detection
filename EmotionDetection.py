@@ -302,7 +302,7 @@ for filename in filesNames:
 		filename, 
 		actions = ['emotion'],
 		dataset_dir=datasetPath, 
-		modelPath='weights/VGG16_'+str(run)+'_binary_'+str(epochs)+'_'+str(batches)+'.h5',
+		modelPath='weights/VGG16_v'+str(run)+'_binary_'+str(epochs)+'_'+str(batches)+'.h5',
 		classIndicesPath='analysis/class_indices.json',
 		forceRetrain=True,
 		epochs=epochs,
