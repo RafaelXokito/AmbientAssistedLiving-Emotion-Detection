@@ -16,6 +16,9 @@ import cv2
 
 import Emotion
 import EmotionVGG
+import EmotionVGGFace
+import EmotionFaceNet
+import EmotionOpenFace
 import functions
 
 import tensorflow as tf
@@ -42,7 +45,10 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	models = {
 		'Emotion': Emotion.loadModel,
-		'EmotionVGG': EmotionVGG.loadModel
+		'EmotionVGG': EmotionVGG.loadModel,
+		'EmotionVGGFace': EmotionVGGFace.loadModel,
+		'EmotionFaceNet': EmotionFaceNet.loadModel,
+		'EmotionOpenFace': EmotionOpenFace.loadModel,
 	}
 
 	if not "model_obj" in globals():
@@ -134,13 +140,25 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 		if 'emotion' in built_models and 'emotion' not in actions:
 			actions.append('emotion')
 		if 'emotionVGG' in built_models and 'emotionVGG' not in actions:
-			actions.append('emotionVGG')		
+			actions.append('emotionVGG')
+		if 'emotionVGGFace' in built_models and 'emotionVGGFace' not in actions:
+			actions.append('emotionVGGFace')
+		if 'emotionFaceNet' in built_models and 'emotionFaceNet' not in actions:
+			actions.append('emotionFaceNet')
+		if 'emotionOpenFace' in built_models and 'emotionOpenFace' not in actions:
+			actions.append('emotionOpenFace')	
 	#---------------------------------
 
 	if 'emotion' in actions and 'emotion' not in built_models:
 		models['emotion'] = build_model('Emotion', dataset_dir, modelPath,classIndicesPath,forceRetrain)
 	if 'emotionVGG' in actions and 'emotion' not in built_models:
 		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+	if 'emotionVGGFace' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+	if 'emotionFaceNet' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+	if 'emotionOpenFace' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
 	#---------------------------------
 
 	resp_objects = []
@@ -236,8 +254,8 @@ df_all = pd.DataFrame()
 # Este teste é baseado em validar a eficácia de um modelo treinado com o dataset FER-2013
 # testando com o dataset CK+
 # /Volumes/Extension/AmbientAssistedLiving/Images/042-ll042
-# filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
-filesNames = glob.glob('/Volumes/Extension/AmbientAssistedLiving/Images/*/*/*.png') # Todas as imagens do dataset PAINFUL
+filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
+#filesNames = glob.glob('/Volumes/Extension/AmbientAssistedLiving/Images/*/*/*.png') # Todas as imagens do dataset PAINFUL
 
 # Calculate the accuracy
 count = 0
@@ -254,28 +272,26 @@ for filename in filesNames:
 	
 	result = analyze(
 		filename, 
-		actions = ['emotion'],
+		actions = ['emotionVGGFace'],
 		dataset_dir=datasetPath, 
-		modelPath='weights/DeepFace_v6_binary_500_128.h5',
+		modelPath='weights/VGGFace_v6_binary_500_128.h5',
 		classIndicesPath='analysis/class_indices.json',
 		forceRetrain=False,
 	)
 	
 	# Acrescentar a label da imagem
-	result["label"] = "negative" #"positive" if "positive" in filename else "negative"
+	result["label"] = "positive" if "positive" in filename else "negative"
 	result["imagePath"] = filename
 	
 	count = count + 1	
 	if result["label"] == result["dominant_emotion"]:
 		correct = correct + 1
 	
-	"""
 	if result["label"] == 'positive':
 		countPositive = countPositive + 1
 		if result["label"] == result["dominant_emotion"]:
 			correctPositive = correctPositive + 1
-	"""
-
+	
 	if result["label"] == 'negative':
 		countNegative = countNegative + 1
 		if result["label"] == result["dominant_emotion"]:
@@ -288,19 +304,19 @@ for filename in filesNames:
 	else:
 		df_all = df_all.append(df)
 	
-df_all.to_csv('analysis/DeepFace_v6_Analysis_PAINFUL.csv', encoding='utf-8')
+df_all.to_csv('analysis/VGGFace_v6_Analysis_CK.csv', encoding='utf-8')
 
 # Data analysis
 print("Accuracy: "+str(round(correct/count,2)*100)+"%")
 
-# print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
+print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
 print("Negative accuracy: "+str(round(correctNegative/countNegative,2)*100)+"%")
 
 import matplotlib.pyplot as plt
 
 data = {
 	'Overall': round(correct/count,2)*100, 
-	# 'Positive': round(correctPositive/countPositive,2)*100, 
+	'Positive': round(correctPositive/countPositive,2)*100, 
 	'Negative': round(correctNegative/countNegative,2)*100
 }
 
