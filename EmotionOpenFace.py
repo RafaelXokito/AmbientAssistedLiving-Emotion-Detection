@@ -19,6 +19,7 @@ from tensorflow.keras import backend as K
 from glob import glob
 import datetime
 
+tf_version = int(tf.__version__.split(".")[0])
 # Eu meti este código no if em cima estava a dar erro
 
 if tf_version == 1:
