@@ -14,7 +14,7 @@ import pickle
 
 import cv2
 
-import Emotion
+import EmotionDeepFace
 import EmotionVGG
 import EmotionVGGFace
 import EmotionFaceNet
@@ -27,9 +27,11 @@ if tf_version == 2:
 	import logging
 	tf.get_logger().setLevel(logging.ERROR)
 
-class_indices = Emotion.getClassIndices()
+import sys
 
-def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain):
+class_indices = EmotionDeepFace.getClassIndices()
+
+def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode):
 
 	"""
 	This function builds a deepface model
@@ -44,7 +46,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 	global model_obj #singleton design pattern
 
 	models = {
-		'Emotion': Emotion.loadModel,
+		'EmotionDeepFace': EmotionDeepFace.loadModel,
 		'EmotionVGG': EmotionVGG.loadModel,
 		'EmotionVGGFace': EmotionVGGFace.loadModel,
 		'EmotionFaceNet': EmotionFaceNet.loadModel,
@@ -62,6 +64,9 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 				modelPath=modelPath,
 				classIndicesPath=classIndicesPath,
 				forceRetrain=forceRetrain,
+				epochs=epochs, 
+				batch_size=batches,
+				mode=mode
 			)
 			model_obj[model_name] = model
 			#print(model_name," built")
@@ -70,7 +75,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False, epochs=100, batches=128, mode='categorical'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -137,8 +142,8 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 	#pre-trained models passed but it doesn't exist in actions
 	if len(built_models) > 0:
-		if 'emotion' in built_models and 'emotion' not in actions:
-			actions.append('emotion')
+		if 'emotionDeepFace' in built_models and 'emotionDeepFace' not in actions:
+			actions.append('emotionDeepFace')
 		if 'emotionVGG' in built_models and 'emotionVGG' not in actions:
 			actions.append('emotionVGG')
 		if 'emotionVGGFace' in built_models and 'emotionVGGFace' not in actions:
@@ -149,16 +154,16 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			actions.append('emotionOpenFace')	
 	#---------------------------------
 
-	if 'emotion' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('Emotion', dataset_dir, modelPath,classIndicesPath,forceRetrain)
+	if 'emotionDeepFace' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('EmotionDeepFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)
 	if 'emotionVGG' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
 	if 'emotionVGGFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+		models['emotion'] = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
 	if 'emotionFaceNet' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+		models['emotion'] = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
 	if 'emotionOpenFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain)   
+		models['emotion'] = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
 	#---------------------------------
 
 	resp_objects = []
@@ -240,12 +245,130 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 		return resp_obj
 
+def parameters():
+
+	"""
+	<model>_v<run>_<mode>_<epochs>_<batches>.h5'
+
+	model: # Model to build
+	-m DeepFace
+	-m VGG
+	-m VGGFace
+	-m FaceNet
+	-m OpenFace
+
+	run: # Number of the test/Version of model
+	-r 1
+	-r 2
+	-r 3
+	...
+	-r N
+
+	mode: # Mode for model compiler
+	--mode categorical
+	--mode binary
+
+	epochs: # How many epochs
+	-e 1
+	-e 2
+	-e 3
+	...
+	-e N
+
+	batches: # Number of inputs for epoch
+	-e 1
+	-e 2
+	-e 3
+	...
+	-e N
+
+	"""
+
+	if '-h' in sys.argv or '--help' in sys.argv:
+		print("""
+<model>_v<run>_<mode>_<epochs>_<batches>.h5'
+
+model: # Model to build
+-m DeepFace
+-m VGG
+-m VGGFace
+-m FaceNet
+-m OpenFace
+
+run: # Number of the test/Version of model
+-r 1
+-r 2
+-r 3
+...
+-r N
+
+mode: # Mode for model compiler
+--mode categorical
+--mode binary
+
+epochs: # How many epochs
+-e 1
+-e 2
+-e 3
+...
+-e N
+
+batches: # Number of inputs for epoch
+-e 1
+-e 2
+-e 3
+...
+-e N
+		""")
+		exit()
+
+	if len(sys.argv) != 11:
+		print("Missing parameters: -r run -e epochs -b batches --mode binary -m DeepFace")
+		exit()
+	for i, arg in enumerate(sys.argv):
+		if i == 0:
+			continue
+		if arg == '-e' or arg == '-b' or arg == '-r':
+			try:
+				number = int(sys.argv[i+1])
+			except ValueError as e:
+				print("Parameters are numeric")
+				exit()
+		elif arg=='--mode':
+			if sys.argv[i+1]=='categorical':
+				mode = 'categorical'
+			elif sys.argv[i+1]=='binary':
+				mode = 'binary'
+			else:
+				print("The modes alowed: ['categorical','binary']")
+				exit()
+		elif arg == '-m':
+			model = str(sys.argv[i+1])
+		else: 
+			continue			
+		if number <= 0:
+			print("Numbers must be positive")
+			exit()
+
+		if arg == '-e': 
+			epochs = number
+            
+		elif arg == '-b':
+			batch = number
+
+		elif arg == '-r':
+			run = number
+	return run, epochs, batch, mode, model  
+  
 #---------------------------
 #main
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing import image
 
 import glob
+
+#validar os parametros
+params = parameters()
 
 datasetPath = 'FER-2013'
 
@@ -267,16 +390,25 @@ correctPositive = 0
 countNegative = 0
 correctNegative = 0
 
+run = params[0]
+epochs = params[1]
+batches = params[2]
+mode = params[3]
+model = params[4]
+
 for filename in filesNames:
 	#img = cv2.imread(filename) # ler a imagem
 	
 	result = analyze(
-		filename, 
-		actions = ['emotionVGGFace'],
+		filename,
+		actions = ['emotion'+str(model)],
 		dataset_dir=datasetPath, 
-		modelPath='weights/VGGFace_v6_binary_500_128.h5',
+		modelPath='weights/'+str(model)+'_'+str(run)+'_'+str(mode)+'_'+str(epochs)+'_'+str(batches)+'.h5',
 		classIndicesPath='analysis/class_indices.json',
-		forceRetrain=False,
+		forceRetrain=True,
+		epochs=epochs,
+		batches=batches,
+		mode=mode
 	)
 	
 	# Acrescentar a label da imagem
@@ -304,7 +436,7 @@ for filename in filesNames:
 	else:
 		df_all = df_all.append(df)
 	
-df_all.to_csv('analysis/VGGFace_v6_Analysis_CK.csv', encoding='utf-8')
+df_all.to_csv('analysis/'+str(model)+'_v'+str(run)+'_Analysis.csv', encoding='utf-8')
 
 # Data analysis
 print("Accuracy: "+str(round(correct/count,2)*100)+"%")

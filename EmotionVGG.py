@@ -44,9 +44,9 @@ if exists('analysis/class_indices.json'):
 else:
     class_indices = {'negative': 0, 'neutral': 1, 'positive': 2} # Default com três classes
 
-def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False):
+def loadModel(dataset_dir = 'FER-2013',modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, mode='categorical'):
     
-    if exists(modelPath) & forceRetrain == False:
+    if exists(modelPath) and forceRetrain == False:
         with open(classIndicesPath) as json_file:
             class_indices = json.load(json_file)
         return load_model(modelPath), class_indices
@@ -56,8 +56,6 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
 
     IMAGE_SIZE = [48,48]
 
-    batch_size = 128
-
     images_files = glob(train_path+'/*/*.*')
     valid_images_files = glob(valid_path+'/*/*.*')
     folder = len(glob(train_path+'/*'))
@@ -65,7 +63,7 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
     # ----------------------- 
 
     ptm = PretrainedModel(
-        input_shape = image_size+[1],
+        input_shape = IMAGE_SIZE+[3],
         weights = 'imagenet',
         include_top = False
     )
@@ -76,14 +74,26 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
     ptm.trainable = False
 
     # Add new layers
+
+    if mode=='categorical':
+        activation = 'softmax'
+        output = folder
+        loss = 'categorical_crossentropy'
+        metrics = ['accuracy']
+    else:
+        activation = 'sigmoid'    
+        output = 1
+        loss = 'binary_crossentropy'
+        metrics = ['binary_accuracy']
+
     x = Flatten()(ptm.output)
-    x = Dense(folder, activation='sigmoid')(x)  
+    x = Dense(output, activation=activation)(x)  
 
     model = Model(inputs = ptm.input, outputs=x)
 
     model.compile(optimizer='adam', 
-                    loss='binary_crossentropy', 
-                    metrics=['binary_accuracy'])
+                    loss=loss, 
+                    metrics=metrics)
 
     image_generator = ImageDataGenerator(
         rotation_range=30,
@@ -99,7 +109,7 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
                                                         train_path,
                                                         shuffle=True, 
                                                         target_size=IMAGE_SIZE, 
-                                                        color_mode="grayscale",
+                                                        #color_mode="grayscale",
                                                         batch_size=batch_size)
     
     class_indices = train_generator.class_indices
@@ -110,7 +120,7 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
     valid_generator = image_generator.flow_from_directory(
                                                         valid_path,
                                                         target_size=IMAGE_SIZE, 
-                                                        color_mode="grayscale",
+                                                        #color_mode="grayscale",
                                                         batch_size=batch_size)
 
     early_stopping = callbacks.EarlyStopping(
@@ -125,7 +135,7 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
     r = model.fit_generator(
         train_generator,
         validation_data=valid_generator,
-        epochs=500,
+        epochs=epochs,
         steps_per_epoch = int(np.ceil(len(images_files)/ batch_size)),
         validation_steps = int(np.ceil(len(valid_images_files)/ batch_size)),
         callbacks=[early_stopping],
@@ -142,7 +152,13 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='weights/VGG16_v6_binary_500_12
     history_df = pd.DataFrame(r.history)
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
-    history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot()
+
+    if mode == 'categorical':
+        params = ['accuracy', 'val_accuracy']
+    else:
+        params = ['binary_accuracy', 'val_binary_accuracy'] 
+        
+    history_df.loc[:, params].plot()
     plt.show()
 
     return model,class_indices
