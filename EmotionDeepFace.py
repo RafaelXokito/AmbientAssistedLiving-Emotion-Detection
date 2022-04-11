@@ -51,12 +51,10 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     if mode=='categorical':
         activation = 'softmax'
-        output = folder
         loss = 'categorical_crossentropy'
         metrics = ['accuracy']
     else:
-        activation = 'sigmoid'    
-        output = 1
+        activation = 'sigmoid'
         loss = 'binary_crossentropy'
         metrics = ['binary_accuracy']
         
@@ -115,7 +113,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     # Add new layers
     x = Flatten()(ptm.output)
-    x = Dense(output, activation=activation)(x)  
+    x = Dense(folder, activation=activation)(x)  
 
     model = Model(inputs = ptm.input, outputs=x)
 
@@ -131,7 +129,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
         zoom_range=0.2,
         horizontal_flip=True,
         brightness_range=[0.4,1.5]
-        )#preprocessing_function=preprocess_input
+    )#preprocessing_function=preprocess_input
 
     train_generator = image_generator.flow_from_directory(
                                                         train_path,

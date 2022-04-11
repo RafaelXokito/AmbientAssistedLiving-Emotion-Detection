@@ -44,18 +44,27 @@ else:
 
 #url = 'https://drive.google.com/uc?id=1LSe1YCV1x-BfNnfb7DFZTNpv_Q9jITxn'
 
-def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False):
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/openface_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, mode='categorical'):
     if exists(modelPath) and forceRetrain == False:
         with open(classIndicesPath) as json_file:
             class_indices = json.load(json_file)
         return load_model(modelPath), class_indices
+
+    if mode=='categorical':
+        activation = 'softmax'
+        loss = 'categorical_crossentropy'
+        metrics = ['accuracy']
+    else:
+        activation = 'sigmoid'
+        loss = 'binary_crossentropy'
+        metrics = ['binary_accuracy']
 
     train_path = dataset_dir+'/train'
     valid_path = dataset_dir+'/test'
 
     IMAGE_SIZE = [96,96]
 
-    batch_size = 128
+    batch_size = batch_size
 
     images_files = glob(train_path+'/*/*.*')
     valid_images_files = glob(valid_path+'/*/*.*')
@@ -296,13 +305,13 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     # Add new layers
     x = Flatten()(ptm.output)
-    x = Dense(folder, activation='sigmoid')(x)  
+    x = Dense(folder, activation=activation)(x)  
 
     model = Model(inputs = ptm.input, outputs=x)
 
     model.compile(optimizer='adam', 
-                    loss='binary_crossentropy', 
-                    metrics=['binary_accuracy'])
+                    loss=loss, 
+                    metrics=metrics)
 
     image_generator = ImageDataGenerator(
         rotation_range=30,
@@ -344,7 +353,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     r = model.fit_generator(
         train_generator,
         validation_data=valid_generator,
-        epochs=500,
+        epochs=epochs,
         steps_per_epoch = int(np.ceil(len(images_files)/ batch_size)),
         validation_steps = int(np.ceil(len(valid_images_files)/ batch_size)),
         callbacks=[early_stopping],
@@ -361,7 +370,15 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     history_df = pd.DataFrame(r.history)
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
-    history_df.loc[:, ['binary_accuracy', 'val_binary_accuracy']].plot()
+
+    if mode == 'categorical':
+        params = ['accuracy', 'val_accuracy']
+    else:
+        params = ['binary_accuracy', 'val_binary_accuracy'] 
+
+    history_df.loc[:, params].plot()
+    plt.show()
+
     plt.show()
 
     return model,class_indices
