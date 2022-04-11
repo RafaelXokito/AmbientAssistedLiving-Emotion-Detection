@@ -92,21 +92,14 @@ def baseModel():
 
 #url = 'https://drive.google.com/uc?id=1CPSeum3HpopfomUEK1gybeuIVoeJT_Eo'
 
-def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, mode='categorical'):
+def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/vgg_face_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, activation='softmax', loss='categorical_crossentropy', metrics='accuracy'):
 
     if exists(modelPath) and forceRetrain == False:
         with open(classIndicesPath) as json_file:
             class_indices = json.load(json_file)
         return load_model(modelPath), class_indices
 
-    if mode=='categorical':
-        activation = 'softmax'
-        loss = 'categorical_crossentropy'
-        metrics = ['accuracy']
-    else:
-        activation = 'sigmoid'
-        loss = 'binary_crossentropy'
-        metrics = ['binary_accuracy']
+
 
     train_path = dataset_dir+'/train'
     valid_path = dataset_dir+'/test'
@@ -148,7 +141,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     model.compile(optimizer='adam', 
                     loss=loss, 
-                    metrics=metrics)
+                    metrics=[metrics])
 
     image_generator = ImageDataGenerator(
         rotation_range=30,
@@ -208,10 +201,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
 
-    if mode == 'categorical':
-        params = ['accuracy', 'val_accuracy']
-    else:
-        params = ['binary_accuracy', 'val_binary_accuracy'] 
+    params = [metrics, 'val_'+metrics]
 
     history_df.loc[:, params].plot()
     plt.show()

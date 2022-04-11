@@ -44,7 +44,7 @@ if exists('analysis/class_indices.json'):
 else:
     class_indices = {'negative': 0, 'neutral': 1, 'positive': 2} # Default com três classes
 
-def loadModel(dataset_dir = 'FER-2013',modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, mode='categorical'):
+def loadModel(dataset_dir = 'FER-2013',modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, activation='softmax', loss='categorical_crossentropy', metrics='accuracy'):
     
     if exists(modelPath) and forceRetrain == False:
         with open(classIndicesPath) as json_file:
@@ -75,25 +75,14 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='', classIndicesPath='analysis/
 
     # Add new layers
 
-    if mode=='categorical':
-        activation = 'softmax'
-        output = folder
-        loss = 'categorical_crossentropy'
-        metrics = ['accuracy']
-    else:
-        activation = 'sigmoid'    
-        output = 1
-        loss = 'binary_crossentropy'
-        metrics = ['binary_accuracy']
-
     x = Flatten()(ptm.output)
-    x = Dense(output, activation=activation)(x)  
+    x = Dense(folder, activation=activation)(x)  
 
     model = Model(inputs = ptm.input, outputs=x)
 
     model.compile(optimizer='adam', 
                     loss=loss, 
-                    metrics=metrics)
+                    metrics=[metrics])
 
     image_generator = ImageDataGenerator(
         rotation_range=30,
@@ -153,11 +142,8 @@ def loadModel(dataset_dir = 'FER-2013',modelPath='', classIndicesPath='analysis/
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
 
-    if mode == 'categorical':
-        params = ['accuracy', 'val_accuracy']
-    else:
-        params = ['binary_accuracy', 'val_binary_accuracy'] 
-        
+    params = [metrics, 'val_'+metrics]
+
     history_df.loc[:, params].plot()
     plt.show()
 

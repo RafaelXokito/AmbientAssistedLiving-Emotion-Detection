@@ -63,10 +63,6 @@ run: # Number of the test/Version of model
 ...
 -r N
 
-mode: # Mode for model compiler
---mode categorical
---mode binary
-
 epochs: # How many epochs
 -e 1
 -e 2
@@ -84,11 +80,26 @@ batches: # Number of inputs for epoch
 forceRetrain: # Force retraining model
 -f
 --force
+
+activation: # Activation Function
+-a sigmoid
+-a sofmax
+...
+
+loss: # Loss Function
+-l categorical_crossentropy
+-l binary_crossentropy
+...
+
+metrics: # Metrics
+-metrics binary_accuracy
+-metrics accuracy
+
 		""")
 		exit()
 
-	if len(sys.argv) < 11 or len(sys.argv) > 12:
-		print("Missing parameters ordinary parameters: -r run -e epochs -b batches --mode binary -m DeepFace")
+	if len(sys.argv) < 15 or len(sys.argv) > 16:
+		print("Missing parameters, run -h or --help")
 		exit()
 	
 	forceRetrain = False
@@ -98,6 +109,12 @@ forceRetrain: # Force retraining model
 			continue
 		if arg == '-f' or arg == '--force':
 			forceRetrain = True
+		if arg == '-a':
+			activation = str(sys.argv[i+1]) 	
+		if arg == '-l':
+			loss = str(sys.argv[i+1])
+		if arg == '-metrics':
+			metrics = str(sys.argv[i+1])
 		if arg == '-e' or arg == '-b' or arg == '-r':
 			try:
 				number = int(sys.argv[i+1])
@@ -118,20 +135,12 @@ forceRetrain: # Force retraining model
 			except ValueError as e:
 				print("Parameters are numeric")
 				exit()
-		elif arg=='--mode':
-			if sys.argv[i+1]=='categorical':
-				mode = 'categorical'
-			elif sys.argv[i+1]=='binary':
-				mode = 'binary'
-			else:
-				print("The modes alowed: ['categorical','binary']")
-				exit()
 		elif arg == '-m':
 			model = str(sys.argv[i+1])
 		else: 
 			continue
 
-	return model, run, epochs, batch, mode, forceRetrain
+	return model, run, epochs, batch, forceRetrain, activation, loss, metrics
   
 #validar os parametros
 params = parameters()
@@ -161,7 +170,7 @@ if tf_version == 2:
 
 class_indices = EmotionDeepFace.getClassIndices()
 
-def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode):
+def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics):
 
 	"""
 	This function builds a deepface model
@@ -177,7 +186,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	models = {
 		'EmotionDeepFace': EmotionDeepFace.loadModel,
-		'EmotionVGG': EmotionVGG.loadModel,
+		'EmotionVGG16': EmotionVGG.loadModel,
 		'EmotionVGGFace': EmotionVGGFace.loadModel,
 		'EmotionFaceNet': EmotionFaceNet.loadModel,
 		'EmotionOpenFace': EmotionOpenFace.loadModel,
@@ -196,7 +205,9 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 				forceRetrain=forceRetrain,
 				epochs=epochs, 
 				batch_size=batches,
-				mode=mode
+				activation=activation,
+				loss=loss,
+				metrics=metrics
 			)
 			model_obj[model_name] = model
 			#print(model_name," built")
@@ -205,7 +216,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False, epochs=100, batches=128, mode='categorical'):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False, epochs=100, batches=128, activation='softmax', loss='categorical_crossentropy', metrics='accuracy'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -274,8 +285,8 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	if len(built_models) > 0:
 		if 'emotionDeepFace' in built_models and 'emotionDeepFace' not in actions:
 			actions.append('emotionDeepFace')
-		if 'emotionVGG' in built_models and 'emotionVGG' not in actions:
-			actions.append('emotionVGG')
+		if 'emotionVGG16' in built_models and 'emotionVGG16' not in actions:
+			actions.append('emotionVGG16')
 		if 'emotionVGGFace' in built_models and 'emotionVGGFace' not in actions:
 			actions.append('emotionVGGFace')
 		if 'emotionFaceNet' in built_models and 'emotionFaceNet' not in actions:
@@ -285,15 +296,15 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	#---------------------------------
 
 	if 'emotionDeepFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionDeepFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)
-	if 'emotionVGG' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGG', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
+		models['emotion'] = build_model('EmotionDeepFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)
+	if 'emotionVGG16' in actions and 'emotion' not in built_models:
+		models['emotion'] = build_model('EmotionVGG16', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics) 
 	if 'emotionVGGFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
+		models['emotion'] = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
 	if 'emotionFaceNet' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
+		models['emotion'] = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
 	if 'emotionOpenFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, mode)   
+		models['emotion'] = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
 	#---------------------------------
 
 	resp_objects = []
@@ -326,7 +337,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			if action == 'emotion'+params[0]:
 				emotion_labels = list(class_indices.keys())
 
-				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
+				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 				
 				if img == []:
 					resp_obj["emotion"] = {}
@@ -336,7 +347,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 					
 					resp_obj["dominant_emotion"] = "Not Found"
 					break
-
+			
 				emotion_predictions = models['emotion'].predict(img)[0,:]
 
 				sum_of_predictions = emotion_predictions.sum()
@@ -407,23 +418,31 @@ model = params[0]
 run = params[1]
 epochs = params[2]
 batches = params[3]
-mode = params[4]
-forceRetrain = params[5]
+forceRetrain = params[4]
+activationFunction = params[5]
+lossFunction = params[6]
+metrics = params[7]
 
 
 for filename in filesNames:
 	#img = cv2.imread(filename) # ler a imagem
-	
+	if metrics == 'binary_accuracy':
+		mode = 'binary'
+	else:
+		mode = 'categorical'
+
 	result = analyze(
 		filename,
 		actions = ['emotion'+str(model)],
 		dataset_dir=datasetPath, 
-		modelPath='weights/'+str(model)+'_v'+str(run)+'_'+str(mode)+'_'+str(epochs)+'_'+str(batches)+'.h5',
+		modelPath='weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5',
 		classIndicesPath='analysis/class_indices.json',
 		forceRetrain=forceRetrain,
 		epochs=epochs,
 		batches=batches,
-		mode=mode
+		activation=activationFunction,
+		loss=lossFunction,
+		metrics=metrics
 	)
 	
 	# Acrescentar a label da imagem
