@@ -1,18 +1,149 @@
 import warnings
 warnings.filterwarnings("ignore")
 
+import sys
+
+def parameters():
+
+	"""
+	<model>_v<run>_<mode>_<epochs>_<batches>.h5'
+
+	model: # Model to build
+	-m DeepFace
+	-m VGG
+	-m VGGFace
+	-m FaceNet
+	-m OpenFace
+
+	run: # Number of the test/Version of model
+	-r 1
+	-r 2
+	-r 3
+	...
+	-r N
+
+	mode: # Mode for model compiler
+	--mode categorical
+	--mode binary
+
+	epochs: # How many epochs
+	-e 1
+	-e 2
+	-e 3
+	...
+	-e N
+
+	batches: # Number of inputs for epoch
+	-e 1
+	-e 2
+	-e 3
+	...
+	-e N
+
+	forceRetrain: # Force retraining model
+	-f
+
+	"""
+
+	if '-h' in sys.argv or '--help' in sys.argv:
+		print("""
+<model>_v<run>_<mode>_<epochs>_<batches>.h5'
+
+model: # Model to build
+-m DeepFace
+-m VGG
+-m VGGFace
+-m FaceNet
+-m OpenFace
+
+run: # Number of the test/Version of model
+-r 1
+-r 2
+-r 3
+...
+-r N
+
+mode: # Mode for model compiler
+--mode categorical
+--mode binary
+
+epochs: # How many epochs
+-e 1
+-e 2
+-e 3
+...
+-e N
+
+batches: # Number of inputs for epoch
+-b 1
+-b 2
+-b 3
+...
+-b N
+
+forceRetrain: # Force retraining model
+-f
+--force
+		""")
+		exit()
+
+	if len(sys.argv) < 11 or len(sys.argv) > 12:
+		print("Missing parameters ordinary parameters: -r run -e epochs -b batches --mode binary -m DeepFace")
+		exit()
+	
+	forceRetrain = False
+
+	for i, arg in enumerate(sys.argv):
+		if i == 0:
+			continue
+		if arg == '-f' or arg == '--force':
+			forceRetrain = True
+		if arg == '-e' or arg == '-b' or arg == '-r':
+			try:
+				number = int(sys.argv[i+1])
+				
+				if number <= 0:
+					print("Numbers must be positive")
+					exit()
+
+				if arg == '-e': 
+					epochs = number
+					
+				elif arg == '-b':
+					batch = number
+
+				elif arg == '-r':
+					run = number
+				
+			except ValueError as e:
+				print("Parameters are numeric")
+				exit()
+		elif arg=='--mode':
+			if sys.argv[i+1]=='categorical':
+				mode = 'categorical'
+			elif sys.argv[i+1]=='binary':
+				mode = 'binary'
+			else:
+				print("The modes alowed: ['categorical','binary']")
+				exit()
+		elif arg == '-m':
+			model = str(sys.argv[i+1])
+		else: 
+			continue
+
+	return model, run, epochs, batch, mode, forceRetrain
+  
+#validar os parametros
+params = parameters()
+
 import os
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-import time
 from os import path
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import pickle
-
-import cv2
 
 import EmotionDeepFace
 import EmotionVGG
@@ -27,7 +158,6 @@ if tf_version == 2:
 	import logging
 	tf.get_logger().setLevel(logging.ERROR)
 
-import sys
 
 class_indices = EmotionDeepFace.getClassIndices()
 
@@ -193,11 +323,11 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			action = actions[index]
 			pbar.set_description("Action: %s" % (action))
 
-			if action == 'emotion':
+			if action == 'emotion'+params[0]:
 				emotion_labels = list(class_indices.keys())
 
 				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
-
+				
 				if img == []:
 					resp_obj["emotion"] = {}
 					for i in range(0, len(emotion_labels)):
@@ -221,7 +351,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 				resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
 
 			#-----------------------------
-
+			
 			if is_region_set != True:
 				resp_obj["region"] = {}
 				is_region_set = True
@@ -245,121 +375,6 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 		return resp_obj
 
-def parameters():
-
-	"""
-	<model>_v<run>_<mode>_<epochs>_<batches>.h5'
-
-	model: # Model to build
-	-m DeepFace
-	-m VGG
-	-m VGGFace
-	-m FaceNet
-	-m OpenFace
-
-	run: # Number of the test/Version of model
-	-r 1
-	-r 2
-	-r 3
-	...
-	-r N
-
-	mode: # Mode for model compiler
-	--mode categorical
-	--mode binary
-
-	epochs: # How many epochs
-	-e 1
-	-e 2
-	-e 3
-	...
-	-e N
-
-	batches: # Number of inputs for epoch
-	-e 1
-	-e 2
-	-e 3
-	...
-	-e N
-
-	"""
-
-	if '-h' in sys.argv or '--help' in sys.argv:
-		print("""
-<model>_v<run>_<mode>_<epochs>_<batches>.h5'
-
-model: # Model to build
--m DeepFace
--m VGG
--m VGGFace
--m FaceNet
--m OpenFace
-
-run: # Number of the test/Version of model
--r 1
--r 2
--r 3
-...
--r N
-
-mode: # Mode for model compiler
---mode categorical
---mode binary
-
-epochs: # How many epochs
--e 1
--e 2
--e 3
-...
--e N
-
-batches: # Number of inputs for epoch
--e 1
--e 2
--e 3
-...
--e N
-		""")
-		exit()
-
-	if len(sys.argv) != 11:
-		print("Missing parameters: -r run -e epochs -b batches --mode binary -m DeepFace")
-		exit()
-	for i, arg in enumerate(sys.argv):
-		if i == 0:
-			continue
-		if arg == '-e' or arg == '-b' or arg == '-r':
-			try:
-				number = int(sys.argv[i+1])
-			except ValueError as e:
-				print("Parameters are numeric")
-				exit()
-		elif arg=='--mode':
-			if sys.argv[i+1]=='categorical':
-				mode = 'categorical'
-			elif sys.argv[i+1]=='binary':
-				mode = 'binary'
-			else:
-				print("The modes alowed: ['categorical','binary']")
-				exit()
-		elif arg == '-m':
-			model = str(sys.argv[i+1])
-		else: 
-			continue			
-		if number <= 0:
-			print("Numbers must be positive")
-			exit()
-
-		if arg == '-e': 
-			epochs = number
-            
-		elif arg == '-b':
-			batch = number
-
-		elif arg == '-r':
-			run = number
-	return run, epochs, batch, mode, model  
-  
 #---------------------------
 #main
 import matplotlib.pyplot as plt
@@ -367,8 +382,6 @@ from tensorflow.keras.preprocessing import image
 
 import glob
 
-#validar os parametros
-params = parameters()
 
 datasetPath = 'FER-2013'
 
@@ -390,11 +403,13 @@ correctPositive = 0
 countNegative = 0
 correctNegative = 0
 
-run = params[0]
-epochs = params[1]
-batches = params[2]
-mode = params[3]
-model = params[4]
+model = params[0]
+run = params[1]
+epochs = params[2]
+batches = params[3]
+mode = params[4]
+forceRetrain = params[5]
+
 
 for filename in filesNames:
 	#img = cv2.imread(filename) # ler a imagem
@@ -403,9 +418,9 @@ for filename in filesNames:
 		filename,
 		actions = ['emotion'+str(model)],
 		dataset_dir=datasetPath, 
-		modelPath='weights/'+str(model)+'_'+str(run)+'_'+str(mode)+'_'+str(epochs)+'_'+str(batches)+'.h5',
+		modelPath='weights/'+str(model)+'_v'+str(run)+'_'+str(mode)+'_'+str(epochs)+'_'+str(batches)+'.h5',
 		classIndicesPath='analysis/class_indices.json',
-		forceRetrain=True,
+		forceRetrain=forceRetrain,
 		epochs=epochs,
 		batches=batches,
 		mode=mode
