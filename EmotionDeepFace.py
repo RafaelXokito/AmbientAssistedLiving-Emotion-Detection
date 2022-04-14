@@ -96,7 +96,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     # Carregamento do pré-treino
     ptm.load_weights(home+'/.deepface/weights/facial_expression_model_weights.h5')
-    
+
     # ----------------------- 
     # Transfer Learning
 
@@ -128,12 +128,12 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
                                                         target_size=IMAGE_SIZE, 
                                                         color_mode="grayscale",
                                                         batch_size=batch_size)
-    
+
     class_indices = train_generator.class_indices
-    
+
     with open('analysis/class_indices.json', 'w', encoding='utf-8') as f:
         json.dump(class_indices, f, ensure_ascii=False, indent=4)
-    
+
     valid_generator = image_generator.flow_from_directory(
                                                         valid_path,
                                                         target_size=IMAGE_SIZE, 
@@ -167,12 +167,15 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     # convert the training history to a dataframe
     history_df = pd.DataFrame(r.history)
+
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
-
+    plt.ylabel('Loss')
+    plt.xlabel('Epochs')
     params = [metrics, 'val_'+metrics]
-
     history_df.loc[:, params].plot()
+    plt.ylabel('Percentage')
+    plt.xlabel('Epochs')
     plt.show()
 
     return model,class_indices

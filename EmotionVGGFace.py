@@ -198,15 +198,17 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     # convert the training history to a dataframe
     history_df = pd.DataFrame(r.history)
+
     # use Pandas native plot method
     history_df.loc[:, ['loss', 'val_loss']].plot()
-
+    plt.ylabel('Loss')
+    plt.xlabel('Epochs')
     params = [metrics, 'val_'+metrics]
-
     history_df.loc[:, params].plot()
+    plt.ylabel('Percentage')
+    plt.xlabel('Epochs')
     plt.show()
 
-    plt.show()
 
     return model,class_indices
 

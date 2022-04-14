@@ -491,6 +491,8 @@ values = list(data.values())
 
 plt.scatter(names, values)
 plt.suptitle('Accuracy %')
+plt.ylabel('Percentage')
+plt.xlabel('Overall & Labels')
 plt.show()
 
 
