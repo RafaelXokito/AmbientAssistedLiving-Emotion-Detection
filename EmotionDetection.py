@@ -363,6 +363,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , model = N
 				for i, parameter in enumerate(region_labels):
 					resp_obj["region"][parameter] = int(region[i]) #int cast is for the exception - object of type 'float32' is not JSON serializable
 
+			return resp_obj
 		#---------------------------------
 
 		if bulkProcess == True:
