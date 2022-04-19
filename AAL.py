@@ -239,23 +239,46 @@ modelPath = 'weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str
 classIndicesPath = 'analysis/class_indices.json'
 model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,forceRetrain, epochs, batches, activationFunction, lossFunction, metrics)
 
+board = np.ones(shape=[400,600,3], dtype=np.uint8)
+
 while True:  #checking if are getting video feed and using it
 	_,frame = video.read()
+
+	# Preenchemos o "quadro" a branco para escrever a emoção nova
+	board.fill(255) # or img[:] = 255
+
+	cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
+	cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
+	cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 
 	result = analyze(
 		frame,
 		model=model,
 	)
 
+	
+	if result["dominant_emotion"] != "Not Found":
+		img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
+		
+		p_negative = np.double(result["emotion"]["negative"]) + (np.double(result["emotion"]["neutral"])/2)
+		p_positive = np.double(result["emotion"]["positive"]) + (np.double(result["emotion"]["neutral"])/2)
+		p_neutral = np.double(result["emotion"]["neutral"])
+
+		centro_x = int(((440 - 140)/2)+140)
+
+		cv2.circle(board,(centro_x, 200),5,(255,0,0),1)
+
+		x = centro_x - int(p_negative) if p_negative > p_positive else centro_x + int(p_positive)
+
+		cv2.circle(board,(int(x), 200),10,(0,255,0),1)
 	try:
-		if result["dominant_emotion"] != "Not Found":
-			img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
 		print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
 	except:
 		print("no face")
 	
 	#this is the part where we display the output to the user
 	cv2.imshow('video', frame)
+	cv2.imshow('board', board)
 	key=cv2.waitKey(1) 
 	if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
 		break
