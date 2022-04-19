@@ -92,8 +92,8 @@ loss: # Loss Function
 ...
 
 metrics: # Metrics
--metrics binary_accuracy
--metrics accuracy
+--metrics binary_accuracy
+--metrics accuracy
 
 		""")
 		exit()
@@ -113,7 +113,7 @@ metrics: # Metrics
 			activation = str(sys.argv[i+1]) 	
 		if arg == '-l':
 			loss = str(sys.argv[i+1])
-		if arg == '-metrics':
+		if arg == '--metrics':
 			metrics = str(sys.argv[i+1])
 		if arg == '-e' or arg == '-b' or arg == '-r':
 			try:
@@ -141,9 +141,6 @@ metrics: # Metrics
 			continue
 
 	return model, run, epochs, batch, forceRetrain, activation, loss, metrics
-  
-#validar os parametros
-params = parameters()
 
 import os
 #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -171,7 +168,7 @@ if tf_version == 2:
 class_indices = EmotionDeepFace.getClassIndices()
 
 def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics):
-
+	print("ola")
 	"""
 	This function builds a deepface model
 	Parameters:
@@ -216,7 +213,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
-def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = True, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False, epochs=100, batches=128, activation='softmax', loss='categorical_crossentropy', metrics='accuracy'):
+def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , model = None, enforce_detection = True, detector_backend = 'opencv', prog_bar = False, dataset_dir = 'FER-2013', modelPath='', classIndicesPath='analysis/class_indices.json', forceRetrain=False, epochs=100, batches=128, activation='softmax', loss='categorical_crossentropy', metrics='accuracy'):
 
 	"""
 	This function analyzes facial attributes including age, gender, emotion and race
@@ -231,7 +228,7 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			models = {}
 			models['age'] = DeepFace.build_model('Age')
 			models['gender'] = DeepFace.build_model('Gender')
-			models['emotion'] = DeepFace.build_model('Emotion')
+			model = DeepFace.build_model('Emotion')
 			models['race'] = DeepFace.build_model('Race')
 
 		enforce_detection (boolean): The function throws exception if a face could not be detected. Set this to True if you don't want to get exception. This might be convenient for low resolution images.
@@ -270,41 +267,39 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 	"""
 
 	actions = list(actions)
-	if not models:
-		models = {}
 
 	img_paths, bulkProcess = functions.initialize_input(img_path)
 
 	#---------------------------------
 
-	built_models = list(models.keys())
+	built_models = ["emotion"] if model != None else []
 
 	#---------------------------------
 
 	#pre-trained models passed but it doesn't exist in actions
 	if len(built_models) > 0:
-		if 'emotionDeepFace' in built_models and 'emotionDeepFace' not in actions:
+		if 'emotion' in built_models and 'emotionDeepFace' not in actions:
 			actions.append('emotionDeepFace')
-		if 'emotionVGG16' in built_models and 'emotionVGG16' not in actions:
+		elif 'emotion' in built_models and 'emotionVGG16' not in actions:
 			actions.append('emotionVGG16')
-		if 'emotionVGGFace' in built_models and 'emotionVGGFace' not in actions:
+		elif 'emotion' in built_models and 'emotionVGGFace' not in actions:
 			actions.append('emotionVGGFace')
-		if 'emotionFaceNet' in built_models and 'emotionFaceNet' not in actions:
+		elif 'emotion' in built_models and 'emotionFaceNet' not in actions:
 			actions.append('emotionFaceNet')
-		if 'emotionOpenFace' in built_models and 'emotionOpenFace' not in actions:
+		elif 'emotion' in built_models and 'emotionOpenFace' not in actions:
 			actions.append('emotionOpenFace')	
 	#---------------------------------
 
 	if 'emotionDeepFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionDeepFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)
-	if 'emotionVGG16' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGG16', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics) 
-	if 'emotionVGGFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
-	if 'emotionFaceNet' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
-	if 'emotionOpenFace' in actions and 'emotion' not in built_models:
-		models['emotion'] = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
+		model = build_model('EmotionDeepFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)
+	elif 'emotionVGG16' in actions and 'emotion' not in built_models:
+		model = build_model('EmotionVGG16', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics) 
+	elif 'emotionVGGFace' in actions and 'emotion' not in built_models:
+		model = build_model('EmotionVGGFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
+	elif 'emotionFaceNet' in actions and 'emotion' not in built_models:
+		model = build_model('EmotionFaceNet', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
+	elif 'emotionOpenFace' in actions and 'emotion' not in built_models:
+		model = build_model('EmotionOpenFace', dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics)   
 	#---------------------------------
 
 	resp_objects = []
@@ -334,32 +329,31 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 			action = actions[index]
 			pbar.set_description("Action: %s" % (action))
 
-			if action == 'emotion'+params[0]:
-				emotion_labels = list(class_indices.keys())
+			emotion_labels = list(class_indices.keys())
 
-				img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = False, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
-				
-				if img == []:
-					resp_obj["emotion"] = {}
-					for i in range(0, len(emotion_labels)):
-						emotion_label = emotion_labels[i]
-						emotion_prediction = 0
-					
-					resp_obj["dominant_emotion"] = "Not Found"
-					break
+			img, region = functions.preprocess_face(img = img_path, target_size = (48, 48), grayscale = True, enforce_detection = enforce_detection, detector_backend = detector_backend, return_region = True)
 			
-				emotion_predictions = models['emotion'].predict(img)[0,:]
-
-				sum_of_predictions = emotion_predictions.sum()
-
+			if img == []:
 				resp_obj["emotion"] = {}
-
 				for i in range(0, len(emotion_labels)):
 					emotion_label = emotion_labels[i]
-					emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
-					resp_obj["emotion"][emotion_label] = emotion_prediction
+					emotion_prediction = 0
+				
+				resp_obj["dominant_emotion"] = "Not Found"
+				break
+		
+			emotion_predictions = model.predict(img)[0,:]
 
-				resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
+			sum_of_predictions = emotion_predictions.sum()
+
+			resp_obj["emotion"] = {}
+
+			for i in range(0, len(emotion_labels)):
+				emotion_label = emotion_labels[i]
+				emotion_prediction = 100 * emotion_predictions[i] / sum_of_predictions
+				resp_obj["emotion"][emotion_label] = emotion_prediction
+
+			resp_obj["dominant_emotion"] = emotion_labels[np.argmax(emotion_predictions)]
 
 			#-----------------------------
 			
@@ -386,112 +380,118 @@ def analyze(img_path, actions = ('emotion', 'age', 'gender', 'race') , models = 
 
 		return resp_obj
 
-#---------------------------
-#main
-import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing import image
+def main():
+	#---------------------------
+	#main
+	
+	#validar os parametros
+	params = parameters()
+	
+	import matplotlib.pyplot as plt
+	from tensorflow.keras.preprocessing import image
 
-import glob
-
-
-datasetPath = 'FER-2013'
-
-df_all = pd.DataFrame()
-
-# Este teste é baseado em validar a eficácia de um modelo treinado com o dataset FER-2013
-# testando com o dataset CK+
-# /Volumes/Extension/AmbientAssistedLiving/Images/042-ll042
-filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
-#filesNames = glob.glob('/Volumes/Extension/AmbientAssistedLiving/Images/*/*/*.png') # Todas as imagens do dataset PAINFUL
-
-# Calculate the accuracy
-count = 0
-correct = 0
-
-countPositive = 0
-correctPositive = 0
-
-countNegative = 0
-correctNegative = 0
-
-model = params[0]
-run = params[1]
-epochs = params[2]
-batches = params[3]
-forceRetrain = params[4]
-activationFunction = params[5]
-lossFunction = params[6]
-metrics = params[7]
+	import glob
 
 
-for filename in filesNames:
-	#img = cv2.imread(filename) # ler a imagem
+	datasetPath = 'FER-2013'
+
+	df_all = pd.DataFrame()
+
+	# Este teste é baseado em validar a eficácia de um modelo treinado com o dataset FER-2013
+	# testando com o dataset CK+
+	# /Volumes/Extension/AmbientAssistedLiving/Images/042-ll042
+	filesNames = glob.glob('dataset/*/*/*.*') # Todas as imagens de todas as classes de treino e validação
+	#filesNames = glob.glob('/Volumes/Extension/AmbientAssistedLiving/Images/*/*/*.png') # Todas as imagens do dataset PAINFUL
+
+	# Calculate the accuracy
+	count = 0
+	correct = 0
+
+	countPositive = 0
+	correctPositive = 0
+
+	countNegative = 0
+	correctNegative = 0
+
+	model = params[0]
+	run = params[1]
+	epochs = params[2]
+	batches = params[3]
+	forceRetrain = params[4]
+	activationFunction = params[5]
+	lossFunction = params[6]
+	metrics = params[7]
+
 	if metrics == 'binary_accuracy':
 		mode = 'binary'
 	else:
 		mode = 'categorical'
 
-	result = analyze(
-		filename,
-		actions = ['emotion'+str(model)],
-		dataset_dir=datasetPath, 
-		modelPath='weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5',
-		classIndicesPath='analysis/class_indices.json',
-		forceRetrain=forceRetrain,
-		epochs=epochs,
-		batches=batches,
-		activation=activationFunction,
-		loss=lossFunction,
-		metrics=metrics
-	)
-	
-	# Acrescentar a label da imagem
-	result["label"] = "positive" if "positive" in filename else "negative"
-	result["imagePath"] = filename
-	
-	count = count + 1	
-	if result["label"] == result["dominant_emotion"]:
-		correct = correct + 1
-	
-	if result["label"] == 'positive':
-		countPositive = countPositive + 1
+	for filename in filesNames:
+		#img = cv2.imread(filename) # ler a imagem
+		
+
+		result = analyze(
+			filename,
+			actions = ['emotion'+str(model)],
+			dataset_dir=datasetPath, 
+			modelPath='weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5',
+			classIndicesPath='analysis/class_indices.json',
+			forceRetrain=forceRetrain,
+			epochs=epochs,
+			batches=batches,
+			activation=activationFunction,
+			loss=lossFunction,
+			metrics=metrics
+		)
+		
+		# Acrescentar a label da imagem
+		result["label"] = "positive" if "positive" in filename else "negative"
+		result["imagePath"] = filename
+		
+		count = count + 1	
 		if result["label"] == result["dominant_emotion"]:
-			correctPositive = correctPositive + 1
-	
-	if result["label"] == 'negative':
-		countNegative = countNegative + 1
-		if result["label"] == result["dominant_emotion"]:
-			correctNegative = correctNegative + 1
-	
-	df = pd.json_normalize(result)
+			correct = correct + 1
+		
+		if result["label"] == 'positive':
+			countPositive = countPositive + 1
+			if result["label"] == result["dominant_emotion"]:
+				correctPositive = correctPositive + 1
+		
+		if result["label"] == 'negative':
+			countNegative = countNegative + 1
+			if result["label"] == result["dominant_emotion"]:
+				correctNegative = correctNegative + 1
+		
+		df = pd.json_normalize(result)
 
-	if df_all.empty:
-		df_all = df
-	else:
-		df_all = df_all.append(df)
-	
-df_all.to_csv('analysis/'+str(model)+'_v'+str(run)+'_Analysis.csv', encoding='utf-8')
+		if df_all.empty:
+			df_all = df
+		else:
+			df_all = df_all.append(df)
+		
+	df_all.to_csv('analysis/'+str(model)+'_v'+str(run)+'_Analysis.csv', encoding='utf-8')
 
-# Data analysis
-print("Accuracy: "+str(round(correct/count,2)*100)+"%")
+	# Data analysis
+	print("Accuracy: "+str(round(correct/count,2)*100)+"%")
 
-print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
-print("Negative accuracy: "+str(round(correctNegative/countNegative,2)*100)+"%")
+	print("Positive accuracy: "+str(round(correctPositive/countPositive,2)*100)+"%")
+	print("Negative accuracy: "+str(round(correctNegative/countNegative,2)*100)+"%")
 
-import matplotlib.pyplot as plt
+	import matplotlib.pyplot as plt
 
-data = {
-	'Overall': round(correct/count,2)*100, 
-	'Positive': round(correctPositive/countPositive,2)*100, 
-	'Negative': round(correctNegative/countNegative,2)*100
-}
+	data = {
+		'Overall': round(correct/count,2)*100, 
+		'Positive': round(correctPositive/countPositive,2)*100, 
+		'Negative': round(correctNegative/countNegative,2)*100
+	}
 
-names = list(data.keys())
-values = list(data.values())
+	names = list(data.keys())
+	values = list(data.values())
 
-plt.scatter(names, values)
-plt.suptitle('Accuracy %')
-plt.show()
+	plt.scatter(names, values)
+	plt.suptitle('Accuracy %')
+	plt.show()
 
 
 
