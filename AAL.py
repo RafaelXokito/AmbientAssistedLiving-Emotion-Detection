@@ -249,6 +249,8 @@ while True:  #checking if are getting video feed and using it
 
 	cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 	cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
+	centro_x = int(((440 - 140)/2)+140)
+	cv2.circle(board,(centro_x, 200),5,(255,0,0),1)
 	cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 
 	result = analyze(
@@ -256,22 +258,17 @@ while True:  #checking if are getting video feed and using it
 		model=model,
 	)
 
-	
-	if result["dominant_emotion"] != "Not Found":
-		img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
-		
-		p_negative = np.double(result["emotion"]["negative"]) + (np.double(result["emotion"]["neutral"])/2)
-		p_positive = np.double(result["emotion"]["positive"]) + (np.double(result["emotion"]["neutral"])/2)
-		p_neutral = np.double(result["emotion"]["neutral"])
-
-		centro_x = int(((440 - 140)/2)+140)
-
-		cv2.circle(board,(centro_x, 200),5,(255,0,0),1)
-
-		x = centro_x - int(p_negative) if p_negative > p_positive else centro_x + int(p_positive)
-
-		cv2.circle(board,(int(x), 200),10,(0,255,0),1)
 	try:
+		if result["dominant_emotion"] != "Not Found":
+			img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
+			
+			p_negative = np.double(result["emotion"]["negative"])
+			p_positive = np.double(result["emotion"]["positive"])
+			p_neutral = np.double(result["emotion"]["neutral"])
+
+			x = centro_x - int(p_negative) if p_negative > p_positive else centro_x + int(p_positive)
+			cv2.circle(board,(x, 200),10,(0,255,0),1)
+		
 		print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
 	except:
 		print("no face")
