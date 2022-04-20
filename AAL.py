@@ -212,11 +212,6 @@ import cv2
 from EmotionDetection import analyze
 import numpy as np
 
-face_cascade_name = cv2.data.haarcascades + 'haarcascade_frontalface_alt.xml'  #getting a haarcascade xml file
-face_cascade = cv2.CascadeClassifier()  #processing it for our project
-if not face_cascade.load(cv2.samples.findFile(face_cascade_name)):  #adding a fallback event
-    print("Error loading xml file")
-
 video=cv2.VideoCapture(0)  #requisting the input from the webcam or camera
 
 model = params[0]
@@ -241,17 +236,18 @@ model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,f
 
 board = np.ones(shape=[400,600,3], dtype=np.uint8)
 
+# Preenchemos o "quadro" a branco para escrever a emoção nova
+board.fill(0) # or img[:] = 255
+
+cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
+centro_x = int(((440 - 140)/2)+140)
+cv2.circle(board,(centro_x, 200),5,(0,0,255),-1)
+cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
+
+x = 0
+
 while True:  #checking if are getting video feed and using it
 	_,frame = video.read()
-
-	# Preenchemos o "quadro" a branco para escrever a emoção nova
-	board.fill(255) # or img[:] = 255
-
-	cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
-	cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
-	centro_x = int(((440 - 140)/2)+140)
-	cv2.circle(board,(centro_x, 200),5,(255,0,0),1)
-	cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 
 	result = analyze(
 		frame,
@@ -265,16 +261,19 @@ while True:  #checking if are getting video feed and using it
 			p_negative = np.double(result["emotion"]["negative"])
 			p_positive = np.double(result["emotion"]["positive"])
 			p_neutral = np.double(result["emotion"]["neutral"])
+			#print([p_negative,p_neutral,p_positive])
+			cv2.circle(board,(x, 200),10,(0,0,0),-1)
+			cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
 
-			x = centro_x - int(p_negative) if p_negative > p_positive else centro_x + int(p_positive)
-			cv2.circle(board,(x, 200),10,(0,255,0),1)
+			x = centro_x - int(p_negative+p_neutral) if p_negative > p_positive else centro_x + int(p_positive+p_neutral)
+			cv2.circle(board,(x, 200),10,(255,255,255),-1)
 		
-		print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
+		#print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
 	except:
 		print("no face")
 	
 	#this is the part where we display the output to the user
-	cv2.imshow('video', frame)
+	#cv2.imshow('video', frame)
 	cv2.imshow('board', board)
 	key=cv2.waitKey(1) 
 	if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
