@@ -9,6 +9,9 @@ import EmotionVGGFace
 import EmotionFaceNet
 import EmotionOpenFace
 
+import os
+from glob import glob
+
 def parameters():
 
 	"""
@@ -205,6 +208,54 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
+
+def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, emotion, frame):
+	"""
+	Order the top predictions array in descrescent order, of the first percentage is smaller than the 
+	current frame's prediction we have to replace one with the other
+	"""
+	if os.path.exists('top10Frames') is False:
+		os.mkdir('top10Frames')
+	
+	if os.path.exists('top10Frames/'+emotion) is False:
+		os.mkdir('top10Frames/'+emotion)
+
+	
+	framesEmotions = glob('top10Frames/'+emotion+'/*.jpg')
+	count = len(framesEmotions)
+	if len(arrayTopPredictionsEmotion) >= 10:	
+		orderedFramesPredictions = sorted(arrayTopPredictionsEmotion) 
+		if orderedFramesPredictions[0] < predictionEmotion: 
+			# finds original index of lower prediction value
+			lowerValueIndex = arrayTopPredictionsEmotion.index(orderedFramesPredictions[0]) 
+			# deletes the lower value from the top 10 array and folder
+			arrayTopPredictionsEmotion.pop(lowerValueIndex) 
+			filenameFrameLowerValue = framesEmotions[lowerValueIndex]
+			if os.path.exists(filenameFrameLowerValue) is True:
+				os.remove(filenameFrameLowerValue)
+
+			# adds the new frame to the top 10 array and folder
+			arrayTopPredictionsEmotion.append(predictionEmotion)
+			filePath = filenameFrameLowerValue
+			cv2.imwrite(filePath, frame)
+
+	else:
+		count = count + 1
+		arrayTopPredictionsEmotion.append(predictionEmotion)		
+		filePath = 'top10Frames/'+emotion+'/frame_'+str(count)+'.jpg'
+		cv2.imwrite(filePath, frame)
+	return arrayTopPredictionsEmotion
+
+
+def resetFolderFrames(emotion):
+	if os.path.exists('top10Frames/'+emotion) is True:
+		files = glob('top10Frames/'+emotion+'/*.jpg')
+		if len(files) > 0:
+			for f in files:
+				os.remove(f)
+		return len(glob('top10Frames/'+emotion+'/*.jpg'))
+	return -1
+
 #validar os parametros
 params = parameters()
 
@@ -246,6 +297,15 @@ cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,25
 
 x = 0
 
+framesPredictionsTop10Positive = []
+framesPredictionsTop10Negative = []
+framesPredictionsTop10Neutral = []
+
+
+resetFolderFrames('negative')
+resetFolderFrames('positive')
+resetFolderFrames('neutral')		
+
 while True:  #checking if are getting video feed and using it
 	_,frame = video.read()
 
@@ -267,8 +327,18 @@ while True:  #checking if are getting video feed and using it
 
 			x = centro_x - int(p_negative+p_neutral) if p_negative > p_positive else centro_x + int(p_positive+p_neutral)
 			cv2.circle(board,(x, 200),10,(255,255,255),-1)
+
+			if result["dominant_emotion"] == "negative":
+				framesPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, "negative", frame)
+			
+			if result["dominant_emotion"] == "neutral":
+				framesPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, "neutral", frame)
+			
+			if result["dominant_emotion"] == "positive":
+				framesPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, "positive", frame)
+			
 		
-		#print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
+			#print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
 	except:
 		print("no face")
 	
@@ -279,3 +349,5 @@ while True:  #checking if are getting video feed and using it
 	if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
 		break
 video.release()
+
+print(framesPredictionsTop10)
