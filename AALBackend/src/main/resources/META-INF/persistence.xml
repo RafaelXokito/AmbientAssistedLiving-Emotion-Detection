@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence-unit name="AALBackendPersistenceUnit">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>java:/AALBackendDS</jta-data-source>
+    <properties>
+        <property
+                name="javax.persistence.schema-generation.database.action"
+                value="drop-and-create"/>
+    </properties>
+</persistence-unit>
