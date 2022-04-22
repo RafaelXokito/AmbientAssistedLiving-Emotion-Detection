@@ -7,7 +7,7 @@
         <packaging>war</packaging>
       </options>
     </properties>
-    <root id="archive" name="AALBackend-1.0-SNAPSHOT.war">
+    <root id="archive" name="AALBackend.war">
       <element id="artifact" artifact-name="AALBackend:war exploded" />
     </root>
   </artifact>
