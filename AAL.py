@@ -10,6 +10,8 @@ import EmotionFaceNet
 import EmotionOpenFace
 
 import os
+import time
+import requests
 from glob import glob
 
 def parameters():
@@ -63,6 +65,10 @@ def parameters():
 	--metrics binary_accuracy
 	--metrics accuracy
 
+	time: # Time (seconds) for human labelling iteration
+	-t <natural number>
+	--time <natural number>
+
 	"""
 
 	if '-h' in sys.argv or '--help' in sys.argv:
@@ -115,10 +121,13 @@ metrics: # Metrics
 --metrics binary_accuracy
 --metrics accuracy
 
+time: # Time (seconds) for human labelling iteration
+-t <natural number>
+--time <natural number>
 		""")
 		exit()
 
-	if len(sys.argv) < 15 or len(sys.argv) > 16:
+	if len(sys.argv) < 17 or len(sys.argv) > 18:
 		print("Missing parameters, run -h or --help")
 		exit()
 	
@@ -135,6 +144,8 @@ metrics: # Metrics
 			loss = str(sys.argv[i+1])
 		elif arg == '--metrics':
 			metrics = str(sys.argv[i+1])
+		elif arg == '-t' or arg == '--time':
+			time_HLIteration = int(sys.argv[i+1])
 		elif arg == '-e' or arg == '-b' or arg == '-r':
 			try:
 				number = int(sys.argv[i+1])
@@ -160,7 +171,7 @@ metrics: # Metrics
 		else: 
 			continue
 	
-	return model, run, epochs, batch, forceRetrain, activation, loss, metrics
+	return model, run, epochs, batch, forceRetrain, activation, loss, metrics,time_HLIteration
 
 def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics):
 
@@ -208,8 +219,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
-
-def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, emotion, frame):
+def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, orderedFramesPredictions, emotion, frame):
 	"""
 	Order the top predictions array in descrescent order, of the first percentage is smaller than the 
 	current frame's prediction we have to replace one with the other
@@ -223,8 +233,7 @@ def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, emotion, fra
 	
 	framesEmotions = glob('top10Frames/'+emotion+'/*.jpg')
 	count = len(framesEmotions)
-	if len(arrayTopPredictionsEmotion) >= 10:	
-		orderedFramesPredictions = sorted(arrayTopPredictionsEmotion) 
+	if len(arrayTopPredictionsEmotion) >= 10:
 		if orderedFramesPredictions[0] < predictionEmotion: 
 			# finds original index of lower prediction value
 			lowerValueIndex = arrayTopPredictionsEmotion.index(orderedFramesPredictions[0]) 
@@ -239,13 +248,16 @@ def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, emotion, fra
 			filePath = filenameFrameLowerValue
 			cv2.imwrite(filePath, frame)
 
+			orderedFramesPredictions = sorted(arrayTopPredictionsEmotion) 
 	else:
 		count = count + 1
-		arrayTopPredictionsEmotion.append(predictionEmotion)		
+		arrayTopPredictionsEmotion.append(predictionEmotion)	
+
 		filePath = 'top10Frames/'+emotion+'/frame_'+str(count)+'.jpg'
 		cv2.imwrite(filePath, frame)
-	return arrayTopPredictionsEmotion
 
+		orderedFramesPredictions = sorted(arrayTopPredictionsEmotion) 
+	return arrayTopPredictionsEmotion, orderedFramesPredictions
 
 def resetFolderFrames(emotion):
 	if os.path.exists('top10Frames/'+emotion) is True:
@@ -273,6 +285,8 @@ forceRetrain = params[4]
 activationFunction = params[5]
 lossFunction = params[6]
 metrics = params[7]
+time_HLIteration = params[8]
+
 
 datasetPath = 'FER-2013'
 
@@ -298,23 +312,29 @@ cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,25
 x = 0
 
 framesPredictionsTop10Positive = []
+orderedPredictionsTop10Positive = []
 framesPredictionsTop10Negative = []
+orderedPredictionsTop10Negative = []
 framesPredictionsTop10Neutral = []
+orderedPredictionsTop10Neutral = []
 
 
 resetFolderFrames('negative')
 resetFolderFrames('positive')
-resetFolderFrames('neutral')		
+resetFolderFrames('neutral')
 
-while True:  #checking if are getting video feed and using it
-	_,frame = video.read()
+while True:
 
-	result = analyze(
-		frame,
-		model=model,
-	)
+	start_time = time.time()
+	#Irá capturar vídeo até chegar ao tempo parametrizado (segundos) e fazer passar à fase de human labelling
+	while ( int(time.time() - start_time) < time_HLIteration ):  #checking if are getting video feed and using it
+		_,frame = video.read()
 
-	try:
+		result = analyze(
+			frame,
+			model=model,
+		)
+
 		if result["dominant_emotion"] != "Not Found":
 			img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
 			
@@ -329,25 +349,36 @@ while True:  #checking if are getting video feed and using it
 			cv2.circle(board,(x, 200),10,(255,255,255),-1)
 
 			if result["dominant_emotion"] == "negative":
-				framesPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, "negative", frame)
+				framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", frame)
 			
-			if result["dominant_emotion"] == "neutral":
-				framesPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, "neutral", frame)
+			#if result["dominant_emotion"] == "neutral":
+			# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
+			framesPredictionsTop10Neutral,orderedPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, orderedPredictionsTop10Neutral, "neutral", frame)
 			
 			if result["dominant_emotion"] == "positive":
-				framesPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, "positive", frame)
-			
+				framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", frame)
 		
-			#print(result["dominant_emotion"])  #here we will only go print out the dominant emotion also explained in the previous example
-	except:
-		print("no face")
+		try:	
+			print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
+		except:
+			print("no face")
+		
+		#this is the part where we display the output to the user
+		#cv2.imshow('video', frame)
+		cv2.imshow('board', board)
+		key=cv2.waitKey(1) 
+		if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
+			break
 	
-	#this is the part where we display the output to the user
-	#cv2.imshow('video', frame)
-	cv2.imshow('board', board)
-	key=cv2.waitKey(1) 
-	if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
-		break
-video.release()
+	"""Código de conecção à API"""
+	# defining the api-endpoint 
+	API_ENDPOINT = "https://api.funtranslations.com/translate/"
+	
+	# sending post request and saving response as response object
+	r = requests.get(url = API_ENDPOINT)
+	
+	# extracting response text 
+	pastebin_url = r.text
+	print("The pastebin URL is:%s"%pastebin_url)
 
-print(framesPredictionsTop10)
+#video.release()

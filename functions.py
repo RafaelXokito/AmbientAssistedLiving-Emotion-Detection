@@ -171,6 +171,9 @@ def normalize_input(img, normalization = 'base'):
 	return img
 
 def preprocess_face(img, target_size=(224, 224), grayscale = False, enforce_detection = True, detector_backend = 'opencv', return_region = False, align = True):
+	
+	if img is None:
+		return [], None
 
 	#img might be path, base64 or numpy array. Convert it to numpy whatever it is.
 	img = load_image(img)
