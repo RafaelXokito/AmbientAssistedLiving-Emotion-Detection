@@ -1,17 +1,16 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.entities;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.SecureRandom;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 @NamedQueries({
@@ -42,7 +41,11 @@ public class Client implements Serializable {
 
     public Client(String email, String password, String name, int age, String contact) {
         this.email = email;
-        this.password = hashPassword(password);
+        try {
+            this.password = generateStrongPasswordHash(password);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
         this.name = name;
         this.age = age;
         this.contact = contact;
@@ -61,7 +64,11 @@ public class Client implements Serializable {
     }
 
     public void setPassword(String password) {
-        this.password = hashPassword(password);
+        try {
+            this.password = generateStrongPasswordHash(password);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getName() {
@@ -87,20 +94,65 @@ public class Client implements Serializable {
     public void setContact(String contact) {
         this.contact = contact;
     }
-    //TODO Hash password that can be improved
-    public static String hashPassword(String password) {
-        char[] encoded = null;
-        try {
-            ByteBuffer passwdBuffer =
-                    Charset.defaultCharset().encode(CharBuffer.wrap(password));
-            byte[] passwdBytes = passwdBuffer.array();
-            MessageDigest mdEnc = MessageDigest.getInstance("SHA-256");
-            mdEnc.update(passwdBytes, 0, password.toCharArray().length);
-            encoded = new BigInteger(1, mdEnc.digest()).toString(16).toCharArray();
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+    
+    public static String generateStrongPasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        int iterations = 1000;
+        char[] chars = password.toCharArray();
+        byte[] salt = getSalt();
+
+        PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] hash = skf.generateSecret(spec).getEncoded();
+        return iterations + ":" + toHex(salt) + ":" + toHex(hash);
+    }
+
+    private static byte[] getSalt() throws NoSuchAlgorithmException {
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return salt;
+    }
+
+    private static String toHex(byte[] array) {
+        BigInteger bi = new BigInteger(1, array);
+        String hex = bi.toString(16);
+        int paddingLength = (array.length * 2) - hex.length();
+        if (paddingLength > 0) {
+            return String.format("%0" + paddingLength + "d", 0) + hex;
+        } else {
+            return hex;
         }
-        return new String(encoded);
+    }
+
+    public static boolean validatePassword(String originalPassword, String storedPassword)
+            throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        String[] parts = storedPassword.split(":");
+        int iterations = Integer.parseInt(parts[0]);
+
+        byte[] salt = fromHex(parts[1]);
+        byte[] hash = fromHex(parts[2]);
+
+        PBEKeySpec spec = new PBEKeySpec(originalPassword.toCharArray(),
+                salt, iterations, hash.length * 8);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] testHash = skf.generateSecret(spec).getEncoded();
+
+        int diff = hash.length ^ testHash.length;
+        for(int i = 0; i < hash.length && i < testHash.length; i++)
+        {
+            diff |= hash[i] ^ testHash[i];
+        }
+        return diff == 0;
+    }
+
+    private static byte[] fromHex(String hex) {
+        byte[] bytes = new byte[hex.length() / 2];
+        for(int i = 0; i < bytes.length ;i++)
+        {
+            bytes[i] = (byte)Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+        }
+        return bytes;
     }
 
 }
