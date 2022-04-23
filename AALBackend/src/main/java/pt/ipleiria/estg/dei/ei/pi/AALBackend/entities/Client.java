@@ -36,6 +36,9 @@ public class Client implements Serializable {
     @NotNull
     private String contact;
 
+    @Version
+    private int version;
+
     public Client() {
     }
 

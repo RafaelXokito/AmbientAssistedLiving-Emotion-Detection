@@ -1,7 +1,7 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
-import pt.ipleiria.estg.dei.ei.dae.academics.exceptions.MyEntityExistsException;
-import pt.ipleiria.estg.dei.ei.dae.academics.exceptions.MyEntityNotFoundException;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityExistsException;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 
 import javax.ejb.Stateless;

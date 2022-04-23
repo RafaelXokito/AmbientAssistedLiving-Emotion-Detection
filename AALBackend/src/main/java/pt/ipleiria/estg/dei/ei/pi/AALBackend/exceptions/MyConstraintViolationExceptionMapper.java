@@ -1,4 +1,4 @@
-package pt.ipleiria.estg.dei.ei.dae.academics.exceptions;
+package pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
