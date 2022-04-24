@@ -28,9 +28,9 @@ public class ClientService {
     }
 
     @GET
-    @Path("{email}")
-    public Response getClientWS(@PathParam("email") String email) throws Exception {
-        Client cLient = clientBean.findClient(email);
+    @Path("{id}")
+    public Response getClientWS(@PathParam("id") Long id) throws Exception {
+        Client cLient = clientBean.findClient(id);
 
         return Response.status(Response.Status.OK)
                 .entity(toDTO(cLient))
@@ -42,18 +42,18 @@ public class ClientService {
     public Response createClientWS(ClientDTO clientDTO) throws Exception {
         clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
 
-        Client client = clientBean.findClient(clientDTO.getEmail());
+        Client client = clientBean.findClient(clientDTO.getId());
         return Response.status(Response.Status.CREATED)
                 .entity(toDTO(client))
                 .build();
     }
 
     @PUT
-    @Path("{email}")
-    public Response updateClientWS(@PathParam("email") String email,ClientDTO clientDTO) throws Exception {
-        clientBean.update(email, clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
+    @Path("{id}")
+    public Response updateClientWS(@PathParam("id") Long id,ClientDTO clientDTO) throws Exception {
+        clientBean.update(id, clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
 
-        Client client = clientBean.findClient(email);
+        Client client = clientBean.findClient(id);
 
         return Response.status(Response.Status.OK)
                 .entity(toDTO(client))
@@ -61,11 +61,11 @@ public class ClientService {
     }
 
     @DELETE
-    @Path("{email}")
-    public Response deleteClientWS(@PathParam("email") String email) throws Exception {
-        if (clientBean.delete(email))
+    @Path("{id}")
+    public Response deleteClientWS(@PathParam("id") Long id) throws Exception {
+        if (clientBean.delete(id))
             return Response.status(Response.Status.OK)
-                    .entity("[Success] Client with email \'"+email+"\' was deleted")
+                    .entity("[Success] Client with id \'"+id+"\' was deleted")
                     .build();
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -79,11 +79,11 @@ public class ClientService {
 
     private ClientDTO toDTO(Client client) {
         return new ClientDTO(
-                client.getEmail(),
-                client.getPassword(),
-                client.getName(),
-                client.getAge(),
-                client.getContact()
-                );
+            client.getEmail(),
+            client.getPassword(),
+            client.getName(),
+            client.getAge(),
+            client.getContact()
+        );
     }
 }

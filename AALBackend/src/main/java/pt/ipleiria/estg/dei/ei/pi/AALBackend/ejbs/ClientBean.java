@@ -2,13 +2,17 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityExistsException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Stateless
 public class ClientBean {
@@ -24,11 +28,11 @@ public class ClientBean {
      * @param contact
      * @throws Exception
      */
-    public void create(String email, String password, String name, int age, String contact) throws Exception{
+    public Long create(String email, String password, String name, int age, String contact) throws Exception{
         if(email == null || email.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Email is missing");
         }
-        Client clientFound = entityManager.find(Client.class, email);
+        Client clientFound = findClient(email);
         if(clientFound != null){
             throw new MyEntityExistsException("[Error] - Client with email: \'"+email+"\' already exists");
         }
@@ -56,19 +60,38 @@ public class ClientBean {
         }
 
         Client client = new Client(email, password, name, age, contact);
-        entityManager.persist(client);
+        try {
+            entityManager.persist(client);
+            entityManager.flush();
+        }catch (Exception ex){
+            throw new MyIllegalArgumentException("Error persisting your data");
+        }
+        
+
+        return client.getId();
+    }
+
+    /***
+     * Find Client by given @Unique:Email
+     * @param email @Id to find Client
+     * @return founded Client or Null if dont
+     */
+    public Client findClient(String email) {
+        TypedQuery<Client> query = entityManager.createQuery("SELECT c FROM Client c WHERE c.email = '" + email + "'", Client.class);
+        query.setLockMode(LockModeType.OPTIMISTIC);
+        return query.getResultList().size() > 0 ? query.getSingleResult() : null;
     }
 
     /**
-     * Finds Client by given @Unique:Email
-     * @param email
-     * @return Client with the @Unique:Email
+     * Finds Client by given @Unique:id
+     * @param id
+     * @return Client with the @Unique:id
      * @throws Exception
      */
-    public Client findClient(String email) throws Exception {
-        Client client = entityManager.find(Client.class, email);
+    public Client findClient(Long id) throws Exception {
+        Client client = entityManager.find(Client.class, id);
         if(client == null){
-            throw new MyEntityNotFoundException("[Error] - Client with email: \'"+email+"\' not Found");
+            throw new MyEntityNotFoundException("[Error] - Client with id: \'"+id+"\' not Found");
         }
         return client;
     }
@@ -83,14 +106,14 @@ public class ClientBean {
 
     /**
      * Deletes a Client by given @Email:email
-     * @param email
+     * @param id
      * @return
      * @throws Exception
      */
-    public boolean delete(String email) throws Exception{
-        Client client = findClient(email);
+    public boolean delete(Long id) throws Exception{
+        Client client = findClient(id);
         entityManager.remove(client);
-        return entityManager.find(Client.class, email) == null;
+        return entityManager.find(Client.class, id) == null;
     }
 
     /**
@@ -101,9 +124,8 @@ public class ClientBean {
      * @param contact
      * @throws Exception
      */
-    public void update(String email, String name, int age, String contact) throws Exception{
-        Client client = findClient(email);
-
+    public void update(Long id, String name, int age, String contact) throws Exception{
+        Client client = findClient(id);
         if(name != null && name.trim().length() < 3){
             throw new IllegalArgumentException("[Error] - Name must have at least 3 characters");
         }
@@ -111,8 +133,8 @@ public class ClientBean {
         if(age <= 0){
             throw new IllegalArgumentException("[Error] - Age must be a positive number");
         }
-
-        if(contact != null && (contact.trim().length() != 9 || !contact.startsWith("9"))){
+        
+        if(contact != null && !Pattern.compile("(9[1236][0-9])([0-9]{6})").matcher(contact).matches()){
             throw new IllegalArgumentException("[Error] - Contact must have 9 number and be in hte PT format");
         }
 

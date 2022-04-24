@@ -13,6 +13,8 @@ public class ConfigBean {
 
     @EJB
     ClientBean clientBean;
+    @EJB
+    IterationBean iterationBean;
 
     private static final Logger logger = Logger.getLogger("ejbs.ConfigBean");
 
@@ -21,12 +23,17 @@ public class ConfigBean {
         try {
 
             System.out.println("# Clients ");
-            System.out.println("## Creating Client ");
-            clientBean.create("domingos@gmail.com", "1234567", "Domingos Mendes", 71, "912934543");
-            System.out.println("## Updating Client ");
-            clientBean.update("domingos@gmail.com", "Domingos Jesus Mendes", 73, null);
-            System.out.println("## Deleting Client ");
-            clientBean.delete("domingos@gmail.com");
+            System.out.println("## Creating Clients ");
+            Long c1 = clientBean.create("domingos@gmail.com", "1234567", "Domingos Mendes", 71, "912934543");
+            System.out.println("## Updating Clients ");
+            clientBean.update(c1, "Domingos Jesus Mendes", 73, "913406043");
+            //System.out.println("## Deleting Client ");
+            //clientBean.delete(c1);
+            System.out.println("# Iterations ");
+            System.out.println("## Creating Iterations ");
+            Long i1 = iterationBean.create("00163C990BDB", "domingos@gmail.com");
+            //System.out.println("## Deleting Iterations ");
+            //iterationBean.delete(i1);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());
         }

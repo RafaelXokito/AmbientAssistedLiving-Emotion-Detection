@@ -2,79 +2,97 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.entities;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.util.List;
-import java.security.SecureRandom;
-
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @NamedQueries({
         @NamedQuery(
-                name = "getAllClients",
-                query = "SELECT c FROM Client c ORDER BY c.name"
+                name = "getAllPersons",
+                query = "SELECT p FROM Person p ORDER BY p.name"
         )
 })
 
-@Table(name = "CLIENTS")
+@Inheritance(strategy = InheritanceType.JOINED) //Big inheritance cannot be in a single table, we need to spread the most we can
+@Table(name = "PERSONS", uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
 @Entity
-public class Client extends Person implements Serializable {
+public abstract class Person {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @NotNull
-    private int age;
+    private String name;
+    @Email
     @NotNull
-    private String contact;
-    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
-    private List<Iteration> iterations;
+    private String email;
+    @NotNull
+    private String password;
+
 
     @Version
     private int version;
 
-    public Client() {
-        super();
+    public Person(){
+
     }
 
-    public Client(String email, String password, String name, int age, String contact) {
-        super(name,email,password);
-        this.age = age;
-        this.contact = contact;
+    public Person(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        try {
+            this.password = generateStrongPasswordHash(password);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
     }
 
-    public int getAge() {
-        return age;
+    public Long getId() {
+        return id;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String getContact() {
-        return contact;
+    public String getName() {
+        return name;
     }
 
-    public void setContact(String contact) {
-        this.contact = contact;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public List<Iteration> getIterations() {
-        return iterations;
+    public String getEmail() {
+        return email;
     }
 
-    public void setIterations(List<Iteration> iterations) {
-        this.iterations = iterations;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public void addIteration(Iteration iteration){
-        if (iterations.contains(iteration))
-            return;
-
-        this.iterations.add(iteration);
+    public String getPassword() {
+        return password;
     }
-    
+
+    public void setPassword(String password) {
+        try {
+            this.password = generateStrongPasswordHash(password);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static String generateStrongPasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         int iterations = 1000;
         char[] chars = password.toCharArray();
@@ -134,5 +152,4 @@ public class Client extends Person implements Serializable {
         }
         return bytes;
     }
-
 }

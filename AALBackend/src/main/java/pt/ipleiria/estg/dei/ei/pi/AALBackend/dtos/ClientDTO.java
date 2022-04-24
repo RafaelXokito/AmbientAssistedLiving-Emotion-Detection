@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos;
 
 public class ClientDTO {
+    private long id;
     private String email;
     private String name;
     private String password;
@@ -16,6 +17,14 @@ public class ClientDTO {
         this.password = password;
         this.age = age;
         this.contact = contact;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
