@@ -1,16 +1,13 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityExistsException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 
 import javax.ejb.Stateless;
 import java.util.List;
 import javax.persistence.*;
-import java.time.Instant;
 
 @Stateless
 public class IterationBean {

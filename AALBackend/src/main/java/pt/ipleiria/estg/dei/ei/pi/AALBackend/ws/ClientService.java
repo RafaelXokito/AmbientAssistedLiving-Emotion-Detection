@@ -40,9 +40,9 @@ public class ClientService {
     @POST
     @Path("/")
     public Response createClientWS(ClientDTO clientDTO) throws Exception {
-        clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
+        Long id = clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
 
-        Client client = clientBean.findClient(clientDTO.getId());
+        Client client = clientBean.findClient(id);
         return Response.status(Response.Status.CREATED)
                 .entity(toDTO(client))
                 .build();
@@ -79,8 +79,8 @@ public class ClientService {
 
     private ClientDTO toDTO(Client client) {
         return new ClientDTO(
+            client.getId(),
             client.getEmail(),
-            client.getPassword(),
             client.getName(),
             client.getAge(),
             client.getContact()

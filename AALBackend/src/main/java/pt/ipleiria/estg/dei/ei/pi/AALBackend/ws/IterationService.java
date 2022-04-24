@@ -6,9 +6,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.IterationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +42,8 @@ public class IterationService {
                 .build();
     }
 
+    /*
+    It's not possible to create or delete iterations (JUST DELETE)
     @POST
     @Path("/")
     public Response createIterationWS(IterationDTO iterationDTO) throws Exception {
@@ -61,7 +65,7 @@ public class IterationService {
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .build();
-    }
+    }*/
 
 
     private List<IterationDTO> toDTOs(List<Iteration> iterations) {
@@ -72,14 +76,24 @@ public class IterationService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
-            clientToDTO(iteration.getClient())
+            clientToDTO(iteration.getClient()),
+            framesToDTOs(iteration.getFrames())
         );
+    }
+
+    FrameDTO frameToDTO(Frame frame) { return new FrameDTO(
+        frame.getId(),
+        frame.getName(),
+        frame.getPath());
+    }
+
+    List<FrameDTO> framesToDTOs(List<Frame> frames) {
+        return frames.stream().map(this::frameToDTO).collect(Collectors.toList());
     }
 
     private ClientDTO clientToDTO(Client client) {
         return new ClientDTO(
             client.getEmail(),
-            client.getPassword(),
             client.getName(),
             client.getAge(),
             client.getContact()

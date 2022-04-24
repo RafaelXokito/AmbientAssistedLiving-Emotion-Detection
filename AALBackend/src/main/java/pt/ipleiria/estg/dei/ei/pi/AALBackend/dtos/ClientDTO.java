@@ -9,6 +9,27 @@ public class ClientDTO {
     private String contact;
 
     public ClientDTO() {
+        this.id = -1;
+        this.email = "";
+        this.name = "";
+        this.password = "";
+        this.age = -1;
+        this.contact = "";
+    }
+
+    public ClientDTO(long id, String email, String name, int age, String contact) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.age = age;
+        this.contact = contact;
+    }
+
+    public ClientDTO(String email, String name, int age, String contact) {
+        this.email = email;
+        this.name = name;
+        this.age = age;
+        this.contact = contact;
     }
 
     public ClientDTO(String email, String password, String name, int age, String contact) {

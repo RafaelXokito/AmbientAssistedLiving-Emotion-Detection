@@ -65,11 +65,12 @@ public class Iteration implements Serializable{
         this.frames = frames;
     }
 
-    public void addFrame(Frame frame){
-        if (frames.contains(frame))
-            return;
-
-        this.frames.add(frame);
+    public Frame addFrame(Frame frame){
+        if (frame != null && !this.frames.contains(frame)) {
+            this.frames.add(frame);
+            return frame;
+        }
+        return null;
     }
 
 }

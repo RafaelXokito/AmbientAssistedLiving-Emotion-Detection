@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
+import java.io.File;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -21,6 +22,13 @@ public class ConfigBean {
     @PostConstruct
     public void populateDB() throws Exception {
         try {
+            
+            String path = System.getProperty("user.home") + File.separator + "uploads"; 
+            File customDir = new File(path);
+            if (!customDir.exists()) {
+                customDir.mkdir();
+            }
+
 
             System.out.println("# Clients ");
             System.out.println("## Creating Clients ");

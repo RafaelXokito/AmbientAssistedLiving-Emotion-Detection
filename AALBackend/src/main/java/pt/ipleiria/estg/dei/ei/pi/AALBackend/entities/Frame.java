@@ -16,24 +16,37 @@ import java.io.Serializable;
 public class Frame implements Serializable{
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @NotNull
+    private String name;
     @NotNull
     private String path;
     @ManyToOne
     private Iteration iteration;
 
     public Frame(){
-        
+        this.path = "";
+        this.iteration = new Iteration();
+        this.name = "";
     }
 
-    public Frame(String path, Iteration iteration){
+    public Frame(String path, String name, Iteration iteration){
         this.path = path;
         this.iteration = iteration;
+        this.name = name;
     }
 
     public Long getId(){
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
     
     public String getPath() {
