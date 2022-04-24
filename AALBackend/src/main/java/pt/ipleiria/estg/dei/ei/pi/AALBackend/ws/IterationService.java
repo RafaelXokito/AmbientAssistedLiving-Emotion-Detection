@@ -76,6 +76,7 @@ public class IterationService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
+            iteration.getEmotion(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())
         );

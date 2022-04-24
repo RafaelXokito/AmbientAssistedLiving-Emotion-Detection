@@ -28,19 +28,24 @@ public class IterationBean {
     /***
      * Register a new iteration from client
      * @param macAddress
+     * @param emotion
+     * @param clientEmail
      * @return
      * @throws Exception
      */
-    public Long create(String macAddress, String clientEmail) throws Exception{
+    public Long create(String macAddress, String emotion, String clientEmail) throws Exception{
         if(macAddress == null || macAddress.trim().isEmpty() || macAddress.length() != 12){
             throw new IllegalArgumentException("[Error] - Mac Address is missing");
+        }
+        if(emotion == null || emotion.trim().isEmpty()){
+            throw new IllegalArgumentException("[Error] - Emotion is missing");
         }
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){
             throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
         }
 
-        Iteration iteration = new Iteration(macAddress, clientFound);
+        Iteration iteration = new Iteration(macAddress, emotion, clientFound);
         
         try {
             entityManager.persist(iteration);

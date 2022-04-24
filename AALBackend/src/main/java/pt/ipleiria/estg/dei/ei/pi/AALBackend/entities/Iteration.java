@@ -23,18 +23,23 @@ public class Iteration implements Serializable{
     @NotNull
     private String macAddress;
     @NotNull
+    private String emotion; //Emotion Name Positive, Neutral, Negative, ...
+    @NotNull
     @ManyToOne
     private Client client;
     @OneToMany(mappedBy = "iteration", cascade = CascadeType.REMOVE)
     private List<Frame> frames;
 
     public Iteration() {
-
+        this.macAddress = "";
+        this.client = new Client();
+        this.emotion = "";
     }
 
-    public Iteration(String macAddress, Client client){
+    public Iteration(String macAddress, String emotion, Client client){
         this.macAddress = macAddress;
         this.client = client;
+        this.emotion = emotion.toLowerCase();
     }
 
     public Long getId(){
@@ -47,6 +52,14 @@ public class Iteration implements Serializable{
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public String getEmotion() {
+        return emotion;
+    }
+
+    public void setEmotion(String emotion) {
+        this.emotion = emotion;
     }
 
     public String getMacAddress() {

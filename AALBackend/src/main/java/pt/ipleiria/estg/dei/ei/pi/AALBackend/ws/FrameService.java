@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +52,8 @@ public class FrameService {
         // Get file data to save
         String clientEmail = personBean.getPersonByAuthToken(auth).getEmail();
         String macAddress = uploadForm.get("macAddress").get(0).getBodyAsString();
-        Iteration iteration = iterationBean.findIteration(iterationBean.create(macAddress, clientEmail));
+        String emotion = uploadForm.get("emotion").get(0).getBodyAsString();
+        Iteration iteration = iterationBean.findIteration(iterationBean.create(macAddress, emotion, clientEmail));
         if(iteration == null)
             throw new MyEntityNotFoundException("Iteration could not be created.");
 
@@ -105,11 +105,9 @@ public class FrameService {
     @DELETE
     @Path("delete/{id}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @RolesAllowed({"Administrator"})
     public Response delete(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
         Frame frame = frameBean.findFrame(id);
-
-        if (!securityContext.isUserInRole("Administrator") && frame.getIteration().getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
-            throw new MyUnauthorizedException("You are not allowed to view this frame");
 
         File fileToDelete = new File(frame.getPath() + File.separator + frame.getName());
         if (fileToDelete.delete()) {
@@ -161,6 +159,7 @@ public class FrameService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
+            iteration.getEmotion(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())
         );
