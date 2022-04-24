@@ -1,9 +1,13 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ws;
 
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.AdministratorDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.ClientBean;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Administrator;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -14,10 +18,13 @@ import java.util.stream.Collectors;
 @Path("clients")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
+@RolesAllowed({"Administrator"})
 public class ClientService {
 
     @EJB
     private ClientBean clientBean;
+    @EJB
+    private PersonBean personBean;
 
     @GET
     @Path("/")
@@ -39,8 +46,8 @@ public class ClientService {
 
     @POST
     @Path("/")
-    public Response createClientWS(ClientDTO clientDTO) throws Exception {
-        Long id = clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
+    public Response createClientWS(ClientDTO clientDTO, @HeaderParam("Authorization") String auth) throws Exception {
+        Long id = clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact(),personBean.getPersonByAuthToken(auth).getId());
 
         Client client = clientBean.findClient(id);
         return Response.status(Response.Status.CREATED)
@@ -83,7 +90,15 @@ public class ClientService {
             client.getEmail(),
             client.getName(),
             client.getAge(),
-            client.getContact()
+            client.getContact(),
+            administratorToDTO(client.getAdministrator())
         );
+    }
+
+    private AdministratorDTO administratorToDTO(Administrator administrator) {
+        return new AdministratorDTO(
+                administrator.getId(),
+                administrator.getEmail(),
+                administrator.getName());
     }
 }

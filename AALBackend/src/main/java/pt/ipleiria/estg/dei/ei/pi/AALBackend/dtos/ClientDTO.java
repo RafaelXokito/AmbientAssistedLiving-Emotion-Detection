@@ -7,6 +7,7 @@ public class ClientDTO {
     private String password;
     private int age;
     private String contact;
+    private AdministratorDTO administrator;
 
     public ClientDTO() {
         this.id = -1;
@@ -15,6 +16,7 @@ public class ClientDTO {
         this.password = "";
         this.age = -1;
         this.contact = "";
+        this.administrator = new AdministratorDTO();
     }
 
     public ClientDTO(long id, String email, String name, int age, String contact) {
@@ -23,6 +25,16 @@ public class ClientDTO {
         this.name = name;
         this.age = age;
         this.contact = contact;
+        this.administrator = new AdministratorDTO();
+    }
+
+    public ClientDTO(long id, String email, String name, int age, String contact, AdministratorDTO administrator) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.age = age;
+        this.contact = contact;
+        this.administrator = administrator;
     }
 
     public ClientDTO(String email, String name, int age, String contact) {

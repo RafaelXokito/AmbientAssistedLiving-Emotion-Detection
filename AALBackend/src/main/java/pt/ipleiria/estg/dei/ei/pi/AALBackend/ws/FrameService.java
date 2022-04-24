@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("frames")
+@RolesAllowed({"Client", "Administrator"})
 public class FrameService {
     @EJB
     private FrameBean frameBean;
@@ -37,6 +38,9 @@ public class FrameService {
     private IterationBean iterationBean;
     @EJB
     private PersonBean personBean;
+
+    @Context
+    private SecurityContext securityContext;
 
     @POST
     @Path("upload")
@@ -89,6 +93,9 @@ public class FrameService {
     public Response download(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
         Frame frame = frameBean.findFrame(id);
 
+        if (!securityContext.isUserInRole("Administrator") && frame.getIteration().getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to see this frame");
+
         File fileDownload = new File(frame.getPath() + File.separator + frame.getName());
         Response.ResponseBuilder response = Response.ok(fileDownload);
         response.header("Content-Disposition", "attachment;filename=" + frame.getName());
@@ -100,6 +107,9 @@ public class FrameService {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response delete(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
         Frame frame = frameBean.findFrame(id);
+
+        if (!securityContext.isUserInRole("Administrator") && frame.getIteration().getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to view this frame");
 
         File fileToDelete = new File(frame.getPath() + File.separator + frame.getName());
         if (fileToDelete.delete()) {
@@ -117,6 +127,9 @@ public class FrameService {
     @Produces(MediaType.APPLICATION_JSON)
     public List<FrameDTO> getFramesByIteration(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
         Iteration iteration = iterationBean.findIteration(id);
+        
+        if (!securityContext.isUserInRole("Administrator") && iteration.getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to view this frame");
 
         return framesToDTOs(frameBean.getIterationFrames(iteration));
     }
@@ -125,6 +138,9 @@ public class FrameService {
     @Path("{id}/exists")
     public Response hasFrames(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
         Iteration iteration = iterationBean.findIteration(id);
+        
+        if (!securityContext.isUserInRole("Administrator") && iteration.getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to view this frame");
 
         return Response.status(Response.Status.OK).entity(!iteration.getFrames().isEmpty()).build();
     }

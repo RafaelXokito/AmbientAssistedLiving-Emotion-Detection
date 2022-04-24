@@ -3,6 +3,7 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityExistsException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Administrator;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 
 import javax.ejb.Stateless;
@@ -26,11 +27,16 @@ public class ClientBean {
      * @param name
      * @param age
      * @param contact
+     * @param a1
      * @throws Exception
      */
-    public Long create(String email, String password, String name, int age, String contact) throws Exception{
+    public Long create(String email, String password, String name, int age, String contact, Long adminId) throws Exception{
         if(email == null || email.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Email is missing");
+        }
+        Administrator administratorFound = entityManager.find(Administrator.class, adminId);
+        if(administratorFound == null){
+            throw new MyEntityExistsException("[Error] - Administrator with id: \'"+adminId+"\' does not exist");
         }
         Client clientFound = findClient(email);
         if(clientFound != null){
@@ -59,7 +65,8 @@ public class ClientBean {
             throw new IllegalArgumentException("[Error] - Age must be a positive number");
         }
 
-        Client client = new Client(email, password, name, age, contact);
+        Client client = new Client(email, password, name, age, contact, administratorFound);
+        administratorFound.addClient(client);
         try {
             entityManager.persist(client);
             entityManager.flush();
