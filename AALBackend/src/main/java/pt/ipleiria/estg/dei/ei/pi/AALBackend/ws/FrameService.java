@@ -6,6 +6,7 @@ import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -24,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,7 +68,6 @@ public class FrameService {
                 // convert the uploaded file to inputstream
                 InputStream inputStream = inputPart.getBody(InputStream.class, null);
                 byte[] bytes = IOUtils.toByteArray(inputStream);
-                
                 String path = System.getProperty("user.home") + File.separator + "uploads" + File.separator + iteration.getId(); 
                 File customDir = new File(path);
                 if (!customDir.exists()) {
@@ -89,15 +90,17 @@ public class FrameService {
 
     @GET
     @Path("download/{id}")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response download(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
         Frame frame = frameBean.findFrame(id);
 
         if (!securityContext.isUserInRole("Administrator") && frame.getIteration().getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
             throw new MyUnauthorizedException("You are not allowed to see this frame");
 
-        File fileDownload = new File(frame.getPath() + File.separator + frame.getName());
-        Response.ResponseBuilder response = Response.ok(fileDownload);
+        File fileDownload = new File(frame.getPath());
+        byte[] fileContent = FileUtils.readFileToByteArray(fileDownload);
+        String encodedString = Base64.getEncoder().encodeToString(fileContent);
+        Response.ResponseBuilder response = Response.ok(encodedString);
         response.header("Content-Disposition", "attachment;filename=" + frame.getName());
         return response.build();
     }

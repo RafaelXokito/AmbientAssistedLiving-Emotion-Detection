@@ -11,7 +11,7 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
-    link: [{ rel: "icon", type: "image/x-icon", href: "/aal_logo.ico" }],
+    link: [{ rel: "icon", type: "image/x-icon", href: "/AAL_icon.ico" }],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -24,7 +24,9 @@ export default {
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [],
+  buildModules: [
+  ],
+
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
@@ -33,7 +35,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     "@nuxtjs/axios",
     "@nuxtjs/auth",
-    "@nuxtjs/toast",
+    "@nuxtjs/toast"
   ],
 
   auth: {

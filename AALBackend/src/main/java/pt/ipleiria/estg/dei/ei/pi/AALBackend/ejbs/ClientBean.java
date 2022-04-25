@@ -31,9 +31,7 @@ public class ClientBean {
      * @throws Exception
      */
     public Long create(String email, String password, String name, int age, String contact, Long adminId) throws Exception{
-        if(email == null || email.trim().isEmpty()){
-            throw new IllegalArgumentException("[Error] - Email is missing");
-        }
+
         Administrator administratorFound = entityManager.find(Administrator.class, adminId);
         if(administratorFound == null){
             throw new MyEntityExistsException("[Error] - Administrator with id: \'"+adminId+"\' does not exist");
