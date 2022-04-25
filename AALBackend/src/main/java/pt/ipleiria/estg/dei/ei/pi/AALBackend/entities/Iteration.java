@@ -4,6 +4,7 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.entities;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Date;
 
 import java.io.Serializable;
 
@@ -29,6 +30,8 @@ public class Iteration implements Serializable{
     private Client client;
     @OneToMany(mappedBy = "iteration", cascade = CascadeType.REMOVE)
     private List<Frame> frames;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created_at;
 
     public Iteration() {
         this.macAddress = "";
@@ -84,6 +87,15 @@ public class Iteration implements Serializable{
             return frame;
         }
         return null;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
+
+    public Date getCreated_at() {
+        return created_at;
     }
 
 }

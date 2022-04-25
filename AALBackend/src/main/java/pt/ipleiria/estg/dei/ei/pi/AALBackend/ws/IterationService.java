@@ -90,7 +90,8 @@ public class IterationService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
-            iteration.getEmotion()
+            iteration.getEmotion(),
+            iteration.getCreated_at()
         );
     }
 
@@ -103,6 +104,7 @@ public class IterationService {
             iteration.getId(),
             iteration.getMacAddress(),
             iteration.getEmotion(),
+            iteration.getCreated_at(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())
         );

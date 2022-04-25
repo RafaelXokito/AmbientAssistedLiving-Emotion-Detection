@@ -10,8 +10,9 @@ public class PersonDTO {
     private String name;
     private String scope; //Administrator, Client
     private int age; //Age of client
+    private Date created_at;
 
-    public PersonDTO(long id, String email, String password, String name, String scope) {
+    public PersonDTO(long id, String email, String password, String name, Date created_at, String scope) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -19,14 +20,14 @@ public class PersonDTO {
         this.scope = scope;
     }
 
-    public PersonDTO(long id, String email, String name, String scope) {
+    public PersonDTO(long id, String email, String name, Date created_at, String scope) {
         this.id = id;
         this.email = email;
         this.name = name;
         this.scope = scope;
     }
 
-    public PersonDTO(long id, String email, String name, String scope, int age) {
+    public PersonDTO(long id, String email, String name, Date created_at, String scope, int age) {
         this.id = id;
         this.email = email;
         this.name = name;
@@ -83,6 +84,14 @@ public class PersonDTO {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public Date getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Date created_at) {
+        this.created_at = created_at;
     }
 }
 

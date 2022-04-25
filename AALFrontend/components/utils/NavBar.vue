@@ -1,7 +1,7 @@
 <template>
 <div>
   <b-navbar toggleable="lg" type="dark" variant="info">
-    <b-navbar-brand to="dashboard">
+    <b-navbar-brand to="/dashboard">
       <img src="../../static/AAL_logo.png" class="img-nav-brand"  alt="AAL Logo">
        AAL-Emotion
     </b-navbar-brand>
@@ -10,8 +10,8 @@
 
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav class="ml-auto text-center">
-        <b-nav-item v-if="$auth.user.scope === 'Client'" :class="this.$route.name == 'iterations' ? 'active' : ''" to="iterations">Iterations</b-nav-item>
-        <b-nav-item v-if="$auth.user.scope === 'Administrator'" :class="this.$route.name == 'clients' ? 'active' : ''" to="clients">Clients</b-nav-item>
+        <b-nav-item v-if="$auth.user.scope === 'Client'" :class="this.$route.name == 'iterations' ? 'active' : ''" to="/iterations">Iterations</b-nav-item>
+        <b-nav-item v-if="$auth.user.scope === 'Administrator'" :class="this.$route.name == 'clients' ? 'active' : ''" to="/clients">Clients</b-nav-item>
       </b-navbar-nav>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">

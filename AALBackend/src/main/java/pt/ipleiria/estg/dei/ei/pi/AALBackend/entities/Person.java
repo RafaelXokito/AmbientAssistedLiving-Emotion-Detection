@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +39,8 @@ public abstract class Person {
     private String email;
     @NotNull
     private String password;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created_at;
 
 
     @Version
@@ -83,6 +86,15 @@ public abstract class Person {
 
     public String getPassword() {
         return password;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
+
+    public Date getCreated_at() {
+        return created_at;
     }
 
     public void setPassword(String password) {

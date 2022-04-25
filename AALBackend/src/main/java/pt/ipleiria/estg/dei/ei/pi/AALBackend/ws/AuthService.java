@@ -108,6 +108,7 @@ public class AuthService {
                     person.getId(),
                     person.getEmail(),
                     person.getName(),
+                    person.getCreated_at(),
                     person.getClass().getSimpleName(),
                     ((Client)person).getAge());
             case "Administrator":
@@ -115,6 +116,7 @@ public class AuthService {
                         person.getId(),
                         person.getEmail(),
                         person.getName(),
+                        person.getCreated_at(),
                         person.getClass().getSimpleName());
         }
         return new PersonDTO();

@@ -12,10 +12,22 @@
         striped
         responsive="sm"
       >
+        <template #cell(emotion)="data">
+          {{
+            data.item.emotion.charAt(0).toUpperCase() + data.item.emotion.slice(1)
+          }}
+        </template>
         <template v-slot:cell(Frames)="row">
           <b-button variant="dark" :to="`/iterations/${row.item.id}`">
             View
           </b-button>
+        </template>
+        <template #cell(created_at)="data">
+          {{
+            data.item.created_at != null
+              ? new Date(data.item.created_at).toLocaleString('pt-PT')
+              : "Not Shown"
+          }}
         </template>
       </b-table>
     </div>
@@ -36,8 +48,12 @@ export default {
           sortable: true,
           sortDirection: "desc",
         },
-        //data
-        //
+        {
+          key: "created_at",
+          label: "Data",
+          sortable: true,
+          sortDirection: "desc",
+        },
         "Frames",
       ],
       iterations: [],
