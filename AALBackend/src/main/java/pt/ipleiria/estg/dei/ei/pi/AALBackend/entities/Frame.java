@@ -31,7 +31,7 @@ public class Frame implements Serializable{
         this.name = "";
     }
 
-    public Frame(String path, String name, Iteration iteration){
+    public Frame(String name, String path, Iteration iteration){
         this.path = path;
         this.iteration = iteration;
         this.name = name;

@@ -73,12 +73,12 @@ public class FrameService {
                     customDir.mkdir();
                 }
 
-                String filepath =  customDir.getCanonicalPath() + File.separator + File.separator + filename;
+                String filepath =  customDir.getCanonicalPath() + File.separator + filename;
                 
                 writeFile(bytes, filepath);
                 if (!customDir.exists())
                     continue;
-                frameBean.create(filename, path, iteration.getId());
+                frameBean.create(filename, filepath, iteration.getId());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -155,7 +155,6 @@ public class FrameService {
 
 
     private IterationDTO iterationToDTO(Iteration iteration) {
-        System.out.println(framesToDTOs(iteration.getFrames()));
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
