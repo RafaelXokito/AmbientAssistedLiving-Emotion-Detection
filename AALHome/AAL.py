@@ -12,7 +12,14 @@ import EmotionOpenFace
 import os
 import time
 import requests
+from requests.structures import CaseInsensitiveDict
 from glob import glob
+
+from dotenv import load_dotenv
+load_dotenv()
+import base64
+from requests_toolbelt.multipart.encoder import MultipartEncoder
+from getmac import get_mac_address as gma
 
 def parameters():
 
@@ -275,6 +282,26 @@ import cv2
 from EmotionDetection import analyze
 import numpy as np
 
+TOP_FRAMES_PATH = os.getenv('TOP_FRAMES_PATH')
+
+API_URL = os.getenv('API_URL')
+CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
+CLIENT_PASSWORD = os.getenv('CLIENT_PASSWORD')
+
+# defining the api-endpoint 
+API_ENDPOINT = API_URL+"/auth/login"
+
+json = {
+    "email": CLIENT_EMAIL,
+    "password": CLIENT_PASSWORD
+}
+
+# sending post request and saving response as response object
+r = requests.post(url = API_ENDPOINT, json=json)
+
+# extracting response text 
+token = r.json()["token"]
+
 video=cv2.VideoCapture(0)  #requisting the input from the webcam or camera
 
 model = params[0]
@@ -286,6 +313,7 @@ activationFunction = params[5]
 lossFunction = params[6]
 metrics = params[7]
 time_HLIteration = params[8]
+
 
 
 datasetPath = 'FER-2013'
@@ -337,6 +365,8 @@ while True:
 
 		if result["dominant_emotion"] != "Not Found":
 			img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
+			roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
+			roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 			
 			p_negative = np.double(result["emotion"]["negative"])
 			p_positive = np.double(result["emotion"]["positive"])
@@ -349,14 +379,14 @@ while True:
 			cv2.circle(board,(x, 200),10,(255,255,255),-1)
 
 			if result["dominant_emotion"] == "negative":
-				framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", frame)
+				framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", roi)
 			
 			#if result["dominant_emotion"] == "neutral":
 			# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
-			framesPredictionsTop10Neutral,orderedPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, orderedPredictionsTop10Neutral, "neutral", frame)
+			framesPredictionsTop10Neutral,orderedPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, orderedPredictionsTop10Neutral, "neutral", roi)
 			
 			if result["dominant_emotion"] == "positive":
-				framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", frame)
+				framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", roi)
 		
 		try:	
 			print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
@@ -371,14 +401,44 @@ while True:
 			break
 	
 	"""Código de conecção à API"""
-	# defining the api-endpoint 
-	API_ENDPOINT = "https://api.funtranslations.com/translate/"
-	
-	# sending post request and saving response as response object
-	r = requests.get(url = API_ENDPOINT)
-	
-	# extracting response text 
-	pastebin_url = r.text
-	print("The pastebin URL is:%s"%pastebin_url)
+	emotionsPath = glob(TOP_FRAMES_PATH+'/*')
+	requestOk = 0
+	for emotionPath in emotionsPath:
+		# defining the api-endpoint 
+		API_ENDPOINT = API_URL+"/frames/upload"
+
+		
+		emotion = emotionPath.split('/')[-1]
+
+		data = {
+			"macAddress": "123456789123",
+			"emotion": emotion,
+		}
+
+
+		files = []
+		for imagePath in glob(TOP_FRAMES_PATH+'/'+emotion+'/*'):
+			files.append(('file',(None,open(imagePath,'rb'),'application/octet-stream')))
+
+
+		mp_encoder = MultipartEncoder(
+			fields=data
+		)
+
+		headers = {"Authorization": "Bearer "+token}
+			
+		# sending post request and saving response as response object
+		
+		r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
+		if r.status_code == 200:
+			requestOk = requestOk + 1
+		# extracting response text 
+		#responseIteration = r.json()
+
+	if requestOk == len(emotionsPath):
+		print("Foi efetuado registo de frames com sucesso")
+	else:
+		print("Ocorreu um erro no registo de frames")
+	time.sleep(1)
 
 #video.release()
