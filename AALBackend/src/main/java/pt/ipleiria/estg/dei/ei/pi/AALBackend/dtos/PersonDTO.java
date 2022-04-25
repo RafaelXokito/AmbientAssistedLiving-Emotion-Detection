@@ -9,7 +9,7 @@ public class PersonDTO {
     private String password;
     private String name;
     private String scope; //Administrator, Client
-
+    private int age; //Age of client
 
     public PersonDTO(long id, String email, String password, String name, String scope) {
         this.id = id;
@@ -24,6 +24,14 @@ public class PersonDTO {
         this.email = email;
         this.name = name;
         this.scope = scope;
+    }
+
+    public PersonDTO(long id, String email, String name, String scope, int age) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.scope = scope;
+        this.age = age;
     }
 
     public PersonDTO() {
@@ -67,6 +75,14 @@ public class PersonDTO {
 
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 }
 
