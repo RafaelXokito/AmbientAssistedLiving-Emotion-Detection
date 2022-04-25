@@ -81,6 +81,18 @@ public class IterationBean {
     }
 
     /**
+     * Gets all the iterations by client
+     * @return
+     */
+    public List<Iteration> getAllIterationsByClient(String clientEmail) throws Exception {
+        Client clientFound = findClient(clientEmail);
+        if(clientFound == null){
+            throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
+        }
+        return clientFound.getIterations();
+    }
+
+    /**
      * Deletes a Iteration by given @Email:email
      * @param id
      * @return

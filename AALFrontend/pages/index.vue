@@ -15,7 +15,7 @@
       <p class="align-middle">AAL-Emotion designed and developed for school and research propose</p>
       <p class="align-middle">
         <a href="https://www.linkedin.com/in/rafaelmendespereira/">Rafael Pereira</a>,
-        <a href="https://www.linkedin.com/in/carla-mendes-5b3586233/">Carla Mendes</a>,
+        <a href="https://www.linkedin.com/in/carla-mendes-5b3586233/">Carla Mendes</a>
       </p>
     </div>
   </footer>

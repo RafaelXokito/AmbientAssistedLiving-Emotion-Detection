@@ -1,14 +1,17 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ws;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 
+import org.apache.commons.io.IOUtils;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.IterationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
@@ -18,17 +21,29 @@ import java.util.stream.Collectors;
 @Path("iterations")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
+@RolesAllowed({"Client", "Administrator"})
 public class IterationService {
     
     @EJB
     private IterationBean iterationBean;
+    @EJB
+    private PersonBean personBean;
 
+    @Context
+    private SecurityContext securityContext;
 
     @GET
     @Path("/")
-    public Response getAllIterationsWS() {
+    public Response getAllIterationsWS(@HeaderParam("Authorization") String auth) throws Exception {
+        String clientEmail = personBean.getPersonByAuthToken(auth).getEmail();
+        
+        if (securityContext.isUserInRole("Client"))
+            return Response.status(Response.Status.OK)
+                .entity(simpleToDTOs(iterationBean.getAllIterationsByClient(clientEmail)))
+                .build();
+                
         return Response.status(Response.Status.OK)
-                .entity(toDTOs(iterationBean.getAllIterations()))
+                .entity(simpleToDTOs(iterationBean.getAllIterations()))
                 .build();
     }
 
@@ -67,6 +82,17 @@ public class IterationService {
                 .build();
     }*/
 
+    private List<IterationDTO> simpleToDTOs(List<Iteration> iterations) {
+        return iterations.stream().map(this::simpleToDTO).collect(Collectors.toList());
+    }
+
+    private IterationDTO simpleToDTO(Iteration iteration) {
+        return new IterationDTO(
+            iteration.getId(),
+            iteration.getMacAddress(),
+            iteration.getEmotion()
+        );
+    }
 
     private List<IterationDTO> toDTOs(List<Iteration> iterations) {
         return iterations.stream().map(this::toDTO).collect(Collectors.toList());

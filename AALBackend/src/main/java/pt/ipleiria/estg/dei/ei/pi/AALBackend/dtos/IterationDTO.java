@@ -34,6 +34,14 @@ public class IterationDTO {
         this.frames = frames;
     }
 
+    public IterationDTO(long id, String macAddress, String emotion){
+        this.id = id;
+        this.macAddress = macAddress;
+        this.emotion = emotion;
+        this.client = new ClientDTO();
+        this.frames = new ArrayList<>();
+    }
+
     public IterationDTO(String macAddress, String emotion, ClientDTO client){
         this.id = -1;
         this.macAddress = macAddress;
