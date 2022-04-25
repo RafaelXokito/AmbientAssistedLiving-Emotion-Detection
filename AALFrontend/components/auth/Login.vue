@@ -3,7 +3,7 @@
         <b-form @submit="onSubmit" @reset.prevent="onReset">
 
             <div class="mb-5 text-center">
-              <b-img src="../../static/AAL_logo.jpg" fluid alt="Responsive image"></b-img>
+              <b-img src="../../static/AAL_logo.png" fluid alt="Responsive image"></b-img>
             </div>
 
             <div class="form-group">

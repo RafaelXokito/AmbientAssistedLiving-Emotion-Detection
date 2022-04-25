@@ -1,16 +1,16 @@
 <template>
 <div>
-  <b-navbar toggleable="lg" type="dark" variant="success">
+  <b-navbar toggleable="lg" type="dark" variant="info">
     <b-navbar-brand to="dashboard">
-      <img src="../../static/AAL_logo.jpg" class="img-nav-brand" alt="Kitten">
-      AAL-Emotion
+      <img src="../../static/AAL_logo.png" class="img-nav-brand"  alt="AAL Logo">
+       AAL-Emotion
     </b-navbar-brand>
 
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav class="ml-auto text-center">
-        <b-nav-item v-if="$auth.user.scope === 'Client'" :class="this.$route.name == 'frames' ? 'active' : ''" to="frames">Frames</b-nav-item>
+        <b-nav-item v-if="$auth.user.scope === 'Client'" :class="this.$route.name == 'iterations' ? 'active' : ''" to="iterations">Iterations</b-nav-item>
         <b-nav-item v-if="$auth.user.scope === 'Administrator'" :class="this.$route.name == 'clients' ? 'active' : ''" to="clients">Clients</b-nav-item>
       </b-navbar-nav>
       <!-- Right aligned nav items -->

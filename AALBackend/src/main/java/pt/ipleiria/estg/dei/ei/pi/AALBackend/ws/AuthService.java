@@ -54,7 +54,7 @@ public class AuthService {
 
     @GET
     @Path("/user")
-    @RolesAllowed({"Administrator", "Teacher", "Student"})
+    @RolesAllowed({"Administrator", "Client"})
     public Response demonstrateClaims(@HeaderParam("Authorization") String auth) {
         if (auth != null && auth.startsWith("Bearer ")) {
             try {
@@ -70,7 +70,7 @@ public class AuthService {
 
     @PATCH
     @Path("/updatepassword")
-    @RolesAllowed({"Administrator", "Teacher", "Student"})
+    @RolesAllowed({"Administrator", "Client"})
     public Response selfUpdatePasswordWS(@HeaderParam("Authorization") String auth, NewPasswordDTO newPasswordDTO) throws Exception {
         Person person = personBean.getPersonByAuthToken(auth);
 
@@ -85,7 +85,7 @@ public class AuthService {
 
     @PUT
     @Path("/update")
-    @RolesAllowed({"Administrator", "Teacher", "Student"})
+    @RolesAllowed({"Administrator", "Client"})
     public Response selfUpdateWS(@HeaderParam("Authorization") String auth, PersonDTO personDTO) throws Exception {
         Person person = personBean.getPersonByAuthToken(auth);
 
