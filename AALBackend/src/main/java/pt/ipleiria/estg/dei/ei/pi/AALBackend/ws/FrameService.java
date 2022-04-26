@@ -162,6 +162,7 @@ public class FrameService {
             iteration.getId(),
             iteration.getMacAddress(),
             iteration.getEmotion(),
+            iteration.getCreated_at(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())
         );
