@@ -134,7 +134,7 @@ public class FrameService {
         if (!securityContext.isUserInRole("Administrator") && iteration.getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
             throw new MyUnauthorizedException("You are not allowed to view this frame");
 
-        return framesToDTOs(frameBean.getIterationFrames(iteration));
+        return extendedFramesToDTOs(frameBean.getIterationFrames(iteration));
     }
 
 
@@ -173,7 +173,7 @@ public class FrameService {
                 frame.getId(),
                 frame.getName(),
                 frame.getPath(),
-                emotionToDTO(frame.getEmotion())
+                emotionToDTO(frame.getEmotion() == null ? new Emotion() : frame.getEmotion())
         );
     }
 
@@ -187,7 +187,9 @@ public class FrameService {
     List<FrameDTO> framesToDTOs(List<Frame> frames) {
         return frames.stream().map(this::toDTO).collect(Collectors.toList());
     }
-
+    List<FrameDTO> extendedFramesToDTOs(List<Frame> frames) {
+        return frames.stream().map(this::extendedToDTO).collect(Collectors.toList());
+    }
 
     private IterationDTO iterationToDTO(Iteration iteration) {
         return new IterationDTO(

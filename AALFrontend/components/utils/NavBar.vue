@@ -20,8 +20,8 @@
           <template #button-content>
             <em>{{currentUser.name}}</em>
           </template>
-          <b-dropdown-item :active="this.$route.name == 'profile'" to="profile">Profile</b-dropdown-item>
-          <b-dropdown-item :active="this.$route.name == 'changepassword'" to="changepassword">Change Password</b-dropdown-item>
+          <b-dropdown-item :active="this.$route.name == 'profile'" to="/profile">Profile</b-dropdown-item>
+          <b-dropdown-item :active="this.$route.name == 'changepassword'" to="/changepassword">Change Password</b-dropdown-item>
           <b-dropdown-item href="#" @click="logout">Sign Out</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
