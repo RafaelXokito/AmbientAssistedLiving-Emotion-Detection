@@ -21,55 +21,42 @@ public class EmotionBean {
      * Registers a new Emotion in the system
      * @param name
      * @param group
-     * @return
+     * @return Name @Id
      * @throws Exception
      */
-    public Long create(String name, String group) throws Exception{
+    public String create(String name, String group) throws Exception{
         if(name == null || name.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Name is missing");
         }
         if(group == null || group.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Group is missing");
         }
-        if(!checkEmotionValid(name)){
-            throw new IllegalArgumentException("[Error] - Emotion with name \'"+name+"\' already exists");
-        }
         if(!group.equals("Positive") && !group.equals("Negative") && !group.equals("Neutral")){
             throw new IllegalArgumentException("[Error] - Group is invalid ['Positive', 'Negative', 'Neutral']");
         }
+        
         Emotion emotion = new Emotion(name, group);
+        System.out.println(emotion.getName() + " " + emotion.getGroup());
         try {
             entityManager.persist(emotion);
             entityManager.flush();
         }catch (Exception ex){
-            throw new MyIllegalArgumentException("Error persisting your data");
+            throw new MyIllegalArgumentException("Error persisting your data"+ex);
         }
-        return emotion.getId();
+        return emotion.getName();
     }
 
     /**
-     * Finds Emotion by given @Unique:id
+     * Finds Emotion by given @Id:name
      * @param id
      * @return
      */
-    public Emotion findEmotion(Long id) throws Exception{
-        Emotion emotion = entityManager.find(Emotion.class, id);
+    public Emotion findEmotion(String name) throws Exception{
+        Emotion emotion = entityManager.find(Emotion.class, name);
         if(emotion == null){
-            throw new MyEntityNotFoundException("[Error] - Emotion with id: \'"+id+"\' not Found");
+            throw new MyEntityNotFoundException("[Error] - Emotion with name: \'"+name+"\' not Found");
         }
         return emotion;
-    }
-
-    /**
-     * Checks if a Emotion exists with @Given:name
-     * @param name
-     * @return
-     */
-    public boolean checkEmotionValid(String name) {
-        TypedQuery<Emotion> query = entityManager.createQuery("SELECT e FROM Emotion e WHERE e.name = '" + name + "'", Emotion.class);
-        query.setLockMode(LockModeType.OPTIMISTIC);
-
-        return query.getResultList().size() == 0;
     }
 
     /**
@@ -81,15 +68,15 @@ public class EmotionBean {
     }
 
     /**
-     * Deletes a Emotion by given @Id:id
-     * @param id
+     * Deletes a Emotion by given @Id:name
+     * @param name
      * @return
      * @throws Exception
      */
-    public boolean delete(Long id) throws Exception{
-        Emotion emotion = findEmotion(id);
+    public boolean delete(String name) throws Exception{
+        Emotion emotion = findEmotion(name);
         entityManager.remove(emotion);
-        return entityManager.find(Emotion.class, emotion) == null;
+        return entityManager.find(Emotion.class, name) == null;
     }
 
 
