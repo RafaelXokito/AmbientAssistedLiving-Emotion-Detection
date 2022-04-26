@@ -12,14 +12,12 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.EmotionDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.IterationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.FrameBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 
@@ -133,21 +131,8 @@ public class FrameService {
         
         if (!securityContext.isUserInRole("Administrator") && iteration.getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
             throw new MyUnauthorizedException("You are not allowed to view this frame");
-        
+
         return framesToDTOs(frameBean.getIterationFrames(iteration));
-    }
-
-    @PATCH
-    @Path("{id}/classify")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response classifyFrame(@PathParam("id") long id, @HeaderParam("Authorization") String auth, EmotionDTO emotionDTO) throws Exception {
-        Frame frame = frameBean.findFrame(id);
-        
-        if (!securityContext.isUserInRole("Administrator") && frame.getIteration().getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
-            throw new MyUnauthorizedException("You are not allowed to view this frame");
-        frame = frameBean.classify(frame.getId(), emotionDTO.getName());
-
-        return Response.status(Response.Status.OK).entity(extendedToDTO(frame)).build();
     }
 
     @GET
@@ -156,7 +141,7 @@ public class FrameService {
         Iteration iteration = iterationBean.findIteration(id);
         
         if (!securityContext.isUserInRole("Administrator") && iteration.getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
-            throw new MyUnauthorizedException("You are not allowed to view this iteration");
+            throw new MyUnauthorizedException("You are not allowed to view this frame");
 
         return Response.status(Response.Status.OK).entity(!iteration.getFrames().isEmpty()).build();
     }
@@ -165,22 +150,6 @@ public class FrameService {
             frame.getId(),
             frame.getName(),
             frame.getPath());
-    }
-
-    FrameDTO extendedToDTO(Frame frame) { 
-        return new FrameDTO(
-            frame.getId(),
-            frame.getName(),
-            frame.getPath(),
-            emotionToDTO(frame.getEmotion())
-        );
-    }
-
-    EmotionDTO emotionToDTO(Emotion emotion) { 
-        return new EmotionDTO(
-            emotion.getName(),
-            emotion.getGroup()
-        );
     }
 
     List<FrameDTO> framesToDTOs(List<Frame> frames) {
@@ -193,7 +162,6 @@ public class FrameService {
             iteration.getId(),
             iteration.getMacAddress(),
             iteration.getEmotion(),
-            iteration.getCreated_at(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())
         );

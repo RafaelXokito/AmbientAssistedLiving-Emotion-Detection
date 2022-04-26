@@ -2,11 +2,7 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.entities;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-
-import io.smallrye.common.constraint.Nullable;
-
 import java.io.Serializable;
-import java.util.Date;
 
 @NamedQueries({
     @NamedQuery(
@@ -28,11 +24,6 @@ public class Frame implements Serializable{
     private String path;
     @ManyToOne
     private Iteration iteration;
-    @ManyToOne
-    @Nullable
-    private Emotion emotion; //Human Labelling - Emotion classified
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updated_at;
 
     public Frame(){
         this.path = "";
@@ -72,19 +63,6 @@ public class Frame implements Serializable{
 
     public void setIteration(Iteration iteration) {
         this.iteration = iteration;
-    }
-
-    public Emotion getEmotion() {
-        return emotion;
-    }
-
-    public void setEmotion(Emotion emotion) {
-        this.emotion = emotion;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updated_at = new Date();
     }
 
 }

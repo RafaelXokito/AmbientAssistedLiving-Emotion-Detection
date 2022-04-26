@@ -97,7 +97,7 @@ public class IterationService {
 
     private List<IterationDTO> toDTOs(List<Iteration> iterations) {
         return iterations.stream().map(this::toDTO).collect(Collectors.toList());
-    }   
+    }
 
     private IterationDTO toDTO(Iteration iteration) {
         return new IterationDTO(
