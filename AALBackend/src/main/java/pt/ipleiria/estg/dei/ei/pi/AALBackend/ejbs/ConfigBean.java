@@ -18,6 +18,8 @@ public class ConfigBean {
     AdministratorBean administratorBean;
     @EJB
     IterationBean iterationBean;
+    @EJB
+    EmotionBean emotionBean;
 
     private static final Logger logger = Logger.getLogger("ejbs.ConfigBean");
 
@@ -47,6 +49,19 @@ public class ConfigBean {
             clientBean.update(c1, "Domingos Jesus Mendes", 73, "913406043");
             System.out.println("## Deleting Client ");
             clientBean.delete(c1);
+
+            System.out.println("# Emotion");
+            System.out.println("## Creating Emotions ");
+            String e1 = emotionBean.create("Sad", "Negative");
+            String e2 = emotionBean.create("Happy", "Positive");
+
+            String e3 = emotionBean.create("Neutral", "Neutral");
+
+            String e4 = emotionBean.create("Fear", "Negative");
+            String e5 = emotionBean.create("Interest", "Positive");
+            String e6 = emotionBean.create("Pain", "Negative");
+            System.out.println("## Deleting Emotions ");
+            emotionBean.delete(e6);
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());

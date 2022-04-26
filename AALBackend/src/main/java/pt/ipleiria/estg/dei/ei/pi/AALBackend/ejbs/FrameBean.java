@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
@@ -67,6 +68,37 @@ public class FrameBean {
     }
 
     /**
+     * Classify a Frame by given @Id:id
+     * @param id
+     * @return Frame classified
+     * @throws Exception
+     */
+    public Frame classify(Long id, String emotionName) throws Exception{
+        Frame frame = findFrame(id);
+
+        Emotion emotion = findEmotion(emotionName);
+
+        frame.setEmotion(emotion);
+        emotion.addFrame(frame);
+        entityManager.flush();
+        return frame;
+    }
+
+    /**
+     * Finds Emotion by given @Id:name
+     * @param name
+     * @return
+     */
+    public Emotion findEmotion(String name) throws Exception{
+        Emotion emotion = entityManager.find(Emotion.class, name);
+        if(emotion == null){
+            throw new MyEntityNotFoundException("[Error] - Emotion with name: \'"+name+"\' not Found");
+        }
+        return emotion;
+    }
+
+
+    /**
      * Deletes a Frame by given @Id:id
      * @param id
      * @return
@@ -80,7 +112,7 @@ public class FrameBean {
 
     /**
      * Deletes a Frame
-     * @param id
+     * @param frame
      * @return
      * @throws Exception
      */
