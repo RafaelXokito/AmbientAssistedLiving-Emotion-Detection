@@ -1,3 +1,4 @@
+from asyncio import subprocess
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -11,6 +12,7 @@ import EmotionOpenFace
 
 import os
 import time
+import subprocess
 import requests
 from glob import glob
 
@@ -299,6 +301,13 @@ r = requests.post(url = API_ENDPOINT, json=json)
 
 # extracting response text 
 token = r.json()["token"]
+
+# Run websocket client
+p = subprocess.Popen([sys.executable, 'Websocket.py'], 
+                                    stdout=subprocess.PIPE, 
+                                    stderr=subprocess.STDOUT)
+with open('token.txt', 'w') as f:
+    f.write(token)
 
 video=cv2.VideoCapture(0)  #requisting the input from the webcam or camera
 
