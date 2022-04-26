@@ -51,6 +51,7 @@ export default {
       emotionGroup: null,
       humanLabelEmotions: [],
       emotionsClassified: [],
+      socket: null
     };
   },
   computed: {
@@ -85,6 +86,11 @@ export default {
         });
       });
   },
+  mounted() {
+    this.socket = new WebSocket(
+      process.env.WEBSOCKET_URL + this.$auth.user.id
+    );
+  },
   methods: {
     classify(id, base64) {
       this.$axios
@@ -97,13 +103,9 @@ export default {
             .goAway(3000);
           // Connection opened
           //console.log(this.socket)
-          const socket = new WebSocket(
-            "ws://localhost:8080/AALBackend/framesocket/" + this.$auth.user.id
-          );
           let jsonData = '{ "emotion" : "'+this.emotionsClassified[id - 1]+'", "image": "'+base64+'"}';
-          socket.addEventListener("open", function (event) {
-            socket.send(jsonData);
-          });
+          if (this.socket.readyState == 1)
+            this.socket.send(jsonData);
         });
     },
   },

@@ -38,6 +38,11 @@ export default {
     "@nuxtjs/toast"
   ],
 
+  env: {
+    WEBSOCKET_URL: process.env.WEBSOCKET_URL,
+    API_URL: process.env.API_URL
+  },
+
   auth: {
     redirect: {
       login: "/",
@@ -94,7 +99,7 @@ export default {
 
   proxy: {
     "/api/": {
-      target: "http://localhost:8080/AALBackend/api/",
+      target: process.env.API_URL,
       pathRewrite: {
         "^/api/": "",
       },

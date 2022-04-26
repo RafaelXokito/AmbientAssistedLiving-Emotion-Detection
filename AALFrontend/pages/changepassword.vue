@@ -7,6 +7,7 @@
 
 <script>
 import navbar from '~/components/utils/NavBar.vue'
+
 export default {
   components: {
     navbar,
