@@ -17,7 +17,7 @@
           class="mb-2 mx-auto"
         >
           <b-card-text>
-            <form v-on:submit.prevent="classify(frame.id)">
+            <form v-on:submit.prevent="classify(frame.id, frame.base64)">
               <div class="input-group">
                 <b-select
                   v-model="emotionsClassified[frame.id - 1]"
@@ -56,7 +56,7 @@ export default {
   computed: {
     id() {
       return this.$route.params.id;
-    }
+    },
   },
   created() {
     this.$axios.$get("/api/iterations/" + this.id).then((iteration) => {
@@ -72,8 +72,7 @@ export default {
       .$get("/api/frames/iteration/" + this.id)
       .then((responseFrames) => {
         responseFrames.forEach((frame) => {
-          this.emotionsClassified.push(frame.emotion.name)
-          console.log(this.emotionsClassified)
+          this.emotionsClassified.push(frame.emotion.name);
           this.$axios
             .$get("/api/frames/download/" + frame.id)
             .then((imageBase64) => {
@@ -87,7 +86,7 @@ export default {
       });
   },
   methods: {
-    classify(id) {
+    classify(id, base64) {
       this.$axios
         .$patch("/api/frames/" + id + "/classify", {
           name: this.emotionsClassified[id - 1],
@@ -96,6 +95,15 @@ export default {
           this.$toast
             .success("Frame nº " + id + " classified successfully")
             .goAway(3000);
+          // Connection opened
+          //console.log(this.socket)
+          const socket = new WebSocket(
+            "ws://localhost:8080/AALBackend/framesocket/" + this.$auth.user.id
+          );
+          let jsonData = '{ "emotion" : "'+this.emotionsClassified[id - 1]+'", "image": "'+base64+'"}';
+          socket.addEventListener("open", function (event) {
+            socket.send(jsonData);
+          });
         });
     },
   },
