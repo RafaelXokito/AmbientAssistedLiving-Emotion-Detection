@@ -10,6 +10,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.EmotionDTO;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
@@ -135,6 +137,20 @@ public class FrameService {
         return framesToDTOs(frameBean.getIterationFrames(iteration));
     }
 
+
+    @PATCH
+    @Path("{id}/classify")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response classifyFrame(@PathParam("id") long id, @HeaderParam("Authorization") String auth, EmotionDTO emotionDTO) throws Exception {
+        Frame frame = frameBean.findFrame(id);
+
+        if (!securityContext.isUserInRole("Administrator") && frame.getIteration().getClient().getId() != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to view this iteration");
+        frame = frameBean.classify(frame.getId(), emotionDTO.getName());
+
+        return Response.status(Response.Status.OK).entity(extendedToDTO(frame)).build();
+    }
+
     @GET
     @Path("{id}/exists")
     public Response hasFrames(@PathParam("id") long id, @HeaderParam("Authorization") String auth) throws Exception {
@@ -150,6 +166,22 @@ public class FrameService {
             frame.getId(),
             frame.getName(),
             frame.getPath());
+    }
+
+    FrameDTO extendedToDTO(Frame frame) {
+        return new FrameDTO(
+                frame.getId(),
+                frame.getName(),
+                frame.getPath(),
+                emotionToDTO(frame.getEmotion())
+        );
+    }
+
+    EmotionDTO emotionToDTO(Emotion emotion) {
+        return new EmotionDTO(
+                emotion.getName(),
+                emotion.getGroup()
+        );
     }
 
     List<FrameDTO> framesToDTOs(List<Frame> frames) {
