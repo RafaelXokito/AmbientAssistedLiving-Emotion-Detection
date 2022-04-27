@@ -12,6 +12,7 @@
       <b-navbar-nav class="ml-auto text-center">
         <b-nav-item v-if="$auth.user.scope === 'Client'" :class="this.$route.name == 'iterations' ? 'active' : ''" to="/iterations">Iterations</b-nav-item>
         <b-nav-item v-if="$auth.user.scope === 'Administrator'" :class="this.$route.name == 'clients' ? 'active' : ''" to="/clients">Clients</b-nav-item>
+        <b-nav-item v-if="$auth.user.scope === 'Administrator'" :class="this.$route.name == 'administrators' ? 'active' : ''" to="/administrators">Administrators</b-nav-item>
       </b-navbar-nav>
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">

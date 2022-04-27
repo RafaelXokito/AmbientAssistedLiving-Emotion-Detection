@@ -2,14 +2,14 @@
   <div>
     <navbar/>
     <div align="right">
-      <b-button class="m-5" variant="outline-info" v-b-modal.modalCreate>+ Client</b-button>
+      <b-button class="m-5" variant="outline-info" v-b-modal.modalCreate>+ Administrator</b-button>
     </div>
     <b-container>
       <div class="mt-5" v-if="tableLength != 0">
         <b-table
           small
-          id="clientsTable"
-          :items="clients"
+          id="administratorsTable"
+          :items="administrators"
           :fields="fields"
           :current-page="currentPage"
           :per-page="perPage"
@@ -25,9 +25,9 @@
           align="center"
         ></b-pagination>
       </div>
-      <div v-else>No clients</div>
+      <div v-else>No administrators</div>
     </b-container>
-    <b-modal id="modalCreate" size="lg" title="Create Client" hide-footer>
+    <b-modal id="modalCreate" size="lg" title="Create Administrator" hide-footer>
       <b-form @submit.prevent="onSubmit" @reset.prevent="resetCreate">
         <b-form-group
           id="input-group-name"
@@ -71,33 +71,6 @@
             trim
           ></b-form-input>
         </b-form-group>
-        <b-form-group
-          id="input-group-birthdate"
-          label="Date of Birth:"
-          label-for="input-birthdate"
-          label-class="font-weight-bold"
-        >
-          <b-form-datepicker
-            id="input-birthdate"
-            v-model="form.birthDate"
-            show-decade-nav
-            hide-header
-            aria-describedby="input-birthdate-feedback"
-          />
-        </b-form-group>
-        <b-form-group
-          id="input-group-phonenumber"
-          label="Phone Number:"
-          label-for="input-phonenumber"
-          label-class="font-weight-bold"
-        >
-          <b-form-input
-            id="input-phonenumber"
-            aria-describedby="input-phonenumber-feedback"
-            v-model="form.contact"
-            trim
-          ></b-form-input>
-        </b-form-group>
         <div align="center">
           <b-button type="submit" variant="primary">Create</b-button>
           <b-button type="reset" variant="danger">Reset</b-button>
@@ -122,8 +95,6 @@ export default {
         email: null,
         password: null,
         name: null,
-        birthDate: null,
-        contact: null
       },
       fields: [
         {
@@ -138,20 +109,8 @@ export default {
           sortable: true,
           sortDirection: "desc",
         },
-        {
-          key: "age",
-          label: "Age",
-          sortable: true,
-          sortDirection: "desc",
-        },
-        {
-          key: "contact",
-          label: "Contact",
-          sortable: true,
-          sortDirection: "desc",
-        },
       ],
-      clients: [],
+      administrators: [],
       perPage: 10,
       currentPage: 1
     }
@@ -161,7 +120,7 @@ export default {
       return this.$auth.user
     },
     tableLength() {
-      return this.clients.length;
+      return this.administrators.length;
     },
   },
   methods: {
@@ -169,31 +128,31 @@ export default {
       this.form.birthDate = new Date(this.form.birthDate)
 
       this.$axios
-        .$post("/api/clients", this.form)
-        .then((client) => {
-          this.$toast.success('Client '+this.form.name+' created').goAway(3000);
-          this.clients += client;
+        .$post("/api/administrators", this.form)
+        .then((administrator) => {
+          this.$toast.success('Administrator '+this.form.name+' created').goAway(3000);
+          this.administrators += administrator;
         })
         .catch(() => {
-          this.$toast.error("Error creating client").goAway(3000);
+          this.$toast.error("Error creating administrator").goAway(3000);
         });
     },
     resetCreate() {
-      this.clients = null;
+      this.administrators = null;
     },
-    getClients() {
+    getAdministrators() {
       this.$axios
-        .$get("/api/clients")
-        .then((clients) => {
-          this.clients = clients;
+        .$get("/api/administrators")
+        .then((administrators) => {
+          this.administrators = administrators;
         })
         .catch(() => {
-          this.$toast.info("No clients found").goAway(3000);
+          this.$toast.info("No administrators found").goAway(3000);
         });
     }
   },
   created() {
-    this.getClients();
+    this.getAdministrators();
   },
 }
 </script>
