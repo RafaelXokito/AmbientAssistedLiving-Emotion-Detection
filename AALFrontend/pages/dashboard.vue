@@ -1,7 +1,13 @@
 <template>
   <div>
     <navbar/>
-    <h1>{{currentUser}}</h1>
+    <header class="text-white text-center">
+      <img src="/DashboardImage.svg" class="rounded-circle" width="500">
+      <h1>Bem vindo(a) {{currentUser.name}}</h1>
+    </header>
+    <footer>
+      <a href="https://storyset.com/people">People illustrations by Storyset</a>
+    </footer>
   </div>
 </template>
 
@@ -20,5 +26,11 @@ export default {
 </script>
 
 <style>
-
+header {
+  background-color: #FFDAC1;
+  font-family: var(--bs-body-font-family);
+}
+h1 {
+  padding-bottom: 150px;
+}
 </style>

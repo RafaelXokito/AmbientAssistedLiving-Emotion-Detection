@@ -1,7 +1,6 @@
 <template>
   <div>
     <navbar/>
-    <h1>Clients</h1>
     <b-container>
       <div class="mt-5" v-if="tableLength != 0">
         <b-table
