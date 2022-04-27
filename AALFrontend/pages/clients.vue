@@ -1,6 +1,9 @@
 <template>
   <div>
     <navbar/>
+    <div align="right">
+      <b-button class="m-5" variant="outline-info" v-b-modal.modalCreate>+ Client</b-button>
+    </div>
     <b-container>
       <div class="mt-5" v-if="tableLength != 0">
         <b-table
@@ -24,6 +27,7 @@
       </div>
       <div v-else>No clients</div>
     </b-container>
+    <b-modal id="modalCreate" size="lg" title="Large Modal">Hello Large Modal!</b-modal>
   </div>
 </template>
 
