@@ -3,12 +3,14 @@
     <navbar />
     <h1>Iterations</h1>
     <b-container>
-    <div class="mt-5" v-if="this.tableLength != 0">
+    <div class="mt-5" v-if="tableLength != 0">
       <b-table
         small
-        id="table"
-        :items="this.iterations"
+        id="iterationsTable"
+        :items="iterations"
         :fields="fields"
+        :current-page="currentPage"
+        :per-page="perPage"
         striped
         responsive="sm"
       >
@@ -30,6 +32,13 @@
           }}
         </template>
       </b-table>
+      <b-pagination
+        v-model="currentPage"
+        :total-rows="tableLength"
+        :per-page="perPage"
+        aria-controls="my-table"
+        align="center"
+      ></b-pagination>
     </div>
     <div v-else>No iterations</div>
   </b-container>
@@ -57,6 +66,8 @@ export default {
         "Frames",
       ],
       iterations: [],
+      perPage: 10,
+      currentPage: 1
     };
   },
   components: {
@@ -81,7 +92,7 @@ export default {
     currentUser() {
       return this.$auth.user;
     },
-    tableLength: function () {
+    tableLength() {
       return this.iterations.length;
     },
   },
