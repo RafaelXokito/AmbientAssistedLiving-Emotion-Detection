@@ -410,7 +410,8 @@ while True:
 			break
 	
 	"""Código de conecção à API"""
-	emotionsPath = glob(TOP_FRAMES_PATH+'/*')
+	# Windows slash bars wrong way => w.replace(os.sep, '/')
+	emotionsPath =  [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/*')]
 
 	# defining the api-endpoint 
 	API_ENDPOINT = API_URL+"/frames/upload"
