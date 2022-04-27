@@ -207,7 +207,7 @@ public class FrameService {
         return new ClientDTO(
             client.getEmail(),
             client.getName(),
-            client.getAge(),
+            client.getBirthDate(),
             client.getContact()
         );
     }

@@ -12,6 +12,8 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -25,12 +27,12 @@ public class ClientBean {
      * @param email
      * @param password
      * @param name
-     * @param age
+     * @param birthDate
      * @param contact
-     * @param a1
+     * @param adminId
      * @throws Exception
      */
-    public Long create(String email, String password, String name, int age, String contact, Long adminId) throws Exception{
+    public Long create(String email, String password, String name, Date birthDate, String contact, Long adminId) throws Exception{
 
         Administrator administratorFound = entityManager.find(Administrator.class, adminId);
         if(administratorFound == null){
@@ -58,12 +60,11 @@ public class ClientBean {
         if(contact.trim().length() != 9 || !contact.startsWith("9")){
             throw new IllegalArgumentException("[Error] - Contact must have 9 number and be in hte PT format");
         }
-
-        if(age <= 0){
-            throw new IllegalArgumentException("[Error] - Age must be a positive number");
+        if(birthDate == null || Date.from(Instant.now()).compareTo(birthDate) < 0){
+            throw new IllegalArgumentException("[Error] - Birthdate is mandatory and must be before today's date");
         }
 
-        Client client = new Client(email, password, name, age, contact, administratorFound);
+        Client client = new Client(email, password, name, birthDate, contact, administratorFound);
         administratorFound.addClient(client);
         try {
             entityManager.persist(client);
@@ -123,29 +124,29 @@ public class ClientBean {
 
     /**
      * Updates a Client by the given @Email:email
-     * @param email
+     * @param id
      * @param name
-     * @param age
+     * @param birthDate
      * @param contact
      * @throws Exception
      */
-    public void update(Long id, String name, int age, String contact) throws Exception{
+    public void update(Long id, String name, Date birthDate, String contact) throws Exception{
         Client client = findClient(id);
-        if(name != null && name.trim().length() < 3){
+        if(name == null || name.trim().length() < 3){
             throw new IllegalArgumentException("[Error] - Name must have at least 3 characters");
         }
 
-        if(age <= 0){
-            throw new IllegalArgumentException("[Error] - Age must be a positive number");
+        if(birthDate == null || Date.from(Instant.now()).compareTo(birthDate) < 0){
+            throw new IllegalArgumentException("[Error] - Birthdate must be before today's date");
         }
         
-        if(contact != null && !Pattern.compile("(9[1236][0-9])([0-9]{6})").matcher(contact).matches()){
+        if(contact == null || !Pattern.compile("(9[1236][0-9])([0-9]{6})").matcher(contact).matches()){
             throw new IllegalArgumentException("[Error] - Contact must have 9 number and be in hte PT format");
         }
 
         entityManager.lock(client, LockModeType.PESSIMISTIC_FORCE_INCREMENT);
         client.setName(name);
-        client.setAge(age);
+        client.setBirthDate(birthDate);
         client.setContact(contact);
 
         try{

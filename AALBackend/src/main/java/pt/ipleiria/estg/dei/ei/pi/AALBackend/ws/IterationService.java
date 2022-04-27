@@ -124,7 +124,7 @@ public class IterationService {
         return new ClientDTO(
             client.getEmail(),
             client.getName(),
-            client.getAge(),
+            client.getBirthDate(),
             client.getContact()
         );
     }

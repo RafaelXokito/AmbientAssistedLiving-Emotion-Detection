@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.entities;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.*;
@@ -16,8 +17,11 @@ import java.io.Serializable;
 @Table(name = "CLIENTS")
 @Entity
 public class Client extends Person implements Serializable {
+
     @NotNull
-    private int age;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date birthDate;
+
     @NotNull
     private String contact;
     @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
@@ -30,24 +34,24 @@ public class Client extends Person implements Serializable {
 
     public Client() {
         super();
-        this.age = -1;
+        this.birthDate = new Date();
         this.contact = "";
         this.administrator = new Administrator();
     }
 
-    public Client(String email, String password, String name, int age, String contact, Administrator administrator) {
+    public Client(String email, String password, String name, Date birthDate, String contact, Administrator administrator) {
         super(name,email,password);
-        this.age = age;
+        this.birthDate = birthDate;
         this.contact = contact;
         this.administrator = administrator;
     }
 
-    public int getAge() {
-        return age;
+    public Date getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getContact() {
