@@ -118,7 +118,6 @@ export default {
   data() {
     return {
       form: {
-        id: null,
         email: null,
         password: null,
         name: null,
@@ -167,12 +166,11 @@ export default {
   methods: {
     onSubmit() {
       this.form.birthDate = new Date(this.form.birthDate)
-
       this.$axios
         .$post("/api/clients", this.form)
         .then((client) => {
           this.$toast.success('Client '+this.form.name+' created').goAway(3000);
-          this.clients += client;
+          this.clients.push(client);
         })
         .catch(() => {
           this.$toast.error("Error creating client").goAway(3000);

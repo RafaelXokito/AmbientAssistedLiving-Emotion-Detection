@@ -91,7 +91,6 @@ export default {
   data() {
     return {
       form: {
-        id: null,
         email: null,
         password: null,
         name: null,
@@ -131,7 +130,7 @@ export default {
         .$post("/api/administrators", this.form)
         .then((administrator) => {
           this.$toast.success('Administrator '+this.form.name+' created').goAway(3000);
-          this.administrators += administrator;
+          this.administrators.push(administrator);
         })
         .catch(() => {
           this.$toast.error("Error creating administrator").goAway(3000);
