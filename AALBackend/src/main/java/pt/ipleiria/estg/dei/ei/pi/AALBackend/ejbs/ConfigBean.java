@@ -5,6 +5,10 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,9 +48,9 @@ public class ConfigBean {
 
             System.out.println("# Clients ");
             System.out.println("## Creating Clients ");
-            Long c1 = clientBean.create("client@gmail.com", "1234567", "Client", 71, "912934543", a2);
+           Long c1 = clientBean.create("client@gmail.com", "1234567", "Client", getDate(1950, 10, 25), "912934543", a2);
             System.out.println("## Updating Clients ");
-            clientBean.update(c1, "Domingos Jesus Mendes", 73, "913406043");
+            clientBean.update(c1, "Domingos Jesus Mendes",getDate(1950, 10, 25), "913406043");
             System.out.println("## Deleting Client ");
             clientBean.delete(c1);
 
@@ -66,5 +70,8 @@ public class ConfigBean {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());
         }
+    }
+    private Date getDate(int year, int month, int day) {
+        return Date.from(LocalDate.of(year, month, day).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 }

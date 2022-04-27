@@ -1,11 +1,13 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos;
 
+import java.util.Date;
+
 public class ClientDTO {
     private long id;
     private String email;
     private String name;
     private String password;
-    private int age;
+    private Date birthDate;
     private String contact;
     private AdministratorDTO administrator;
 
@@ -14,41 +16,41 @@ public class ClientDTO {
         this.email = "";
         this.name = "";
         this.password = "";
-        this.age = -1;
+        this.birthDate = new Date();
         this.contact = "";
         this.administrator = new AdministratorDTO();
     }
 
-    public ClientDTO(long id, String email, String name, int age, String contact) {
+    public ClientDTO(long id, String email, String name, Date birthDate, String contact) {
         this.id = id;
         this.email = email;
         this.name = name;
-        this.age = age;
+        this.birthDate = birthDate;
         this.contact = contact;
         this.administrator = new AdministratorDTO();
     }
 
-    public ClientDTO(long id, String email, String name, int age, String contact, AdministratorDTO administrator) {
+    public ClientDTO(long id, String email, String name, Date birthDate, String contact, AdministratorDTO administrator) {
         this.id = id;
         this.email = email;
         this.name = name;
-        this.age = age;
+        this.birthDate = birthDate;
         this.contact = contact;
         this.administrator = administrator;
     }
 
-    public ClientDTO(String email, String name, int age, String contact) {
+    public ClientDTO(String email, String name, Date birthDate, String contact) {
         this.email = email;
         this.name = name;
-        this.age = age;
+        this.birthDate = birthDate;
         this.contact = contact;
     }
 
-    public ClientDTO(String email, String password, String name, int age, String contact) {
+    public ClientDTO(String email, String password, String name, Date birthDate, String contact) {
         this.email = email;
         this.name = name;
         this.password = password;
-        this.age = age;
+        this.birthDate = birthDate;
         this.contact = contact;
     }
 
@@ -84,12 +86,12 @@ public class ClientDTO {
         this.password = password;
     }
 
-    public int getAge() {
-        return age;
+    public Date getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getContact() {

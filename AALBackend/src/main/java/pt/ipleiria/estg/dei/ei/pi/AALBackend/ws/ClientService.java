@@ -47,7 +47,7 @@ public class ClientService {
     @POST
     @Path("/")
     public Response createClientWS(ClientDTO clientDTO, @HeaderParam("Authorization") String auth) throws Exception {
-        Long id = clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact(),personBean.getPersonByAuthToken(auth).getId());
+        Long id = clientBean.create(clientDTO.getEmail(), clientDTO.getPassword(), clientDTO.getName(), clientDTO.getBirthDate(), clientDTO.getContact(),personBean.getPersonByAuthToken(auth).getId());
 
         Client client = clientBean.findClient(id);
         return Response.status(Response.Status.CREATED)
@@ -58,7 +58,7 @@ public class ClientService {
     @PUT
     @Path("{id}")
     public Response updateClientWS(@PathParam("id") Long id,ClientDTO clientDTO) throws Exception {
-        clientBean.update(id, clientDTO.getName(), clientDTO.getAge(), clientDTO.getContact());
+        clientBean.update(id, clientDTO.getName(), clientDTO.getBirthDate(), clientDTO.getContact());
 
         Client client = clientBean.findClient(id);
 
@@ -89,7 +89,7 @@ public class ClientService {
             client.getId(),
             client.getEmail(),
             client.getName(),
-            client.getAge(),
+            client.getBirthDate(),
             client.getContact(),
             administratorToDTO(client.getAdministrator())
         );
