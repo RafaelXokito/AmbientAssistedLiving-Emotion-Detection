@@ -64,6 +64,19 @@ export default {
           sortable: true,
           sortDirection: "desc",
         },
+        {
+          key: "classifiedFrames",
+          label: "Classified Frames",
+          sortable: true,
+          sortDirection: "desc",
+        },
+        {
+          key: "totalFrames",
+          label: "Total Frames",
+          sortable: true,
+          sortDirection: "desc",
+        }
+        ,
         "Frames",
       ],
       iterations: [],
@@ -80,6 +93,7 @@ export default {
         .$get("/api/iterations")
         .then((iterations) => {
           this.iterations = iterations;
+          console.log(iterations)
         })
         .catch(() => {
           this.$toast.info("No iterations found").goAway(3000);
