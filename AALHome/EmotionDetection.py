@@ -168,7 +168,6 @@ if tf_version == 2:
 class_indices = EmotionDeepFace.getClassIndices()
 
 def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics):
-	print("ola")
 	"""
 	This function builds a deepface model
 	Parameters:

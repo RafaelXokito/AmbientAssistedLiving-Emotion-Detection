@@ -20,8 +20,9 @@ from dotenv import load_dotenv
 load_dotenv()
 import base64
 from getmac import get_mac_address as gma
-import random
-import shutil
+
+import platform
+
 def parameters():
 
 	"""
@@ -239,7 +240,7 @@ def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, orderedFrame
 		os.mkdir('top10Frames/'+emotion)
 
 	
-	framesEmotions = glob('top10Frames/'+emotion+'/*.jpg')
+	framesEmotions =  [w.replace(os.sep, '/') for w in  glob('top10Frames/'+emotion+'/*.jpg')]
 	count = len(framesEmotions)
 	if len(arrayTopPredictionsEmotion) >= 10:
 		if orderedFramesPredictions[0] < predictionEmotion: 
@@ -276,6 +277,18 @@ def resetFolderFrames(emotion):
 		return len(glob('top10Frames/'+emotion+'/*.jpg'))
 	return -1
 
+def creation_date(path_to_file):
+    if platform.system() == 'Windows':
+        return os.path.getctime(path_to_file)
+    else:
+        stat = os.stat(path_to_file)
+        try:
+            return stat.st_birthtime
+        except AttributeError:
+            # We're probably on Linux. No easy way to get creation dates here,
+            # so we'll settle for when its content was last modified.
+            return stat.st_mtime
+
 #validar os parametros
 params = parameters()
 
@@ -288,9 +301,7 @@ TOP_FRAMES_PATH = os.getenv('TOP_FRAMES_PATH')
 API_URL = os.getenv('API_URL')
 CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
 CLIENT_PASSWORD = os.getenv('CLIENT_PASSWORD')
-RETRAIN_TIME = int(os.getenv('RETRAIN_TIME'))
-PRE_DATABASE_PATH = os.getenv('PRE_DATABASE_PATH')
-DATABASE_PATH = os.getenv('DATABASE_PATH')
+
 # defining the api-endpoint 
 API_ENDPOINT = API_URL+"/auth/login"
 
@@ -363,118 +374,101 @@ if r.status_code == 200:
 	resetFolderFrames('negative')
 	resetFolderFrames('positive')
 	resetFolderFrames('neutral')
-
+	auxmodelCreationDate = creation_date(modelPath)
 	while True:
 
 		start_time = time.time()
-		start_time_retrain = time.time()
-
-		while ( int(time.time() - start_time_retrain) < RETRAIN_TIME ):
-			if os.path.exists(PRE_DATABASE_PATH) == True:
-				emotionsPath = [w.replace(os.sep, '/') for w in  glob(PRE_DATABASE_PATH+'/*')]			
-				for emotionPath in emotionsPath:
-					files = [w.replace(os.sep, '/') for w in  glob(emotionPath+'/*.jpg')]	
-					if len(files) == 10:
-						emotion = emotionPath.split('/')[1]
-						if os.path.exists(DATABASE_PATH + "/train/" + emotion) == False:
-							os.mkdir(DATABASE_PATH + "/train/" + emotion)
-							os.mkdir(DATABASE_PATH + "/test/" + emotion)
-						for file in files:
-							# 20% for test 80% for train
-							if random.randint(0, 100) > 20:
-								pathComplement = "train"
-							else: 
-								pathComplement = "test"
-							destination = DATABASE_PATH + '/' + pathComplement + '/' + emotion + '/' +file.split('/')[-1]
-							shutil.move(file, destination)
-
+		modelCreationDate = creation_date(modelPath)
+		if auxmodelCreationDate != modelCreationDate:
+			model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,False, epochs, batches, activationFunction, lossFunction, metrics)
+		
 		#Irá capturar vídeo até chegar ao tempo parametrizado (segundos) e fazer passar à fase de human labelling
-			while ( int(time.time() - start_time) < time_HLIteration ):  #checking if are getting video feed and using it
-				_,frame = video.read()
+		while ( int(time.time() - start_time) < time_HLIteration ):  #checking if are getting video feed and using it
+			_,frame = video.read()
 
-				try:
-					result = analyze(
-						frame,
-						model=model,
-					)
+			try:
+				result = analyze(
+					frame,
+					model=model,
+				)
 
-					if result["dominant_emotion"] != "Not Found":
-						img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
-						roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
-						roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-						
-						p_negative = np.double(result["emotion"]["negative"])
-						p_positive = np.double(result["emotion"]["positive"])
-						p_neutral = np.double(result["emotion"]["neutral"])
-
-						cv2.circle(board,(x, 200),10,(0,0,0),-1)
-						cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
-
-						x = centro_x - int(p_negative+p_neutral) if p_negative > p_positive else centro_x + int(p_positive+p_neutral)
-						cv2.circle(board,(x, 200),10,(255,255,255),-1)
-
-						if result["dominant_emotion"] == "negative":
-							framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", roi)
-						
-						#if result["dominant_emotion"] == "neutral":
-						# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
-						framesPredictionsTop10Neutral,orderedPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, orderedPredictionsTop10Neutral, "neutral", roi)
-						
-						if result["dominant_emotion"] == "positive":
-							framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", roi)
+				if result["dominant_emotion"] != "Not Found":
+					img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
+					roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
+					roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 					
+					p_negative = np.double(result["emotion"]["negative"])
+					p_positive = np.double(result["emotion"]["positive"])
+					p_neutral = np.double(result["emotion"]["neutral"])
+
+					cv2.circle(board,(x, 200),10,(0,0,0),-1)
+					cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
+
+					x = centro_x - int(p_negative+p_neutral) if p_negative > p_positive else centro_x + int(p_positive+p_neutral)
+					cv2.circle(board,(x, 200),10,(255,255,255),-1)
+
+					if result["dominant_emotion"] == "negative":
+						framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", roi)
+					
+					#if result["dominant_emotion"] == "neutral":
+					# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
+					framesPredictionsTop10Neutral,orderedPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, orderedPredictionsTop10Neutral, "neutral", roi)
+					
+					if result["dominant_emotion"] == "positive":
+						framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", roi)
+				
 						#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
-				except:
-					print("no face")
-				
-				#this is the part where we display the output to the user
-				#cv2.imshow('video', frame)
-				cv2.imshow('board', board)
-				key=cv2.waitKey(1) 
-				if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
-					break
+			except:
+				print("no face")
 			
-			"""Código de conecção à API"""
-			# Windows slash bars wrong way => w.replace(os.sep, '/')
-			emotionsPath =  [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/*')]
+			#this is the part where we display the output to the user
+			#cv2.imshow('video', frame)
+			cv2.imshow('board', board)
+			key=cv2.waitKey(1) 
+			if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
+				break
+		
+		"""Código de conecção à API"""
+		# Windows slash bars wrong way => w.replace(os.sep, '/')
+		emotionsPath =  [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/*')]
 
-			# defining the api-endpoint 
-			API_ENDPOINT = API_URL+"/frames/upload"
+		# defining the api-endpoint 
+		API_ENDPOINT = API_URL+"/frames/upload"
 
-			requestOk = 0
-			requestTotal = 0
-			for emotionPath in emotionsPath:
-				emotion = emotionPath.split('/')[-1]
+		requestOk = 0
+		requestTotal = 0
+		for emotionPath in emotionsPath:
+			emotion = emotionPath.split('/')[-1]
 
-				if len(glob(TOP_FRAMES_PATH+'/'+emotion+'/*')) == 0:
-					continue
+			if len(glob(TOP_FRAMES_PATH+'/'+emotion+'/*')) == 0:
+				continue
+			
+			requestTotal = requestTotal + 1
+
+			data = {
+				"macAddress": "123456789123",
+				"emotion": emotion,
+			}
+
+			files = []
+			for imagePath in glob(TOP_FRAMES_PATH+'/'+emotion+'/*'):
+				files.append(('file',(imagePath.split('/')[-1],open(imagePath,'rb'),'application/octet-stream')))
+
+			headers = {"Authorization": "Bearer "+token}
 				
-				requestTotal = requestTotal + 1
+			# sending post request and saving response as response object
+			
+			r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
+			if r.status_code == 200:
+				requestOk = requestOk + 1
+			# extracting response text 
+			#responseIteration = r.json()
 
-				data = {
-					"macAddress": "123456789123",
-					"emotion": emotion,
-				}
-
-				files = []
-				for imagePath in glob(TOP_FRAMES_PATH+'/'+emotion+'/*'):
-					files.append(('file',(imagePath.split('/')[-1],open(imagePath,'rb'),'application/octet-stream')))
-
-				headers = {"Authorization": "Bearer "+token}
-					
-				# sending post request and saving response as response object
-				
-				r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
-				if r.status_code == 200:
-					requestOk = requestOk + 1
-				# extracting response text 
-				#responseIteration = r.json()
-
-			if requestOk == requestTotal:
-				print("Foi efetuado registo de frames com sucesso")
-			else:
-				print("Ocorreu um erro no registo de frames")
-			time.sleep(1)
+		if requestOk == requestTotal:
+			print("Foi efetuado registo de frames com sucesso")
+		else:
+			print("Ocorreu um erro no registo de frames")
+		time.sleep(1)
 
 	#video.release()
 else:
