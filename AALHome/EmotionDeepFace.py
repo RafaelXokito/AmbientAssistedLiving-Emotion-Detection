@@ -44,7 +44,6 @@ else:
 
 def loadModel(url = 'https://github.com/serengil/deepface_models/releases/download/v1.0/facial_expression_model_weights.h5', dataset_dir = 'FER-2013',modelPath='weights/DeepFace_v6_binary_500_128.h5', classIndicesPath='analysis/class_indices.json', forceRetrain = False, epochs=100, batch_size=128, activation='softmax', loss='categorical_crossentropy', metrics='accuracy'):
     
-    print(modelPath)
     if exists(modelPath) and forceRetrain == False:
         with open(classIndicesPath) as json_file:
             class_indices = json.load(json_file)
@@ -132,9 +131,6 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     class_indices = train_generator.class_indices
 
-    with open('analysis/class_indices.json', 'w', encoding='utf-8') as f:
-        json.dump(class_indices, f, ensure_ascii=False, indent=4)
-
     valid_generator = image_generator.flow_from_directory(
                                                         valid_path,
                                                         target_size=IMAGE_SIZE, 
@@ -165,7 +161,9 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
     print("Time training: "+str(diffTime.seconds)+" seconds\n")
 
     model.save(filepath=modelPath,include_optimizer=True)
-
+    with open('analysis/class_indices.json', 'w', encoding='utf-8') as f:
+        json.dump(class_indices, f, ensure_ascii=False, indent=4)
+        
     # convert the training history to a dataframe
     history_df = pd.DataFrame(r.history)
 

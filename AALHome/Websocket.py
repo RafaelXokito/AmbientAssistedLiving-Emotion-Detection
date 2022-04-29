@@ -10,7 +10,7 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 
-PRE_DATABASE_PATH = os.getenv('PRE_DATABASE_PATH')
+PRE_DATASET_PATH = os.getenv('PRE_DATASET_PATH')
 
 def on_message(ws, message):
     if (len(message) > 70):
@@ -25,10 +25,10 @@ def on_message(ws, message):
         
         # If path does not exists, we make it
 
-        if os.path.exists(PRE_DATABASE_PATH) == False:
-            os.mkdir(PRE_DATABASE_PATH)
+        if os.path.exists(PRE_DATASET_PATH) == False:
+            os.mkdir(PRE_DATASET_PATH)
 
-        path = PRE_DATABASE_PATH +"/"+ messageContent["emotion"]
+        path = PRE_DATASET_PATH +"/"+ messageContent["emotion"]
         
         if os.path.exists(path) == False:
             os.mkdir(path)

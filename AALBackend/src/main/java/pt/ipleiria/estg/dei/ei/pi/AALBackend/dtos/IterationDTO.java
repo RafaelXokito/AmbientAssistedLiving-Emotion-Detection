@@ -11,6 +11,8 @@ public class IterationDTO {
     private ClientDTO client;
     private List<FrameDTO> frames;
     private Date created_at;
+    private short classifiedFrames;
+    private short totalFrames;
 
     public IterationDTO(){
         this.id = -1;
@@ -19,6 +21,8 @@ public class IterationDTO {
         this.created_at = new Date();
         this.client = new ClientDTO();
         this.frames = new ArrayList<>();
+        this.classifiedFrames = 0;
+        this.totalFrames = 0;
     }
 
     public IterationDTO(long id, String macAddress, String emotion, Date created_at, ClientDTO client){
@@ -28,6 +32,8 @@ public class IterationDTO {
         this.created_at = created_at;
         this.client = client;
         this.frames = new ArrayList<>();
+        this.classifiedFrames = 0;
+        this.totalFrames = 0;
     }
 
     public IterationDTO(long id, String macAddress, String emotion, Date created_at, ClientDTO client, List<FrameDTO> frames){
@@ -37,15 +43,19 @@ public class IterationDTO {
         this.created_at = created_at;
         this.client = client;
         this.frames = frames;
+        this.classifiedFrames = 0;
+        this.totalFrames = (short) frames.size();
     }
 
-    public IterationDTO(long id, String macAddress, String emotion, Date created_at){
+    public IterationDTO(long id, String macAddress, String emotion, Date created_at, short classifiedFrames, short totalFrames){
         this.id = id;
         this.macAddress = macAddress;
         this.emotion = emotion;
         this.created_at = created_at;
         this.client = new ClientDTO();
         this.frames = new ArrayList<>();
+        this.classifiedFrames = classifiedFrames;
+        this.totalFrames = totalFrames;
     }
 
     public IterationDTO(String macAddress, String emotion, Date created_at, ClientDTO client){
@@ -55,6 +65,24 @@ public class IterationDTO {
         this.created_at = created_at;
         this.client = client;
         this.frames = new ArrayList<>();
+        this.classifiedFrames = 0;
+        this.totalFrames = 0;
+    }
+
+    public short getClassifiedFrames() {
+        return classifiedFrames;
+    }
+
+    public void setClassifiedFrames(short classifiedFrames) {
+        this.classifiedFrames = classifiedFrames;
+    }
+
+    public short getTotalFrames() {
+        return totalFrames;
+    }
+
+    public void setTotalFrames(short totalFrames) {
+        this.totalFrames = totalFrames;
     }
 
     public long getId(){

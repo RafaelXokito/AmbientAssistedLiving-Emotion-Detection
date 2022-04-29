@@ -91,8 +91,19 @@ public class IterationService {
             iteration.getId(),
             iteration.getMacAddress(),
             iteration.getEmotion(),
-            iteration.getCreated_at()
+            iteration.getCreated_at(),
+            countClassifiedFrames(iteration.getFrames()),
+            (short) iteration.getFrames().size()
         );
+    }
+    private short countClassifiedFrames(List<Frame> frames){
+        short countClassifiedFrames = 0;
+        for (Frame frame:frames) {
+            if (frame.getEmotion() != null){
+                countClassifiedFrames++;
+            }
+        }
+        return countClassifiedFrames;
     }
 
     private List<IterationDTO> toDTOs(List<Iteration> iterations) {
