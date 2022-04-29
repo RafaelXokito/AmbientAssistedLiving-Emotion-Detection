@@ -21,11 +21,10 @@ public class ClientDTO {
         this.administrator = new AdministratorDTO();
     }
 
-    public ClientDTO(long id, String email, String password, String name, Date birthDate, String contact) {
+    public ClientDTO(long id, String email, String name, Date birthDate, String contact) {
         this.id = id;
         this.email = email;
         this.name = name;
-        this.password = password;
         this.birthDate = birthDate;
         this.contact = contact;
         this.administrator = new AdministratorDTO();

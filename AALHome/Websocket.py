@@ -7,11 +7,10 @@ import requests
 import uuid
 import base64
 import json
-import random
 from dotenv import load_dotenv
 load_dotenv()
 
-DATABASE_PATH = os.getenv('DATABASE_PATH')
+PRE_DATABASE_PATH = os.getenv('PRE_DATABASE_PATH')
 
 def on_message(ws, message):
     if (len(message) > 70):
@@ -23,19 +22,16 @@ def on_message(ws, message):
             messageContent["image"] = messageContent["image"].split(",")[1]
 
         image64 = bytes(messageContent["image"], 'ascii')
-
+        
         # If path does not exists, we make it
-        if os.path.exists(DATABASE_PATH + "/train/" + messageContent["emotion"]) == False:
-            os.mkdir(DATABASE_PATH + "/train/" + messageContent["emotion"])
-            os.mkdir(DATABASE_PATH + "/test/" + messageContent["emotion"])
 
-        # 20% for test 80% for train
-        if random.randint(0, 100) > 20:
-            pathComplement = "train"
-        else: 
-            pathComplement = "test"
+        if os.path.exists(PRE_DATABASE_PATH) == False:
+            os.mkdir(PRE_DATABASE_PATH)
 
-        path = DATABASE_PATH + "/" + pathComplement + "/" + messageContent["emotion"]
+        path = PRE_DATABASE_PATH +"/"+ messageContent["emotion"]
+        
+        if os.path.exists(path) == False:
+            os.mkdir(path)
 
         with open(path + "/" + str(uuid.uuid4())+'.jpg', "wb") as fh:
             fh.write(base64.decodebytes(image64))

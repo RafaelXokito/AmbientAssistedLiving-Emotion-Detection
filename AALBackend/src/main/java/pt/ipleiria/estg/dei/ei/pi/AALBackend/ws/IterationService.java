@@ -123,7 +123,6 @@ public class IterationService {
     private ClientDTO clientToDTO(Client client) {
         return new ClientDTO(
             client.getEmail(),
-            client.getPassword(),
             client.getName(),
             client.getBirthDate(),
             client.getContact()
