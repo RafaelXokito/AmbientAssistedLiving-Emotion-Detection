@@ -302,6 +302,7 @@ API_URL = os.getenv('API_URL')
 CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
 CLIENT_PASSWORD = os.getenv('CLIENT_PASSWORD')
 
+MAC_ADDRESS = gma()
 # defining the api-endpoint 
 API_ENDPOINT = API_URL+"/auth/login"
 
@@ -446,7 +447,7 @@ if r.status_code == 200:
 			requestTotal = requestTotal + 1
 
 			data = {
-				"macAddress": "123456789123",
+				"macAddress": MAC_ADDRESS,
 				"emotion": emotion,
 			}
 

@@ -34,8 +34,8 @@ public class IterationBean {
      * @throws Exception
      */
     public Long create(String macAddress, String emotion, String clientEmail) throws Exception{
-        if(macAddress == null || macAddress.trim().isEmpty() || macAddress.length() != 12){
-            throw new IllegalArgumentException("[Error] - Mac Address is missing");
+        if(macAddress == null || macAddress.trim().isEmpty() || macAddress.length() != 17){
+            throw new IllegalArgumentException("[Error] - Mac Address is missing or invalid");
         }
         if(emotion == null || emotion.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Emotion is missing");
