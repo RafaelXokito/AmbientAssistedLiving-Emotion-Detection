@@ -398,9 +398,6 @@ if r.status_code == 200:
 					roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
 					roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-					roi_h = roi.shape[0]
-					roi_w = roi.shape[1]
-
 					roi = cv2.resize(roi,(48,48))
 					
 					p_negative = np.double(result["emotion"]["negative"])
