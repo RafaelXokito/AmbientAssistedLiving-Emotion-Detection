@@ -438,6 +438,7 @@ if r.status_code == 200:
 
 		requestOk = 0
 		requestTotal = 0
+
 		for emotionPath in emotionsPath:
 			emotion = emotionPath.split('/')[-1]
 
@@ -458,8 +459,8 @@ if r.status_code == 200:
 			headers = {"Authorization": "Bearer "+token}
 				
 			# sending post request and saving response as response object
-			
 			r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
+
 			if r.status_code == 200:
 				requestOk = requestOk + 1
 			# extracting response text 

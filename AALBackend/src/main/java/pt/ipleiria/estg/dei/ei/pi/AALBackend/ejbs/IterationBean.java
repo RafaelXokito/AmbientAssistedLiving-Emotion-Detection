@@ -8,6 +8,7 @@ import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import javax.ejb.Stateless;
 import java.util.List;
 import javax.persistence.*;
+import java.util.regex.Pattern;
 
 @Stateless
 public class IterationBean {
@@ -34,7 +35,7 @@ public class IterationBean {
      * @throws Exception
      */
     public Long create(String macAddress, String emotion, String clientEmail) throws Exception{
-        if(macAddress == null || macAddress.trim().isEmpty() || macAddress.length() != 17){
+        if(macAddress == null || macAddress.trim().isEmpty() || !Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$").matcher(macAddress).matches()){
             throw new IllegalArgumentException("[Error] - Mac Address is missing or invalid");
         }
         if(emotion == null || emotion.trim().isEmpty()){
