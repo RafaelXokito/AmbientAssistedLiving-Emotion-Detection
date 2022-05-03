@@ -93,7 +93,6 @@ export default {
         .$get("/api/iterations")
         .then((iterations) => {
           this.iterations = iterations;
-          console.log(iterations)
         })
         .catch(() => {
           this.$toast.info("No iterations found").goAway(3000);

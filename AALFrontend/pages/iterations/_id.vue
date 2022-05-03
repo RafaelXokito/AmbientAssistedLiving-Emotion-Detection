@@ -7,14 +7,17 @@
         class="mt-5 col-md-4"
         v-for="frame in frames"
         :key="frame.id"
+
       >
         <b-card
           :img-src="frame.base64"
           img-alt="Image"
-          img-top
           tag="article"
           style="max-width: 20rem"
           class="mb-2 mx-auto"
+          img-height="96px"
+          img-width="96px"
+          img-left
         >
           <b-card-text>
             <form v-on:submit.prevent="classify(frame.id, frame.base64)">
