@@ -357,10 +357,10 @@ if r.status_code == 200:
 	# Preenchemos o "quadro" a branco para escrever a emoção nova
 	board.fill(0) # or img[:] = 255
 
-	cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
+	#cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 	centro_x = int(((440 - 140)/2)+140)
-	cv2.circle(board,(centro_x, 200),5,(0,0,255),-1)
-	cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
+	#cv2.circle(board,(centro_x, 200),5,(0,0,255),-1)
+	#cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 
 	x = 0
 
@@ -404,11 +404,11 @@ if r.status_code == 200:
 					p_positive = np.double(result["emotion"]["positive"])
 					p_neutral = np.double(result["emotion"]["neutral"])
 
-					cv2.circle(board,(x, 200),10,(0,0,0),-1)
-					cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
+					#cv2.circle(board,(x, 200),10,(0,0,0),-1)
+					#cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
 
 					x = centro_x - int(p_negative+p_neutral) if p_negative > p_positive else centro_x + int(p_positive+p_neutral)
-					cv2.circle(board,(x, 200),10,(255,255,255),-1)
+					#cv2.circle(board,(x, 200),10,(255,255,255),-1)
 
 					if result["dominant_emotion"] == "negative":
 						framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", roi)
@@ -426,7 +426,7 @@ if r.status_code == 200:
 			
 			#this is the part where we display the output to the user
 			#cv2.imshow('video', frame)
-			cv2.imshow('board', board)
+			#cv2.imshow('board', board)
 			key=cv2.waitKey(1) 
 			if key==ord('q'):   # here we are specifying the key which will stop the loop and stop all the processes going
 				break
