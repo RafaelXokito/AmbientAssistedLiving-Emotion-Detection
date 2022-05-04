@@ -12,6 +12,7 @@ import EmotionOpenFace
 
 import os
 import time
+from datetime import datetime
 import subprocess
 import requests
 from glob import glob
@@ -452,12 +453,15 @@ if r.status_code == 200:
 			data = {
 				"macAddress": MAC_ADDRESS,
 				"emotion": emotion,
+				"datesFrames":[]
 			}
 
 			files = []
 			for imagePath in glob(TOP_FRAMES_PATH+'/'+emotion+'/*'):
+				date = creation_date(imagePath)
+				date = datetime.fromtimestamp(date).strftime("%Y-%m-%d %H:%M:%S")
+				data["datesFrames"].append(date)
 				files.append(('file',(imagePath.split('/')[-1],open(imagePath,'rb'),'application/octet-stream')))
-
 			headers = {"Authorization": "Bearer "+token}
 				
 			# sending post request and saving response as response object
