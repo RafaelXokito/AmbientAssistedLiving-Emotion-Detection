@@ -8,6 +8,8 @@ import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentExcepti
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 
 import javax.ejb.Stateless;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 
@@ -22,17 +24,19 @@ public class FrameBean {
      * @return
      * @throws Exception
      */
-    public Long create(String fileName, String filePath, Long iterationID) throws Exception{
+    public Long create(String fileName, String filePath, Long iterationID, Date createDate) throws Exception{
         if (fileName == null || fileName.trim().isEmpty())
             throw new MyIllegalArgumentException("Field \"File Name\" is required");
         if (filePath == null || filePath.trim().isEmpty())
             throw new MyIllegalArgumentException("Field \"File Path\" is required");
+        if(createDate == null || Date.from(Instant.now()).compareTo(createDate) < 0){
+            throw new IllegalArgumentException("[Error] - Create Date is mandatory and must be before today's date");
+        }
         Iteration iterationFound = entityManager.find(Iteration.class,iterationID);
         if(iterationFound == null){
             throw new MyEntityNotFoundException("[Error] - Iteration with email: \'"+iterationID+"\' not found");
         }
-
-        Frame frame = new Frame(fileName, filePath, iterationFound);
+        Frame frame = new Frame(fileName, filePath, iterationFound, createDate);
         iterationFound.addFrame(frame);
         
         try {

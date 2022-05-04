@@ -27,9 +27,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("frames")
@@ -81,7 +80,7 @@ public class FrameService {
                 writeFile(bytes, filepath);
                 if (!customDir.exists())
                     continue;
-                frameBean.create(filename, filepath, iteration.getId());
+                frameBean.create(filename, filepath, iteration.getId(), new Date());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -165,7 +164,8 @@ public class FrameService {
     FrameDTO toDTO(Frame frame) { return new FrameDTO(
             frame.getId(),
             frame.getName(),
-            frame.getPath());
+            frame.getPath(),
+            frame.getCreateDate());
     }
 
     FrameDTO extendedToDTO(Frame frame) {
