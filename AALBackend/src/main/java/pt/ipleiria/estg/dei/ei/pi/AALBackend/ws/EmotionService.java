@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Path("emotions")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
-@RolesAllowed({"Administrator"})
+@RolesAllowed({"Administrator", "Client"})
 public class EmotionService {
 
     @EJB
@@ -52,6 +52,7 @@ public class EmotionService {
 
     @POST
     @Path("/")
+    @RolesAllowed({"Administrator"})
     public Response createEmotionWS(EmotionDTO emotionDTO) throws Exception{
         String name = emotionBean.create(emotionDTO.getName(), emotionDTO.getGroup());
         Emotion emotion = emotionBean.findEmotion(name);
