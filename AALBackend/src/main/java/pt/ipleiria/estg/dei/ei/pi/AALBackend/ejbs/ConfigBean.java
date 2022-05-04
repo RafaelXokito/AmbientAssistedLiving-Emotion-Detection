@@ -65,7 +65,7 @@ public class ConfigBean {
             String e5 = emotionBean.create("Interest", "Positive");
             String e6 = emotionBean.create("Pain", "Negative");
             System.out.println("## Deleting Emotions ");
-            emotionBean.delete(e6);
+            emotionBean.delete(e5);
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());

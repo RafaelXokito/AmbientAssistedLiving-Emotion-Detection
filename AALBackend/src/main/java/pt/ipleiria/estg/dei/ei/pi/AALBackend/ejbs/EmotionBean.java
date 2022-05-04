@@ -31,9 +31,9 @@ public class EmotionBean {
         if(group == null || group.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Group is missing");
         }
-
-        if(!group.equals("Positive") && !group.equals("Negative") && !group.equals("Neutral")){
-            throw new IllegalArgumentException("[Error] - Group is invalid ['Positive', 'Negative', 'Neutral']");
+        group = group.toLowerCase();
+        if(!group.equals("positive") && !group.equals("negative") && !group.equals("neutral")){
+            throw new IllegalArgumentException("[Error] - Group is invalid ['positive', 'negative', 'neutral']");
         }
         Emotion emotion = new Emotion(name, group);
         try {

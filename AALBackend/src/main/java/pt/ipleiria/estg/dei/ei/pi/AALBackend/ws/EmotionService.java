@@ -61,8 +61,6 @@ public class EmotionService {
                 .build();
     }
 
-
-
     @DELETE
     @Path("{name}")
     public Response deleteEmotionWS(@PathParam("name") String name) throws Exception{
