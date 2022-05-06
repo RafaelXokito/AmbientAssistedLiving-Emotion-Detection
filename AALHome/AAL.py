@@ -271,7 +271,7 @@ def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, orderedFrame
 
 def resetFolderFrames(emotion):
 	if os.path.exists('top10Frames/'+emotion) is True:
-		files = glob('top10Frames/'+emotion+'/*.jpg')
+		files =  [w.replace(os.sep, '/') for w in  glob('top10Frames/'+emotion+'/*.jpg')]		
 		if len(files) > 0:
 			for f in files:
 				os.remove(f)
@@ -457,13 +457,17 @@ if r.status_code == 200:
 			}
 
 			files = []
-			for imagePath in glob(TOP_FRAMES_PATH+'/'+emotion+'/*'):
+			imagesPath = [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/'+emotion+'/*')]
+			for imagePath in imagesPath:				
 				date = creation_date(imagePath)
 				date = datetime.fromtimestamp(date).strftime("%Y-%m-%d %H:%M:%S")
 				data["datesFrames"].append(date)
-				files.append(('file',(imagePath.split('/')[-1],open(imagePath,'rb'),'application/octet-stream')))
-			headers = {"Authorization": "Bearer "+token}
+				fileFrame = open(imagePath,'rb')
 				
+				files.append(('file',(imagePath.split('/')[-1],fileFrame,'application/octet-stream')))
+				
+			headers = {"Authorization": "Bearer "+token}
+			
 			# sending post request and saving response as response object
 			r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
 
@@ -471,13 +475,26 @@ if r.status_code == 200:
 				requestOk = requestOk + 1
 			# extracting response text 
 			#responseIteration = r.json()
-
+	
 		if requestOk == requestTotal:
 			print("Foi efetuado registo de frames com sucesso")
 		else:
 			print("Ocorreu um erro no registo de frames")
-		time.sleep(1)
+		time.sleep(1)	
+		for file in files:
+			file[1][1].close()
 
+		framesPredictionsTop10Positive = []
+		orderedPredictionsTop10Positive = []
+		framesPredictionsTop10Negative = []
+		orderedPredictionsTop10Negative = []
+		framesPredictionsTop10Neutral = []
+		orderedPredictionsTop10Neutral = []
+
+
+		resetFolderFrames('negative')
+		resetFolderFrames('positive')
+		resetFolderFrames('neutral')
 	#video.release()
 else:
 	print("Erro ao realizar Login com a sua conta")
