@@ -32,17 +32,30 @@ public class Frame implements Serializable{
     private Emotion emotion; //Human Labelling - Emotion classified
     @Temporal(TemporalType.TIMESTAMP)
     private Date updated_at;
+    @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createDate;
 
     public Frame(){
         this.path = "";
         this.iteration = new Iteration();
         this.name = "";
+        this.createDate = new Date();
     }
 
-    public Frame(String name, String path, Iteration iteration){
+    public Frame(String name, String path, Iteration iteration, Date createDate){
         this.path = path;
         this.iteration = iteration;
         this.name = name;
+        this.createDate = createDate;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     public Long getId(){

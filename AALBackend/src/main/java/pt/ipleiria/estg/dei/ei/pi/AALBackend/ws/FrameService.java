@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("frames")
@@ -52,7 +52,6 @@ public class FrameService {
     @Produces(MediaType.APPLICATION_JSON)
     public IterationDTO upload(MultipartFormDataInput input, @HeaderParam("Authorization") String auth) throws Exception {
         Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-        
         // Get file data to save
         String clientEmail = personBean.getPersonByAuthToken(auth).getEmail();
         String macAddress = uploadForm.get("macAddress").get(0).getBodyAsString();
@@ -60,8 +59,14 @@ public class FrameService {
         Iteration iteration = iterationBean.findIteration(iterationBean.create(macAddress, emotion, clientEmail));
         if(iteration == null)
             throw new MyEntityNotFoundException("Iteration could not be created.");
-
+        List<InputPart> datesFrames = uploadForm.get("datesFrames");
+        List<Date> dates = new LinkedList<>();
+        for (InputPart inputPart : datesFrames) {
+            Date date = new SimpleDateFormat("YYYY-MM-dd kk:mm:ss").parse(inputPart.getBodyAsString());
+            dates.add(date);
+        }
         List<InputPart> inputParts = uploadForm.get("file");
+        int index = 0;
         for (InputPart inputPart : inputParts) {
             try {
                 MultivaluedMap<String, String> header = inputPart.getHeaders(); 
@@ -81,10 +86,11 @@ public class FrameService {
                 writeFile(bytes, filepath);
                 if (!customDir.exists())
                     continue;
-                frameBean.create(filename, filepath, iteration.getId());
+                frameBean.create(filename, filepath, iteration.getId(), dates.get(index));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            index++;
         }
         System.out.println("FrameService - Upload"+iteration.getFrames().size());
         return iterationToDTO(iterationBean.findIteration(iteration.getId()));
@@ -165,7 +171,8 @@ public class FrameService {
     FrameDTO toDTO(Frame frame) { return new FrameDTO(
             frame.getId(),
             frame.getName(),
-            frame.getPath());
+            frame.getPath(),
+            frame.getCreateDate());
     }
 
     FrameDTO extendedToDTO(Frame frame) {

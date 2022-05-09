@@ -124,7 +124,8 @@ public class IterationService {
     FrameDTO frameToDTO(Frame frame) { return new FrameDTO(
         frame.getId(),
         frame.getName(),
-        frame.getPath());
+        frame.getPath(),
+        frame.getCreateDate());
     }
 
     List<FrameDTO> framesToDTOs(List<Frame> frames) {
