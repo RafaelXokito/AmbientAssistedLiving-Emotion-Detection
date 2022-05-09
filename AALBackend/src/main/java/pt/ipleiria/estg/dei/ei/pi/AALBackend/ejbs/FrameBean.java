@@ -1,6 +1,8 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 
+import com.sun.tools.javac.util.Pair;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
@@ -9,8 +11,8 @@ import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 
 import javax.ejb.Stateless;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import javax.persistence.*;
 
 @Stateless
@@ -29,7 +31,8 @@ public class FrameBean {
             throw new MyIllegalArgumentException("Field \"File Name\" is required");
         if (filePath == null || filePath.trim().isEmpty())
             throw new MyIllegalArgumentException("Field \"File Path\" is required");
-        if(createDate == null || Date.from(Instant.now()).compareTo(createDate) < 0){
+        Date now = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
+        if(createDate == null || createDate.after(now)){
             throw new IllegalArgumentException("[Error] - Create Date is mandatory and must be before today's date");
         }
         Iteration iterationFound = entityManager.find(Iteration.class,iterationID);
@@ -155,5 +158,23 @@ public class FrameBean {
             throw new MyEntityNotFoundException("[Error] - Iteration with id: \'"+iterationId+"\' not Found");
         }
         return iteration;
+    }
+
+
+    public List<Pair<Date,Integer>> getGraphDataClassifiedEmotions(Long id) throws MyEntityNotFoundException {
+        TypedQuery<Frame> query = entityManager.createQuery("SELECT distinct f FROM Frame f INNER JOIN Iteration i INNER JOIN Emotion e WHERE i.client.id = "+id+" and f.emotion.name IS NOT NULL ORDER BY f.createDate", Frame.class);
+        List<Frame> frames = query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        if(frames.isEmpty()){
+            throw new MyEntityNotFoundException("[Error] - No frames that belong to client with id: \'"+id+"\' were classified yet");
+        }
+        List<Emotion> emotions = entityManager.createNamedQuery("getAllEmotions", Emotion.class).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        Pair<Date, Integer> pointXY;
+        List<Pair<Date, Integer>> graphData = new LinkedList<>();
+        for (Frame frame: frames) {
+            int index = emotions.indexOf(frame.getEmotion());
+            pointXY = new Pair(frame.getCreateDate(), index);
+            graphData.add(pointXY);
+        }
+        return graphData;
     }
 }

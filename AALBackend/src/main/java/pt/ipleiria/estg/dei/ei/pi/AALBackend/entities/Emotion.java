@@ -9,7 +9,7 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(
                 name = "getAllEmotions",
-                query = "SELECT e FROM Emotion e"
+                query = "SELECT e FROM Emotion e order by e.group"
         )
 })
 
