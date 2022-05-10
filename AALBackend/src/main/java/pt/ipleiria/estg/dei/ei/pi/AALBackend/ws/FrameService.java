@@ -170,10 +170,13 @@ public class FrameService {
         return Response.status(Response.Status.OK).entity(!iteration.getFrames().isEmpty()).build();
     }
     @GET
-    @Path("/graphData")
+    @Path("/clients/{id}/graphData")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getGraphData(@HeaderParam("Authorization") String auth) throws Exception {
-        List<Pair<Date,Integer>> graphData = frameBean.getGraphDataClassifiedEmotions(personBean.getPersonByAuthToken(auth).getId());
+    public Response getGraphData(@PathParam("id") long id,@HeaderParam("Authorization") String auth) throws Exception {
+        if (securityContext.isUserInRole("Client") && id != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to see this iteration");
+
+        List<Pair<Date,Integer>> graphData = frameBean.getGraphDataClassifiedEmotions(id);
         return Response.status(Response.Status.OK).entity(graphData).build();
 
     }

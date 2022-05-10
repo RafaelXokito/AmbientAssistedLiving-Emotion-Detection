@@ -25,7 +25,7 @@
           align="center"
         ></b-pagination>
       </div>
-      <div v-else>No administrators</div>
+      <div v-else class="w-75 mx-auto alert alert-info">No more administrators registered in the system yet</div>
     </b-container>
     <b-modal id="modalCreate" size="lg" title="Create Administrator" hide-footer>
       <b-form @submit.prevent="onSubmit" @reset.prevent="resetCreate">

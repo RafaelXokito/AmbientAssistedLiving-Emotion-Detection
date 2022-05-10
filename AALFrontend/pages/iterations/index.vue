@@ -132,7 +132,7 @@ export default {
       let graphData = [];
       let pointGraph = [];
       this.$axios
-    .$get("/api/frames/graphData")
+    .$get("/api/frames/clients/"+this.currentUser.id+"/graphData")
     .then((data) => {
       data.forEach(r => {
         pointGraph.push(r.fst)
@@ -147,7 +147,6 @@ export default {
         let lastDate = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" "+(date.getHours()-1)+":"+date.getMinutes();
         this.chartOptions.series[0].name = "From "+firstDate+" to "+lastDate+"";
         this.showChart = true;
-        console.log(graphData)
       })
       .catch((error) => {
         this.$toast.info(error.response.data).goAway(3000);
