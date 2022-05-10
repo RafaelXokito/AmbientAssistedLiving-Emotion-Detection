@@ -14,10 +14,6 @@ import websocket
 from getmac import get_mac_address as gma
 
 import EmotionDeepFace
-import EmotionVGG
-import EmotionVGGFace
-import EmotionFaceNet
-import EmotionOpenFace
 
 def parameters():
 
@@ -175,10 +171,6 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	models = {
 		'EmotionDeepFace': EmotionDeepFace.loadModel,
-		'EmotionVGG16': EmotionVGG.loadModel,
-		'EmotionVGGFace': EmotionVGGFace.loadModel,
-		'EmotionFaceNet': EmotionFaceNet.loadModel,
-		'EmotionOpenFace': EmotionOpenFace.loadModel,
 	}
 
 	if not "model_obj" in globals():
@@ -269,6 +261,7 @@ try:
 							shutil.move(file, destination)
 
 						# Retrain of the model
+						# TODO - Make a copy of previous model for security reasons
 						modelRetrain = build_model('EmotionDeepFace', DATASET_PATH, modelPath,classIndicesPath,True, epochs, batches, activationFunction, lossFunction, metrics)
 			start_time_retrain = time.time()
 except Exception as e:
