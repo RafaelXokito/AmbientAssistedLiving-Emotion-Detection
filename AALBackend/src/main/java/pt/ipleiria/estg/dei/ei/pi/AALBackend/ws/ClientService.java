@@ -88,7 +88,6 @@ public class ClientService {
         return new ClientDTO(
             client.getId(),
             client.getEmail(),
-            client.getPassword(),
             client.getName(),
             client.getBirthDate(),
             client.getContact(),

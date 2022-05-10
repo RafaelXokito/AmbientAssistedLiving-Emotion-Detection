@@ -39,6 +39,14 @@ public class ClientDTO {
         this.contact = contact;
         this.administrator = administrator;
     }
+    public ClientDTO(long id, String email, String name, Date birthDate, String contact, AdministratorDTO administrator) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+        this.birthDate = birthDate;
+        this.contact = contact;
+        this.administrator = administrator;
+    }
 
     public ClientDTO(String email, String name, Date birthDate, String contact) {
         this.email = email;
