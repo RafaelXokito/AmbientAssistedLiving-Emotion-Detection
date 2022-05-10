@@ -49,8 +49,12 @@ public class IterationService {
 
     @GET
     @Path("{id}")
-    public Response getIterationWS(@PathParam("id") Long id) throws Exception {
+    public Response getIterationWS(@PathParam("id") Long id, @HeaderParam("Authorization") String auth) throws Exception {
+        String clientEmail = personBean.getPersonByAuthToken(auth).getEmail();
         Iteration iteration = iterationBean.findIteration(id);
+
+        if (securityContext.isUserInRole("Client") && !iteration.getClient().getEmail().equals(clientEmail))
+            throw new MyUnauthorizedException("You are not allowed to see this iteration");
 
         return Response.status(Response.Status.OK)
                 .entity(toDTO(iteration))

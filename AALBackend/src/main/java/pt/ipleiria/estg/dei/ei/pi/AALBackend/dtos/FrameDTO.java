@@ -15,12 +15,21 @@ public class FrameDTO {
         this.filepath = filepath;
         this.emotion = new EmotionDTO();
         this.createDate = createDate;
+
     }
     public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion) {
         this.id = id;
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = emotion;
+    }
+
+    public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion, Date createDate) {
+        this.id = id;
+        this.filename = filename;
+        this.filepath = filepath;
+        this.emotion = emotion;
+        this.createDate = createDate;
     }
 
     public FrameDTO() {
@@ -30,6 +39,7 @@ public class FrameDTO {
         this.emotion = new EmotionDTO();
         this.createDate = new Date();
     }
+
 
     public long getId() {
         return id;
@@ -70,5 +80,6 @@ public class FrameDTO {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
 }
 

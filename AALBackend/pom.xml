@@ -76,6 +76,11 @@
             <artifactId>gson</artifactId>
             <version>2.8.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jvnet.sorcerer</groupId>
+            <artifactId>sorcerer-javac</artifactId>
+            <version>0.8</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

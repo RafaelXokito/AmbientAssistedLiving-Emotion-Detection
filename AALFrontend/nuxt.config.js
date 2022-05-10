@@ -35,7 +35,8 @@ export default {
     // https://go.nuxtjs.dev/axios
     "@nuxtjs/axios",
     "@nuxtjs/auth",
-    "@nuxtjs/toast"
+    "@nuxtjs/toast",
+    'nuxt-highcharts',
   ],
 
   env: {

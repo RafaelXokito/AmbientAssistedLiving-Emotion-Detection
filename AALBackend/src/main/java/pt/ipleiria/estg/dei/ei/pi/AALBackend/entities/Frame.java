@@ -14,6 +14,7 @@ import java.util.Date;
     )
 })
 
+
 @Table(name = "FRAMES")
 @Entity
 public class Frame implements Serializable{
@@ -35,6 +36,8 @@ public class Frame implements Serializable{
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
+    @Version
+    private int version;
 
     public Frame(){
         this.path = "";
@@ -98,4 +101,5 @@ public class Frame implements Serializable{
     protected void onUpdate() {
         this.updated_at = new Date();
     }
+
 }

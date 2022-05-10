@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Path("administrators") // relative url web path for this service
 @Produces({MediaType.APPLICATION_JSON}) // injects header “Content-Type: application/json”
 @Consumes({MediaType.APPLICATION_JSON}) // injects header “Accept: application/json”
+@RolesAllowed({"Administrator"})
 public class AdministratorService {
 
     @EJB
@@ -23,7 +24,6 @@ public class AdministratorService {
 
     @GET
     @Path("/")
-    @RolesAllowed({"Administrator"})
     public Response getAllAdministratorsWS() {
         return Response.status(Response.Status.OK)
                 .entity(toDTOs(administratorBean.getAllAdministrators()))
@@ -32,7 +32,6 @@ public class AdministratorService {
 
     @GET
     @Path("{id}")
-    @RolesAllowed({"Administrator"})
     public Response getAdministratorWS(@PathParam("id") long id) throws Exception {
         Administrator administrator = administratorBean.findAdministrator(id);
 
@@ -43,7 +42,6 @@ public class AdministratorService {
 
     @POST
     @Path("/")
-    @RolesAllowed({"Administrator"})
     public Response createAdministratorWS(AdministratorDTO administratorDTO) throws Exception {
         long id = administratorBean.create(
                 administratorDTO.getEmail(),
@@ -59,7 +57,6 @@ public class AdministratorService {
 
     @PUT
     @Path("{id}")
-    @RolesAllowed({"Administrator"})
     public Response updateAdministratorWS(@PathParam("id") long id,AdministratorDTO administratorDTO) throws Exception {
         administratorBean.update(
                 id,
@@ -75,7 +72,6 @@ public class AdministratorService {
 
     @DELETE
     @Path("{id}")
-    @RolesAllowed({"Administrator"})
     public Response deleteAdministratorWS(@PathParam("id") long id) throws Exception {
         if (administratorBean.delete(id))
             return Response.status(Response.Status.OK)

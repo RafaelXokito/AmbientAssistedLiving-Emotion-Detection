@@ -25,7 +25,7 @@
           align="center"
         ></b-pagination>
       </div>
-      <div v-else>No clients</div>
+      <div v-else class="w-75 mx-auto alert alert-info">No clients registered in the system yet</div>
     </b-container>
     <b-modal id="modalCreate" size="lg" title="Create Client" hide-footer>
       <b-form @submit.prevent="onSubmit" @reset.prevent="resetCreate">
@@ -138,8 +138,8 @@ export default {
           sortDirection: "desc",
         },
         {
-          key: "age",
-          label: "Age",
+          key: "birthDate",
+          label: "Birthdate",
           sortable: true,
           sortDirection: "desc",
         },
@@ -184,6 +184,10 @@ export default {
         .$get("/api/clients")
         .then((clients) => {
           this.clients = clients;
+          this.clients.forEach(c => {
+            let date = new Date(c.birthDate)
+            c.birthDate = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear();
+          });
         })
         .catch(() => {
           this.$toast.info("No clients found").goAway(3000);

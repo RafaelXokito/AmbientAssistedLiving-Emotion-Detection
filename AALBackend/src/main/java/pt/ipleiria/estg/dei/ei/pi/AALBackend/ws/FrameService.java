@@ -6,6 +6,7 @@ import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import com.sun.tools.javac.util.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
@@ -27,7 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,8 +63,9 @@ public class FrameService {
         List<InputPart> datesFrames = uploadForm.get("datesFrames");
         List<Date> dates = new LinkedList<>();
         for (InputPart inputPart : datesFrames) {
-            Date date = new SimpleDateFormat("YYYY-MM-dd kk:mm:ss").parse(inputPart.getBodyAsString());
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(inputPart.getBodyAsString());
             dates.add(date);
+
         }
         List<InputPart> inputParts = uploadForm.get("file");
         int index = 0;
@@ -167,7 +169,17 @@ public class FrameService {
 
         return Response.status(Response.Status.OK).entity(!iteration.getFrames().isEmpty()).build();
     }
+    @GET
+    @Path("/clients/{id}/graphData")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGraphData(@PathParam("id") long id,@HeaderParam("Authorization") String auth) throws Exception {
+        if (securityContext.isUserInRole("Client") && id != personBean.getPersonByAuthToken(auth).getId())
+            throw new MyUnauthorizedException("You are not allowed to see this iteration");
 
+        List<Pair<Date,Integer>> graphData = frameBean.getGraphDataClassifiedEmotions(id);
+        return Response.status(Response.Status.OK).entity(graphData).build();
+
+    }
     FrameDTO toDTO(Frame frame) { return new FrameDTO(
             frame.getId(),
             frame.getName(),
@@ -180,7 +192,8 @@ public class FrameService {
                 frame.getId(),
                 frame.getName(),
                 frame.getPath(),
-                emotionToDTO(frame.getEmotion() == null ? new Emotion() : frame.getEmotion())
+                emotionToDTO(frame.getEmotion() == null ? new Emotion() : frame.getEmotion()),
+                frame.getCreateDate()
         );
     }
 

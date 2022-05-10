@@ -34,6 +34,7 @@ public class EmotionService {
 
     @GET
     @Path("{name}")
+    @RolesAllowed({"Administrator"})
     public Response getEmotionWS(@PathParam("name") String name) throws Exception{
         Emotion emotion = emotionBean.findEmotion(name);
 
@@ -64,6 +65,7 @@ public class EmotionService {
 
     @DELETE
     @Path("{name}")
+    @RolesAllowed({"Administrator"})
     public Response deleteEmotionWS(@PathParam("name") String name) throws Exception{
         if(emotionBean.delete(name)){
             return Response.status(Response.Status.OK)

@@ -25,7 +25,7 @@
           align="center"
         ></b-pagination>
       </div>
-      <div v-else>No emotions</div>
+      <div v-else class="w-75 mx-auto alert alert-info">No emotions created yet</div>
     </b-container>
     <b-modal id="modalCreate" size="lg" title="Create Emotion" hide-footer>
       <b-form @submit.prevent="onSubmit" @reset.prevent="resetCreate">
