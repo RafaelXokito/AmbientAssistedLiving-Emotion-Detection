@@ -297,6 +297,8 @@ import cv2
 from EmotionDetection import analyze
 import numpy as np
 
+import websocket
+
 TOP_FRAMES_PATH = os.getenv('TOP_FRAMES_PATH')
 
 API_URL = os.getenv('API_URL')
@@ -321,6 +323,17 @@ if r.status_code == 200:
 
 	with open('token.txt', 'w') as f:
 		f.write(token)
+
+	API_URL = os.getenv('API_URL')
+
+	r = requests.get(url = API_URL+'/auth/user', headers={"Authorization": "Bearer "+token})
+	userId = r.json()["id"]
+
+	websocket.enableTrace(True)
+	ws = websocket.WebSocket()
+	ws.connect(os.getenv('LOG_WEBSOCKET_URL')+str(userId))
+
+	ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Cliente Ligado"+";"+CLIENT_EMAIL)
 
 	# Run websocket client
 	#p = subprocess.Popen([sys.executable, 'Websocket.py'], 
@@ -353,10 +366,10 @@ if r.status_code == 200:
 	classIndicesPath = 'analysis/class_indices.json'
 	model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,forceRetrain, epochs, batches, activationFunction, lossFunction, metrics)
 
-	board = np.ones(shape=[400,600,3], dtype=np.uint8)
+	#board = np.ones(shape=[400,600,3], dtype=np.uint8)
 
 	# Preenchemos o "quadro" a branco para escrever a emoção nova
-	board.fill(0) # or img[:] = 255
+	#board.fill(0) # or img[:] = 255
 
 	#cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 	centro_x = int(((440 - 140)/2)+140)
@@ -422,8 +435,8 @@ if r.status_code == 200:
 						framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", roi)
 				
 						#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
-			except:
-				print("no face")
+			except Exception as e:
+				ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Error: "+e+";"+CLIENT_EMAIL)
 			
 			#this is the part where we display the output to the user
 			#cv2.imshow('video', frame)
@@ -479,7 +492,7 @@ if r.status_code == 200:
 		if requestOk == requestTotal:
 			print("Foi efetuado registo de frames com sucesso")
 		else:
-			print("Ocorreu um erro no registo de frames")
+			ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Ocorreu um erro no registo de frames"+";"+CLIENT_EMAIL)
 		time.sleep(1)	
 		for file in files:
 			file[1][1].close()

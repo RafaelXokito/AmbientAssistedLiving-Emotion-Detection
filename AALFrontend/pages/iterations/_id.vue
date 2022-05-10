@@ -92,7 +92,7 @@ export default {
   },
   mounted() {
     this.socket = new WebSocket(
-      process.env.WEBSOCKET_URL + this.$auth.user.id
+      process.env.FRAMES_WEBSOCKET_URL + this.$auth.user.id
     );
   },
   methods: {

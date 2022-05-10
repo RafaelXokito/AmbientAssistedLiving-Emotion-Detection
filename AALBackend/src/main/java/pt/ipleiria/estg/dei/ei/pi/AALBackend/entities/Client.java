@@ -26,6 +26,8 @@ public class Client extends Person implements Serializable {
     private String contact;
     @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
     private List<Iteration> iterations;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
+    private List<Log> logs;
     @ManyToOne
     private Administrator administrator;
 
@@ -77,11 +79,26 @@ public class Client extends Person implements Serializable {
         this.iterations.add(iteration);
     }
 
+    public void addLog(Log log){
+        if (logs.contains(log))
+            return;
+
+        this.logs.add(log);
+    }
+
     public void setAdministrator(Administrator administrator){
         this.administrator = administrator;
     }
     
     public Administrator getAdministrator(){
         return administrator;
+    }
+
+    public List<Log> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<Log> logs) {
+        this.logs = logs;
     }
 }

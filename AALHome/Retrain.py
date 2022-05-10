@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 import random
 import shutil
+import requests
+import websocket
+from getmac import get_mac_address as gma
 
 import EmotionDeepFace
 import EmotionVGG
@@ -208,6 +211,8 @@ PRE_DATASET_PATH = os.getenv('PRE_DATASET_PATH')
 DATASET_PATH = os.getenv('DATASET_PATH')
 RETRAIN_NUMBER_FILES = os.getenv('RETRAIN_NUMBER_FILES')
 
+CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
+
 params = parameters()
 model = params[0]
 run = params[1]
@@ -226,27 +231,45 @@ modelPath = 'weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str
 classIndicesPath = 'analysis/class_indices.json'
             
 start_time_retrain = time.time()
-while True:
-    # Check if each folder in pre-dataset has RETRAIN_NUMBER_FILES frames each, if it has the frames are moved to the dataset    
-    while ( int(start_time_retrain + RETRAIN_TIME) <= time.time() ):
-        if os.path.exists(PRE_DATASET_PATH) == True:           
-            emotionsPath = [w.replace(os.sep, '/') for w in  glob(PRE_DATASET_PATH+'/*')]		
-            for emotionPath in emotionsPath:
-                files = [w.replace(os.sep, '/') for w in  glob(emotionPath+'/*.jpg')]		
-                if len(files) >= int(RETRAIN_NUMBER_FILES):
-                    emotion = emotionPath.split('/')[1]
-                    if os.path.exists(DATASET_PATH + "/train/" + emotion) == False:
-                        os.mkdir(DATASET_PATH + "/train/" + emotion)
-                        os.mkdir(DATASET_PATH + "/test/" + emotion)
-                    for file in files:
-                        # 20% for test 80% for train
-                        if random.randint(0, 100) > 20:
-                            pathComplement = "train"
-                        else: 
-                            pathComplement = "test"
-                        destination = DATASET_PATH + '/' + pathComplement + '/' + emotion + '/' +file.split('/')[-1]
-                        shutil.move(file, destination)
 
-                    # Retrain of the model
-                    modelRetrain = build_model('EmotionDeepFace', DATASET_PATH, modelPath,classIndicesPath,True, epochs, batches, activationFunction, lossFunction, metrics)
-        start_time_retrain = time.time()
+# Websocket Log
+API_URL = os.getenv('API_URL')
+
+f = open("token.txt", "r")
+token = f.read()
+
+r = requests.get(url = API_URL+'/auth/user', headers={"Authorization": "Bearer "+token})
+userId = r.json()["id"]
+
+MAC_ADDRESS = gma()
+
+websocket.enableTrace(True)
+ws = websocket.WebSocket()
+ws.connect(os.getenv('LOG_WEBSOCKET_URL')+str(userId))
+try:
+	while True:
+		# Check if each folder in pre-dataset has RETRAIN_NUMBER_FILES frames each, if it has the frames are moved to the dataset    
+		while ( int(start_time_retrain + RETRAIN_TIME) <= time.time() ):
+			if os.path.exists(PRE_DATASET_PATH) == True:           
+				emotionsPath = [w.replace(os.sep, '/') for w in  glob(PRE_DATASET_PATH+'/*')]		
+				for emotionPath in emotionsPath:
+					files = [w.replace(os.sep, '/') for w in  glob(emotionPath+'/*.jpg')]		
+					if len(files) >= int(RETRAIN_NUMBER_FILES):
+						emotion = emotionPath.split('/')[1]
+						if os.path.exists(DATASET_PATH + "/train/" + emotion) == False:
+							os.mkdir(DATASET_PATH + "/train/" + emotion)
+							os.mkdir(DATASET_PATH + "/test/" + emotion)
+						for file in files:
+							# 20% for test 80% for train
+							if random.randint(0, 100) > 20:
+								pathComplement = "train"
+							else: 
+								pathComplement = "test"
+							destination = DATASET_PATH + '/' + pathComplement + '/' + emotion + '/' +file.split('/')[-1]
+							shutil.move(file, destination)
+
+						# Retrain of the model
+						modelRetrain = build_model('EmotionDeepFace', DATASET_PATH, modelPath,classIndicesPath,True, epochs, batches, activationFunction, lossFunction, metrics)
+			start_time_retrain = time.time()
+except Exception as e:
+	ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Cliente Ligado"+";"+CLIENT_EMAIL)

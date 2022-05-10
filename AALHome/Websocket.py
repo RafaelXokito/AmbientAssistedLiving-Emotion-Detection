@@ -55,7 +55,7 @@ if __name__ == "__main__":
     r = requests.get(url = API_URL+'/auth/user', headers={"Authorization": "Bearer "+token})
     userId = r.json()["id"]
 
-    ws = websocket.WebSocketApp(os.getenv('WEBSOCKET_URL')+str(userId),
+    ws = websocket.WebSocketApp(os.getenv('FRAMES_WEBSOCKET_URL')+str(userId),
                               on_open=on_open,
                               on_message=on_message,
                               on_error=on_error,

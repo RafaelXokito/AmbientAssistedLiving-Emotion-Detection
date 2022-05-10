@@ -1,7 +1,6 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos;
 
 import java.util.Date;
-import java.util.List;
 
 public class PersonDTO {
     private long id;

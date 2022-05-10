@@ -39,7 +39,7 @@ export default {
   ],
 
   env: {
-    WEBSOCKET_URL: process.env.WEBSOCKET_URL,
+    FRAMES_WEBSOCKET_URL: process.env.FRAMES_WEBSOCKET_URL,
     API_URL: process.env.API_URL
   },
 
