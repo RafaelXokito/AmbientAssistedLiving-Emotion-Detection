@@ -146,10 +146,6 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	models = {
 		'EmotionDeepFace': EmotionDeepFace.loadModel,
-		'EmotionVGG16': EmotionVGG.loadModel,
-		'EmotionVGGFace': EmotionVGGFace.loadModel,
-		'EmotionFaceNet': EmotionFaceNet.loadModel,
-		'EmotionOpenFace': EmotionOpenFace.loadModel,
 	}
 
 	if not "model_obj" in globals():
