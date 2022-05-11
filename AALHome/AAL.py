@@ -5,10 +5,6 @@ warnings.filterwarnings("ignore")
 import sys
 
 import EmotionDeepFace
-import EmotionVGG
-import EmotionVGGFace
-import EmotionFaceNet
-import EmotionOpenFace
 
 import os
 import time
@@ -24,62 +20,16 @@ from getmac import get_mac_address as gma
 
 import platform
 
+default_model = {
+	model: 'DeepFace',
+	epochs: 500,
+	batches: 128,
+	activation: 'sigmoid',
+	loss: 'binary',
+	metrics: 'binary_accuracy',
+}
+
 def parameters():
-
-	"""
-	<model>_v<run>_<mode>_<epochs>_<batches>.h5'
-
-	model: # Model to build
-	-m DeepFace
-	-m VGG
-	-m VGGFace
-	-m FaceNet
-	-m OpenFace
-
-	run: # Number of the test/Version of model
-	-r 1
-	-r 2
-	-r 3
-	...
-	-r N
-
-	epochs: # How many epochs
-	-e 1
-	-e 2
-	-e 3
-	...
-	-e N
-
-	batches: # Number of inputs for epoch
-	-b 1
-	-b 2
-	-b 3
-	...
-	-b N
-
-	forceRetrain: # Force retraining model
-	-f
-	--force
-
-	activation: # Activation Function
-	-a sigmoid
-	-a sofmax
-	...
-
-	loss: # Loss Function
-	-l categorical_crossentropy
-	-l binary_crossentropy
-	...
-
-	metrics: # Metrics
-	--metrics binary_accuracy
-	--metrics accuracy
-
-	time: # Time (seconds) for human labelling iteration
-	-t <natural number>
-	--time <natural number>
-
-	"""
 
 	if '-h' in sys.argv or '--help' in sys.argv:
 		print("""
@@ -91,13 +41,6 @@ model: # Model to build
 -m VGGFace
 -m FaceNet
 -m OpenFace
-
-run: # Number of the test/Version of model
--r 1
--r 2
--r 3
-...
--r N
 
 epochs: # How many epochs
 -e 1
@@ -137,11 +80,17 @@ time: # Time (seconds) for human labelling iteration
 		""")
 		exit()
 
-	if len(sys.argv) < 17 or len(sys.argv) > 18:
+	if len(sys.argv) < 3 or len(sys.argv) > 18:
 		print("Missing parameters, run -h or --help")
 		exit()
 	
 	forceRetrain = False
+	model = default_model.model
+	epochs = default_model.epochs
+	batch = default_model.batches
+	activation = default_model.activation
+	loss = default_model.loss
+	metrics = default_model.metrics
 
 	for i, arg in enumerate(sys.argv):
 		if i == 0:
@@ -169,9 +118,6 @@ time: # Time (seconds) for human labelling iteration
 					
 				elif arg == '-b':
 					batch = number
-
-				elif arg == '-r':
-					run = number
 				
 			except ValueError as e:
 				print("Parameters are numeric")
@@ -181,7 +127,7 @@ time: # Time (seconds) for human labelling iteration
 		else: 
 			continue
 	
-	return model, run, epochs, batch, forceRetrain, activation, loss, metrics,time_HLIteration
+	return model, epochs, batch, forceRetrain, activation, loss, metrics,time_HLIteration
 
 def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics):
 
@@ -189,7 +135,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 	This function builds a deepface model
 	Parameters:
 		model_name (string): face recognition or facial attribute model
-			VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
+			DeepFace
 			Age, Gender, Emotion, Race for facial attributes
 	Returns:
 		built deepface model
@@ -344,14 +290,13 @@ if r.status_code == 200:
 	video=cv2.VideoCapture(0)  #requisting the input from the webcam or camera
 
 	model = params[0]
-	run = params[1]
-	epochs = params[2]
-	batches = params[3]
-	forceRetrain = params[4]
-	activationFunction = params[5]
-	lossFunction = params[6]
-	metrics = params[7]
-	time_HLIteration = params[8]
+	epochs = params[1]
+	batches = params[2]
+	forceRetrain = params[3]
+	activationFunction = params[4]
+	lossFunction = params[5]
+	metrics = params[6]
+	time_HLIteration = params[7]
 
 
 
@@ -362,7 +307,7 @@ if r.status_code == 200:
 	else:
 		mode = 'categorical'
 
-	modelPath = 'weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'
+	modelPath = 'weights/'+str(model)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'
 	classIndicesPath = 'analysis/class_indices.json'
 	model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,forceRetrain, epochs, batches, activationFunction, lossFunction, metrics)
 
