@@ -212,14 +212,14 @@ def processTopFrames(predictionEmotion, arrayTopPredictionsEmotion, orderedFrame
 		orderedFramesPredictions = sorted(arrayTopPredictionsEmotion) 
 	return arrayTopPredictionsEmotion, orderedFramesPredictions
 
-def resetFolderFrames(emotion):
-	if os.path.exists('top10Frames/'+emotion) is True:
-		files =  [w.replace(os.sep, '/') for w in  glob('top10Frames/'+emotion+'/*.jpg')]		
-		if len(files) > 0:
-			for f in files:
-				os.remove(f)
-		return len(glob('top10Frames/'+emotion+'/*.jpg'))
-	return -1
+def resetFolderFrames():
+	emotionsPath =  [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/*')]
+	for emotionPath in emotionsPath:		
+		if os.path.exists(emotionPath) is True:			
+			files =  [w.replace(os.sep, '/') for w in  glob(emotionPath+'/*.jpg')]		
+			if len(files) > 0:
+				for f in files:
+					os.remove(f)	
 
 def creation_date(path_to_file):
     if platform.system() == 'Windows':
@@ -318,19 +318,11 @@ if r.status_code == 200:
 	#cv2.circle(board,(centro_x, 200),5,(0,0,255),-1)
 	#cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 
-	x = 0
+	framesPredictionsTop10Emotions = []
+	orderedPredictionsTop10Emotions = []
 
-	framesPredictionsTop10Positive = []
-	orderedPredictionsTop10Positive = []
-	framesPredictionsTop10Negative = []
-	orderedPredictionsTop10Negative = []
-	framesPredictionsTop10Neutral = []
-	orderedPredictionsTop10Neutral = []
+	resetFolderFrames()
 
-
-	resetFolderFrames('negative')
-	resetFolderFrames('positive')
-	resetFolderFrames('neutral')
 	auxmodelCreationDate = creation_date(modelPath)
 	while True:
 
@@ -348,34 +340,26 @@ if r.status_code == 200:
 					frame,
 					model=model,
 				)
-
 				if result["dominant_emotion"] != "Not Found":
 					img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
 					roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
 					roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
 					roi = cv2.resize(roi,(48,48))
-					
-					p_negative = np.double(result["emotion"]["negative"])
-					p_positive = np.double(result["emotion"]["positive"])
-					p_neutral = np.double(result["emotion"]["neutral"])
-
-					#cv2.circle(board,(x, 200),10,(0,0,0),-1)
-					#cv2.line(board,(140, 200),(440, 200),(0,255,0),1)
-
-					x = centro_x - int(p_negative+p_neutral) if p_negative > p_positive else centro_x + int(p_positive+p_neutral)
-					#cv2.circle(board,(x, 200),10,(255,255,255),-1)
-
-					if result["dominant_emotion"] == "negative":
-						framesPredictionsTop10Negative,orderedPredictionsTop10Negative = processTopFrames(round(p_negative, 4), framesPredictionsTop10Negative, orderedPredictionsTop10Negative, "negative", roi)
-					
-					#if result["dominant_emotion"] == "neutral":
-					# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
-					framesPredictionsTop10Neutral,orderedPredictionsTop10Neutral = processTopFrames(round(p_neutral, 4), framesPredictionsTop10Neutral, orderedPredictionsTop10Neutral, "neutral", roi)
-					
-					if result["dominant_emotion"] == "positive":
-						framesPredictionsTop10Positive,orderedPredictionsTop10Positive = processTopFrames(round(p_positive, 4), framesPredictionsTop10Positive, orderedPredictionsTop10Positive, "positive", roi)
-				
+					emotions = result["emotion"].keys()
+					i = 0
+					for emotion in emotions:	
+						# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
+						percentageEmotion = round(np.double(result["emotion"][emotion]),4)
+						if len(framesPredictionsTop10Emotions) != len(emotions):
+							framesPredictionsTop10Emotions.append([])
+							orderedPredictionsTop10Emotions.append([])
+						if emotion == "neutral":
+							framesPredictionsTop10Emotions[i],orderedPredictionsTop10Emotions[i] = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi)
+						else:
+							if result["dominant_emotion"] == emotion:
+								framesPredictionsTop10Emotions[i],orderedPredictionsTop10Emotions[i]  = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi)
+						i=i+1
 						#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
 			except Exception as e:
 				ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Error: "+e+";"+CLIENT_EMAIL)
@@ -439,17 +423,9 @@ if r.status_code == 200:
 		for file in files:
 			file[1][1].close()
 
-		framesPredictionsTop10Positive = []
-		orderedPredictionsTop10Positive = []
-		framesPredictionsTop10Negative = []
-		orderedPredictionsTop10Negative = []
-		framesPredictionsTop10Neutral = []
-		orderedPredictionsTop10Neutral = []
-
-
-		resetFolderFrames('negative')
-		resetFolderFrames('positive')
-		resetFolderFrames('neutral')
+		framesPredictionsTop10Emotions = []
+		orderedPredictionsTop10Emotions = []
+		resetFolderFrames()
 	#video.release()
 else:
 	print("Erro ao realizar Login com a sua conta")
