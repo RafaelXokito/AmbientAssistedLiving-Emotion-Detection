@@ -21,12 +21,12 @@ from getmac import get_mac_address as gma
 import platform
 
 default_model = {
-	model: 'DeepFace',
-	epochs: 500,
-	batches: 128,
-	activation: 'sigmoid',
-	loss: 'binary',
-	metrics: 'binary_accuracy',
+	'model': "DeepFace",
+	'epochs': 500, 
+	'batches': 128,
+	'activation': "sigmoid",
+	'loss': "binary_crossentropy",
+	'metrics': "binary_accuracy"
 }
 
 def parameters():
@@ -85,13 +85,14 @@ time: # Time (seconds) for human labelling iteration
 		exit()
 	
 	forceRetrain = False
-	model = default_model.model
-	epochs = default_model.epochs
-	batch = default_model.batches
-	activation = default_model.activation
-	loss = default_model.loss
-	metrics = default_model.metrics
 
+	model = default_model.get('model')
+	epochs = default_model.get('epochs')
+	batch = default_model.get('batches')
+	activation = default_model.get('activation')
+	loss = default_model.get('loss')
+	metrics = default_model.get('metrics')
+	
 	for i, arg in enumerate(sys.argv):
 		if i == 0:
 			continue

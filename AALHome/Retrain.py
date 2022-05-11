@@ -15,10 +15,18 @@ from getmac import get_mac_address as gma
 
 import EmotionDeepFace
 
+default_model = {
+	'model': "DeepFace",
+	'epochs': 500, 
+	'batches': 128,
+	'activation': "sigmoid",
+	'loss': "binary_crossentropy",
+	'metrics': "binary_accuracy"
+}
 def parameters():
 
 	"""
-	<model>_v<run>_<mode>_<epochs>_<batches>.h5'
+	<model>_<mode>_<epochs>_<batches>.h5'
 
 	model: # Model to build
 	-m DeepFace
@@ -26,13 +34,6 @@ def parameters():
 	-m VGGFace
 	-m FaceNet
 	-m OpenFace
-
-	run: # Number of the test/Version of model
-	-r 1
-	-r 2
-	-r 3
-	...
-	-r N
 
 	epochs: # How many epochs
 	-e 1
@@ -67,7 +68,7 @@ def parameters():
 
 	if '-h' in sys.argv or '--help' in sys.argv:
 		print("""
-<model>_v<run>_<mode>_<epochs>_<batches>.h5'
+<model>_<mode>_<epochs>_<batches>.h5'
 
 model: # Model to build
 -m DeepFace
@@ -75,13 +76,6 @@ model: # Model to build
 -m VGGFace
 -m FaceNet
 -m OpenFace
-
-run: # Number of the test/Version of model
--r 1
--r 2
--r 3
-...
--r N
 
 epochs: # How many epochs
 -e 1
@@ -114,9 +108,12 @@ metrics: # Metrics
 		""")
 		exit()
 
-	if len(sys.argv) == 16:
-		print("Missing parameters, run -h or --help")
-		exit()
+	model = default_model.get('model')
+	epochs = default_model.get('epochs')
+	batch = default_model.get('batches')
+	activation = default_model.get('activation')
+	loss = default_model.get('loss')
+	metrics = default_model.get('metrics')
 
 	for i, arg in enumerate(sys.argv):
 		if i == 0:
@@ -127,7 +124,7 @@ metrics: # Metrics
 			loss = str(sys.argv[i+1])
 		elif arg == '--metrics':
 			metrics = str(sys.argv[i+1])
-		elif arg == '-e' or arg == '-b' or arg == '-r':
+		elif arg == '-e' or arg == '-b':
 			try:
 				number = int(sys.argv[i+1])
 				
@@ -140,9 +137,6 @@ metrics: # Metrics
 					
 				elif arg == '-b':
 					batch = number
-
-				elif arg == '-r':
-					run = number
 				
 			except ValueError as e:
 				print("Parameters are numeric")
@@ -152,7 +146,7 @@ metrics: # Metrics
 		else: 
 			continue
 	
-	return model, run, epochs, batch, activation, loss, metrics
+	return model, epochs, batch, activation, loss, metrics
 
 
 def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain, epochs, batches, activation, loss, metrics):
@@ -207,19 +201,18 @@ CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
 
 params = parameters()
 model = params[0]
-run = params[1]
-epochs = params[2]
-batches = params[3]
-activationFunction = params[4]
-lossFunction = params[5]
-metrics = params[6]
+epochs = params[1]
+batches = params[2]
+activationFunction = params[3]
+lossFunction = params[4]
+metrics = params[5]
 
 if metrics == 'binary_accuracy':
     mode = 'binary'
 else:
     mode = 'categorical'
 
-modelPath = 'weights/'+str(model)+'_v'+str(run)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'
+modelPath = 'weights/'+str(model)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'
 classIndicesPath = 'analysis/class_indices.json'
             
 start_time_retrain = time.time()
@@ -261,7 +254,11 @@ try:
 							shutil.move(file, destination)
 
 						# Retrain of the model
-						# TODO - Make a copy of previous model for security reasons
+						if os.path.exists('previousModels') is False:
+							os.mkdir('previousModels')
+						modelName = str(model)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'	
+						destination = 'previousModels/' + modelName
+						shutil.copy(modelPath, destiny)	
 						modelRetrain = build_model('EmotionDeepFace', DATASET_PATH, modelPath,classIndicesPath,True, epochs, batches, activationFunction, lossFunction, metrics)
 			start_time_retrain = time.time()
 except Exception as e:
