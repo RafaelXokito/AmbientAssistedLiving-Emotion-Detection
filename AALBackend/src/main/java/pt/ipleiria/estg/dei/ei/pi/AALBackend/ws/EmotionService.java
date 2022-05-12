@@ -34,7 +34,6 @@ public class EmotionService {
 
     @GET
     @Path("{name}")
-    @RolesAllowed({"Administrator"})
     public Response getEmotionWS(@PathParam("name") String name) throws Exception{
         Emotion emotion = emotionBean.findEmotion(name);
 

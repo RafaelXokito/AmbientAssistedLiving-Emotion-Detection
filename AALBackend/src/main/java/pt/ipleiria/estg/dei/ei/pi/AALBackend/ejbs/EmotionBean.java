@@ -84,9 +84,13 @@ public class EmotionBean {
      * @param group
      * @return
      */
-    public List<Emotion> getAllEmotionsGroup(String group) {
+    public List<Emotion> getAllEmotionsGroup(String group) throws Exception {
         TypedQuery<Emotion> query = entityManager.createQuery("SELECT e FROM Emotion e WHERE e.group = '" + group + "'", Emotion.class);
         query.setLockMode(LockModeType.OPTIMISTIC);
+
+        if(query.getResultList().isEmpty()){
+            throw new MyEntityNotFoundException("[Error] - No emotions found for group \'"+group+"\'");
+        }
         return query.getResultList();
     }
 }

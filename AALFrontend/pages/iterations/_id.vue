@@ -1,13 +1,15 @@
 <template>
   <div>
     <navbar />
-    <h1 class="mt-5">Frames - Iteration nº {{ id }}</h1>
+    <div class="mt-5 ml-5">
+      <h1>Frames of Iteration nº {{ id }}</h1>
+      <h4>Emotion - {{ emotion }}</h4>
+    </div>
     <div class="d-flex flex-row flex-wrap">
       <b-card-group
         class="mt-5 col-md-4"
         v-for="frame in frames"
         :key="frame.id"
-
       >
         <b-card
           :img-src="frame.base64"
@@ -45,7 +47,7 @@
 <script>
 import navbar from "~/components/utils/NavBar.vue";
 export default {
-  middleware: ('auth'),
+  middleware: "auth",
   components: {
     navbar,
   },
@@ -55,7 +57,8 @@ export default {
       emotionGroup: null,
       humanLabelEmotions: [],
       emotionsClassified: [],
-      socket: null
+      socket: null,
+      emotion: "",
     };
   },
   computed: {
@@ -65,11 +68,27 @@ export default {
   },
   created() {
     this.$axios.$get("/api/iterations/" + this.id).then((iteration) => {
-      this.emotionGroup = iteration.emotion;
+      this.emotion = iteration.emotion;
       this.$axios
-        .$get("/api/emotions/groups/" + this.emotionGroup)
+        .$get("/api/emotions/groups/" + this.emotion)
         .then((emotions) => {
           this.humanLabelEmotions = emotions;
+        })
+        .catch((error) => {
+          // We have a personalized emotion, so we need to find its group first
+          if(error.response.status == 404){
+            this.$axios.$get("/api/emotions/" + this.emotion).then((emotion) => {
+            this.$axios
+              .$get("/api/emotions/groups/" + emotion.group)
+              .then((emotions) => {
+                this.humanLabelEmotions = emotions;
+              });
+          });
+          }else{
+            this.$toast
+            .info(error.response.data)
+            .goAway(3000);
+          }
         });
     });
 
@@ -107,9 +126,13 @@ export default {
             .goAway(3000);
           // Connection opened
           //console.log(this.socket)
-          let jsonData = '{ "emotion" : "'+this.emotionsClassified[id - 1]+'", "image": "'+base64+'"}';
-          if (this.socket.readyState == 1)
-            this.socket.send(jsonData);
+          let jsonData =
+            '{ "emotion" : "' +
+            this.emotionsClassified[id - 1] +
+            '", "image": "' +
+            base64 +
+            '"}';
+          if (this.socket.readyState == 1) this.socket.send(jsonData);
         });
     },
   },
