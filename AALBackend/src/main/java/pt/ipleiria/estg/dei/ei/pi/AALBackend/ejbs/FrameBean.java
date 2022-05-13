@@ -161,7 +161,7 @@ public class FrameBean {
 
 
     public List<Pair<Date,Integer>> getGraphDataClassifiedEmotions(Long id) throws MyEntityNotFoundException {
-        TypedQuery<Frame> query = entityManager.createQuery("SELECT distinct f FROM Frame f INNER JOIN Iteration i INNER JOIN Emotion e WHERE i.client.id = "+id+" and f.emotion.name IS NOT NULL ORDER BY f.createDate", Frame.class);
+        TypedQuery<Frame> query = entityManager.createQuery("SELECT distinct f FROM Frame f INNER JOIN Iteration i INNER JOIN Emotion e WHERE i.client.id = "+id+" ORDER BY f.createDate", Frame.class);
         List<Frame> frames = query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
         if(frames.isEmpty()){
             throw new MyEntityNotFoundException("[Error] - No frames that belong to client with id: \'"+id+"\' were classified yet");
