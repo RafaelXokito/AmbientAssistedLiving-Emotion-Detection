@@ -1,16 +1,17 @@
 import websocket
-import _thread
-import time
 import rel
 import os
 import requests
 import uuid
 import base64
 import json
+import time
 from dotenv import load_dotenv
+from os.path import exists
 load_dotenv()
 
 PRE_DATASET_PATH = os.getenv('PRE_DATASET_PATH')
+
 
 def on_message(ws, message):
     if (len(message) > 70):
@@ -22,44 +23,52 @@ def on_message(ws, message):
             messageContent["image"] = messageContent["image"].split(",")[1]
 
         image64 = bytes(messageContent["image"], 'ascii')
-        
+
         # If path does not exists, we make it
 
         if os.path.exists(PRE_DATASET_PATH) == False:
             os.mkdir(PRE_DATASET_PATH)
 
-        path = PRE_DATASET_PATH +"/"+ messageContent["emotion"]
-        
+        path = PRE_DATASET_PATH + "/" + messageContent["emotion"]
+
         if os.path.exists(path) == False:
             os.mkdir(path)
 
-        with open(path + "/" + str(uuid.uuid4())+'.jpg', "wb") as fh:
+        with open(path + "/" + str(uuid.uuid4()) + '.jpg', "wb") as fh:
             fh.write(base64.decodebytes(image64))
-            
+
+
 def on_error(ws, error):
     print("Error:" + error)
+
 
 def on_close(ws, close_status_code, close_msg):
     print("### closed ###")
 
+
 def on_open(ws):
     print("Opened connection")
 
+
 if __name__ == "__main__":
     websocket.enableTrace(True)
+
+    while not exists("token.txt"):
+        time.sleep(3)
+        continue
     f = open("token.txt", "r")
     token = f.read()
 
     API_URL = os.getenv('API_URL')
 
-    r = requests.get(url = API_URL+'/auth/user', headers={"Authorization": "Bearer "+token})
+    r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
     userId = r.json()["id"]
 
-    ws = websocket.WebSocketApp(os.getenv('FRAMES_WEBSOCKET_URL')+str(userId),
-                              on_open=on_open,
-                              on_message=on_message,
-                              on_error=on_error,
-                              on_close=on_close)
+    ws = websocket.WebSocketApp(os.getenv('FRAMES_WEBSOCKET_URL') + str(userId),
+                                on_open=on_open,
+                                on_message=on_message,
+                                on_error=on_error,
+                                on_close=on_close)
 
     ws.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
     rel.signal(2, rel.abort)  # Keyboard Interrupt

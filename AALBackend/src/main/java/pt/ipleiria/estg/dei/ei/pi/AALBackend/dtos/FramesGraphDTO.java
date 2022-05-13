@@ -6,10 +6,10 @@ public class FramesGraphDTO {
     private long id;
     private String emotion_predicted;
     private String emotion_classified;
-    private long accuracy;
+    private double accuracy;
     private Date createDate;
     
-    public FramesGraphDTO(long id, String emotion_predicted, String emotion_classified, long accuracy,
+    public FramesGraphDTO(long id, String emotion_predicted, String emotion_classified, double accuracy,
             Date createDate) {
         this.id = id;
         this.emotion_predicted = emotion_predicted;
@@ -45,11 +45,11 @@ public class FramesGraphDTO {
         this.emotion_classified = emotion_classified;
     }
 
-    public long getAccuracy() {
+    public double getAccuracy() {
         return accuracy;
     }
 
-    public void setAccuracy(long accuracy) {
+    public void setAccuracy(double accuracy) {
         this.accuracy = accuracy;
     }
 

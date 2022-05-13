@@ -189,7 +189,7 @@ public class FrameService {
         frame.getId(),
         frame.getIteration().getEmotion(),
         frame.getEmotion() == null ? "N/A" : frame.getEmotion().getName(),
-        0,
+        frame.getAccuracy(),
         frame.getCreateDate());
     }
 

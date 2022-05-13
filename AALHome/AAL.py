@@ -201,8 +201,9 @@ def processTopFrames(predictionEmotion, arrayTopPredictions, arrayOrderedTopPred
 				# adds the new frame to the top 10 array and folder
 				arrayTopPredictions.append(predictionEmotion)
 				filePath = filenameFrameLowerValue
-				
+
 				cv2.imwrite(filePath, frame)
+
 				previous = now
 				previousPrediction = predictionEmotion
 			
@@ -213,9 +214,12 @@ def processTopFrames(predictionEmotion, arrayTopPredictions, arrayOrderedTopPred
 			filePath = 'top10Frames/'+emotion+'/frame_'+str(count)+'.jpg'
 			
 			cv2.imwrite(filePath, frame)
+
 			previous = now
 			previousPrediction = predictionEmotion
-			arrayOrderedTopPredictions = sorted(arrayTopPredictions) 
+
+			arrayOrderedTopPredictions = sorted(arrayTopPredictions)
+
 	return arrayTopPredictions, arrayOrderedTopPredictions, previous, previousPrediction
 
 
@@ -318,10 +322,14 @@ if r.status_code == 200:
 	framesPredictionsTop10Emotions = []
 	orderedPredictionsTop10Emotions = []
 	resetFolderFrames()
-	previous = time.time()
-	previousPrediction = 0
+
+	previous = []
+	previousPrediction = []
 
 	auxmodelCreationDate = creation_date(modelPath)
+
+	emotions = []
+
 	while True:
 
 		start_time = time.time()
@@ -331,35 +339,44 @@ if r.status_code == 200:
 		
 		#Irá capturar vídeo até chegar ao tempo parametrizado (segundos) e fazer passar à fase de human labelling
 		while ( int(time.time() - start_time) < time_HLIteration ):  #checking if are getting video feed and using it
-			_,frame = video.read()
+			_, frame = video.read()
 
 			try:
 				result = analyze(
 					frame,
 					model=model,
 				)
+
 				if result["dominant_emotion"] != "Not Found":
-					img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)  
+					img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)
 					roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
 					roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-					roi = cv2.resize(roi,(48,48))
-					emotions = result["emotion"].keys()
+					roi = cv2.resize(roi, (48, 48))
+
+					if len(previous) == 0:
+						emotions = result["emotion"].keys()
+						previous = [len(emotions)]
+						for i in range(len(emotions)):
+							previous.append(time.time())
+							previousPrediction.append(0)
+
 					i = 0
-					for emotion in emotions:	
+					for emotion in emotions:
+
 						# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
-						percentageEmotion = round(np.double(result["emotion"][emotion]),4)
+						percentageEmotion = round(np.double(result["emotion"][emotion]), 4)
 						if len(framesPredictionsTop10Emotions) != len(emotions):
 							framesPredictionsTop10Emotions.append([])
 							orderedPredictionsTop10Emotions.append([])
 						
 						if emotion == "neutral":
-							framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous, previousPrediction  = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i],emotion, roi,  previous, previousPrediction )
+							framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i] = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i])
 						else:
 							if result["dominant_emotion"] == emotion:
-								framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous, previousPrediction   = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous, previousPrediction )								
-						i=i+1	
-							#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
+								framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i] = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i])
+						i = i + 1
+						#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
 			except Exception as e:
 				ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Error: "+str(e)+";"+CLIENT_EMAIL)
 			
@@ -372,7 +389,11 @@ if r.status_code == 200:
 		
 		"""Código de conecção à API"""
 		# Windows slash bars wrong way => w.replace(os.sep, '/')
-		emotionsPath =  [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/*')]
+		# emotionsPath = [w.replace(os.sep, '/') for w in glob(TOP_FRAMES_PATH+'/*')]
+
+		emotionsPath = []
+		for emotion in emotions:
+			emotionsPath.append(TOP_FRAMES_PATH+"/"+emotion)
 
 		# defining the api-endpoint 
 		API_ENDPOINT = API_URL+"/frames/upload"
@@ -388,23 +409,25 @@ if r.status_code == 200:
 			data = {
 				"macAddress": MAC_ADDRESS,
 				"emotion": emotion,
-				"datesFrames":[],
-				"accuraciesFrames":framesPredictionsTop10Emotions[i]
+				"datesFrames": [],
+				"accuraciesFrames": framesPredictionsTop10Emotions[i]
 			}
 
 			i = i + 1
 			files = []
-			imagesPath = [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/'+emotion+'/*')]
-			for imagePath in imagesPath:				
+			imagesPath = [w.replace(os.sep, '/') for w in glob(TOP_FRAMES_PATH+'/'+emotion+'/*')]
+			for imagePath in imagesPath:
 				date = creation_date(imagePath)
 				date = datetime.fromtimestamp(date).strftime("%Y-%m-%d %H:%M:%S")
 				data["datesFrames"].append(date)
-				fileFrame = open(imagePath,'rb')
+
+				fileFrame = open(imagePath, 'rb')
 				
-				files.append(('file',(imagePath.split('/')[-1],fileFrame,'application/octet-stream')))
+				files.append(('file', (imagePath.split('/')[-1], fileFrame, 'application/octet-stream')))
 				
 			headers = {"Authorization": "Bearer "+token}
-			
+
+			print(data)
 			# sending post request and saving response as response object
 			r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
 
@@ -412,7 +435,7 @@ if r.status_code == 200:
 				requestOk = requestOk + 1
 			# extracting response text 
 			#responseIteration = r.json()
-	
+
 		if requestOk == requestTotal:
 			print("Foi efetuado registo de frames com sucesso")
 		else:

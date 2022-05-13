@@ -10,6 +10,7 @@ load_dotenv()
 import random
 import shutil
 import requests
+from os.path import exists
 import websocket
 from getmac import get_mac_address as gma
 
@@ -220,6 +221,10 @@ start_time_retrain = time.time()
 # Websocket Log
 API_URL = os.getenv('API_URL')
 
+while not exists("token.txt"):
+	time.sleep(3)
+	continue
+
 f = open("token.txt", "r")
 token = f.read()
 
@@ -258,8 +263,8 @@ try:
 							os.mkdir('previousModels')
 						modelName = str(model)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'	
 						destination = 'previousModels/' + modelName
-						shutil.copy(modelPath, destiny)	
-						modelRetrain = build_model('EmotionDeepFace', DATASET_PATH, modelPath,classIndicesPath,True, epochs, batches, activationFunction, lossFunction, metrics)
+						shutil.copy(modelPath, destination)
+						modelRetrain = build_model('EmotionDeepFace', DATASET_PATH, modelPath, classIndicesPath, True, epochs, batches, activationFunction, lossFunction, metrics)
 			start_time_retrain = time.time()
 except Exception as e:
 	ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Cliente Ligado"+";"+CLIENT_EMAIL)
