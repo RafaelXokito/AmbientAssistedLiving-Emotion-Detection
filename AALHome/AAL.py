@@ -9,13 +9,11 @@ import EmotionDeepFace
 import os
 import time
 from datetime import datetime
-import subprocess
 import requests
 from glob import glob
 
 from dotenv import load_dotenv
 load_dotenv()
-import base64
 from getmac import get_mac_address as gma
 
 import platform
@@ -316,16 +314,6 @@ if r.status_code == 200:
 	modelPath = 'weights/'+str(model)+'_'+mode+'_'+str(epochs)+'_'+str(batches)+'.h5'
 	classIndicesPath = 'analysis/class_indices.json'
 	model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,forceRetrain, epochs, batches, activationFunction, lossFunction, metrics)
-
-	#board = np.ones(shape=[400,600,3], dtype=np.uint8)
-
-	# Preenchemos o "quadro" a branco para escrever a emoção nova
-	#board.fill(0) # or img[:] = 255
-
-	#cv2.putText(board, "Negative", (50, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
-	centro_x = int(((440 - 140)/2)+140)
-	#cv2.circle(board,(centro_x, 200),5,(0,0,255),-1)
-	#cv2.putText(board, "Positive", (450, 200), cv2.FONT_HERSHEY_COMPLEX, 0.50, (0,255,0), 1)
 
 	framesPredictionsTop10Emotions = []
 	orderedPredictionsTop10Emotions = []
