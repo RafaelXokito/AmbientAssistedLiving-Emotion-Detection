@@ -25,7 +25,7 @@ public class FrameBean {
      * @return
      * @throws Exception
      */
-    public Long create(String fileName, String filePath, Long iterationID, Date createDate) throws Exception{
+    public Long create(String fileName, Double accuracy, String filePath, Long iterationID, Date createDate) throws Exception{
         if (fileName == null || fileName.trim().isEmpty())
             throw new MyIllegalArgumentException("Field \"File Name\" is required");
         if (filePath == null || filePath.trim().isEmpty())
@@ -34,11 +34,14 @@ public class FrameBean {
         if(createDate == null || createDate.after(now)){
             throw new IllegalArgumentException("[Error] - Create Date is mandatory and must be before today's date");
         }
+        if(accuracy == null || accuracy.isNaN() || accuracy < 0 || accuracy > 100){
+            throw new IllegalArgumentException("[Error] - Accuracy is mandatory and should be a number between [0;100]");
+        }
         Iteration iterationFound = entityManager.find(Iteration.class,iterationID);
         if(iterationFound == null){
             throw new MyEntityNotFoundException("[Error] - Iteration with email: \'"+iterationID+"\' not found");
         }
-        Frame frame = new Frame(fileName, filePath, iterationFound, createDate);
+        Frame frame = new Frame(fileName, accuracy, filePath, iterationFound, createDate);
         iterationFound.addFrame(frame);
         
         try {
@@ -160,20 +163,12 @@ public class FrameBean {
     }
 
 
-    public List<Pair<Date,Integer>> getGraphDataClassifiedEmotions(Long id) throws MyEntityNotFoundException {
+    public List<Frame> getGraphDataClassifiedEmotions(Long id) throws MyEntityNotFoundException {
         TypedQuery<Frame> query = entityManager.createQuery("SELECT distinct f FROM Frame f INNER JOIN Iteration i INNER JOIN Emotion e WHERE i.client.id = "+id+" ORDER BY f.createDate", Frame.class);
         List<Frame> frames = query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
         if(frames.isEmpty()){
             throw new MyEntityNotFoundException("[Error] - No frames that belong to client with id: \'"+id+"\' were classified yet");
         }
-        List<Emotion> emotions = entityManager.createNamedQuery("getAllEmotions", Emotion.class).setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        Pair<Date, Integer> pointXY;
-        List<Pair<Date, Integer>> graphData = new LinkedList<>();
-        for (Frame frame: frames) {
-            int index = emotions.indexOf(frame.getEmotion());
-            pointXY = new Pair(frame.getCreateDate(), index);
-            graphData.add(pointXY);
-        }
-        return graphData;
+        return frames;
     }
 }

@@ -16,6 +16,7 @@ import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FramesGraphDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.IterationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.FrameBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
@@ -64,7 +65,11 @@ public class FrameService {
         for (InputPart inputPart : datesFrames) {
             Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(inputPart.getBodyAsString());
             dates.add(date);
-
+        }
+        List<InputPart> accuraciesFrames = uploadForm.get("accuraciesFrames");
+        List<Double> accuracies = new LinkedList<>();
+        for (InputPart inputPart : accuraciesFrames) {
+            accuracies.add(Double.parseDouble(inputPart.getBodyAsString()));
         }
         List<InputPart> inputParts = uploadForm.get("file");
         int index = 0;
@@ -87,7 +92,7 @@ public class FrameService {
                 writeFile(bytes, filepath);
                 if (!customDir.exists())
                     continue;
-                frameBean.create(filename, filepath, iteration.getId(), dates.get(index));
+                frameBean.create(filename, accuracies.get(index), filepath, iteration.getId(), dates.get(index));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -175,10 +180,23 @@ public class FrameService {
         if (securityContext.isUserInRole("Client") && id != personBean.getPersonByAuthToken(auth).getId())
             throw new MyUnauthorizedException("You are not allowed to see this iteration");
 
-        List<Pair<Date,Integer>> graphData = frameBean.getGraphDataClassifiedEmotions(id);
-        return Response.status(Response.Status.OK).entity(graphData).build();
+        List<Frame> graphData = frameBean.getGraphDataClassifiedEmotions(id);
+        return Response.status(Response.Status.OK).entity(graphToDTOs(graphData)).build();
 
     }
+
+    FramesGraphDTO graphToDTO(Frame frame) { return new FramesGraphDTO(
+        frame.getId(),
+        frame.getIteration().getEmotion(),
+        frame.getEmotion() == null ? "N/A" : frame.getEmotion().getName(),
+        0,
+        frame.getCreateDate());
+    }
+
+    List<FramesGraphDTO> graphToDTOs(List<Frame> frames) {
+        return frames.stream().map(this::graphToDTO).collect(Collectors.toList());
+    }
+
     FrameDTO toDTO(Frame frame) { return new FrameDTO(
             frame.getId(),
             frame.getName(),

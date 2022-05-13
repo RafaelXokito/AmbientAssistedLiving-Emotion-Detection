@@ -25,6 +25,8 @@ public class Frame implements Serializable{
     @NotNull
     private String name;
     @NotNull
+    private Double accuracy;
+    @NotNull
     private String path;
     @ManyToOne
     private Iteration iteration;
@@ -43,12 +45,14 @@ public class Frame implements Serializable{
         this.path = "";
         this.iteration = new Iteration();
         this.name = "";
+        this.accuracy = null;
         this.createDate = new Date();
     }
 
-    public Frame(String name, String path, Iteration iteration, Date createDate){
+    public Frame(String name, Double accuracy, String path, Iteration iteration, Date createDate){
         this.path = path;
         this.iteration = iteration;
+        this.accuracy = accuracy;
         this.name = name;
         this.createDate = createDate;
     }
@@ -102,4 +106,11 @@ public class Frame implements Serializable{
         this.updated_at = new Date();
     }
 
+    public Double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Double accuracy) {
+        this.accuracy = accuracy;
+    }
 }
