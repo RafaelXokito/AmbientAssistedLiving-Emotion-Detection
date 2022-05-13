@@ -153,3 +153,4 @@ cython_debug/
 /AALHome/top10Frames
 .DS_Store
 AALFrontend/.env.production
+AALHome/token.txt
