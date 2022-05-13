@@ -110,4 +110,18 @@ public class ClientDTO {
     public void setContact(String contact) {
         this.contact = contact;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public AdministratorDTO getAdministrator() {
+        return administrator;
+    }
+
+    public void setAdministrator(AdministratorDTO administrator) {
+        this.administrator = administrator;
+    }
+
+    
 }

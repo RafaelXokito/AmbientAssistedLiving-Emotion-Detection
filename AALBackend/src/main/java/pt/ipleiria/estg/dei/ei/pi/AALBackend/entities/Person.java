@@ -7,16 +7,10 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @NamedQueries({
         @NamedQuery(

@@ -14,9 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.ParseException;
-import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Path("/auth")
 @Produces({MediaType.APPLICATION_JSON}) // injects header “Content-Type: application/json”

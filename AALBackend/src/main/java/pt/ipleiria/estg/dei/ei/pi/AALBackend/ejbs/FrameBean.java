@@ -2,7 +2,6 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 
 import com.sun.tools.javac.util.Pair;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;

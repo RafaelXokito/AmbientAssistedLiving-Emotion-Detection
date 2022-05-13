@@ -7,8 +7,6 @@ import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentExcepti
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @Stateless
