@@ -352,6 +352,8 @@ if r.status_code == 200:
 						if len(framesPredictionsTop10Emotions) != len(emotions):
 							framesPredictionsTop10Emotions.append([])
 							orderedPredictionsTop10Emotions.append([])
+						
+						if emotion == "neutral":
 							framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous, previousPrediction  = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i],emotion, roi,  previous, previousPrediction )
 						else:
 							if result["dominant_emotion"] == emotion:
@@ -380,18 +382,16 @@ if r.status_code == 200:
 		i = 0
 		for emotionPath in emotionsPath:
 			emotion = emotionPath.split('/')[-1]
-
 			if len(glob(TOP_FRAMES_PATH+'/'+emotion+'/*')) == 0:
 				continue
-			
 			requestTotal = requestTotal + 1
-
 			data = {
 				"macAddress": MAC_ADDRESS,
 				"emotion": emotion,
 				"datesFrames":[],
 				"accuraciesFrames":framesPredictionsTop10Emotions[i]
 			}
+
 			i = i + 1
 			files = []
 			imagesPath = [w.replace(os.sep, '/') for w in  glob(TOP_FRAMES_PATH+'/'+emotion+'/*')]
