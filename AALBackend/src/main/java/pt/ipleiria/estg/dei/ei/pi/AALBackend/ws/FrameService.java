@@ -46,6 +46,22 @@ public class FrameService {
     @Context
     private SecurityContext securityContext;
 
+    @GET
+    @Path("{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response getFrameWS(@PathParam("id") Long id, @HeaderParam("Authorization") String auth) throws Exception {
+        String clientEmail = personBean.getPersonByAuthToken(auth).getEmail();
+        Frame frame = frameBean.findFrame(id);
+
+        if (securityContext.isUserInRole("Client") && !frame.getIteration().getClient().getEmail().equals(clientEmail))
+            throw new MyUnauthorizedException("You are not allowed to see this iteration");
+
+        return Response.status(Response.Status.OK)
+                .entity(extendedToDTO(frame))
+                .build();
+    }
+
     @POST
     @Path("upload")
     @RolesAllowed({"Client"})
@@ -210,7 +226,8 @@ public class FrameService {
                 frame.getName(),
                 frame.getPath(),
                 emotionToDTO(frame.getEmotion() == null ? new Emotion() : frame.getEmotion()),
-                frame.getCreateDate()
+                frame.getCreateDate(),
+                frame.getIteration().getEmotion()
         );
     }
 

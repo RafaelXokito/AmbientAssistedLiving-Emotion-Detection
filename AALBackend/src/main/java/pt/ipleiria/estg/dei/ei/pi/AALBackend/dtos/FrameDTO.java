@@ -8,20 +8,31 @@ public class FrameDTO {
     private String filepath;
     private EmotionDTO emotion;
     private Date createDate;
+    private String emotionIteration;
 
     public FrameDTO(long id, String filename, String filepath, Date createDate) {
         this.id = id;
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = new EmotionDTO();
+        this.emotionIteration = "";
         this.createDate = createDate;
-
     }
     public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion) {
         this.id = id;
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = emotion;
+        this.emotionIteration = "";
+    }
+
+    public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion, Date createDate, String emotionIteration) {
+        this.id = id;
+        this.filename = filename;
+        this.filepath = filepath;
+        this.emotion = emotion;
+        this.createDate = createDate;
+        this.emotionIteration = emotionIteration;
     }
 
     public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion, Date createDate) {
@@ -29,6 +40,7 @@ public class FrameDTO {
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = emotion;
+        this.emotionIteration = "";
         this.createDate = createDate;
     }
 
@@ -37,6 +49,7 @@ public class FrameDTO {
         this.filename = "";
         this.filepath = "";
         this.emotion = new EmotionDTO();
+        this.emotionIteration = "";
         this.createDate = new Date();
     }
 
@@ -81,5 +94,12 @@ public class FrameDTO {
         this.createDate = createDate;
     }
 
+    public String getEmotionIteration() {
+        return emotionIteration;
+    }
+
+    public void setEmotionIteration(String emotionIteration) {
+        this.emotionIteration = emotionIteration;
+    }
 }
 

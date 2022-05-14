@@ -427,7 +427,6 @@ if r.status_code == 200:
 				
 			headers = {"Authorization": "Bearer "+token}
 
-			print(data)
 			# sending post request and saving response as response object
 			r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
 
