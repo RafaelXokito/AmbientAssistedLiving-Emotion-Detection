@@ -1,51 +1,54 @@
 <template>
   <div>
     <navbar />
-    <h1>Iterations</h1>
-    <highchart v-if="showChart == true"
-      :options="chartOptions"
-    />
-    <div v-else class="w-75 mx-auto alert alert-info">No frames from the iterations were classified yet</div>
-    <b-container>
-      <div class="mt-5" v-if="tableLength != 0">
-        <b-table
-          small
-          id="iterationsTable"
-          :items="iterations"
-          :fields="fields"
-          :current-page="currentPage"
-          :per-page="perPage"
-          striped
-          responsive="sm"
-        >
-          <template #cell(emotion)="data">
-            {{
-              data.item.emotion.charAt(0).toUpperCase() +
-              data.item.emotion.slice(1)
-            }}
-          </template>
-          <template v-slot:cell(Frames)="row">
-            <b-button variant="dark" :to="`/iterations/${row.item.id}`">
-              View
-            </b-button>
-          </template>
-          <template #cell(created_at)="data">
-            {{
-              data.item.created_at != null
-                ? new Date(data.item.created_at).toLocaleString("pt-PT")
-                : "Not Shown"
-            }}
-          </template>
-        </b-table>
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="tableLength"
-          :per-page="perPage"
-          aria-controls="my-table"
-          align="center"
-        ></b-pagination>
+    <b-container >
+      <h1>Iterations</h1>
+      <div class="backdrop-blur-md bg-white/30">
+        <b-container class="p-lg-5">
+          <highchart v-if="showChart == true"
+                     :options="chartOptions"
+          />
+          <div class="mt-5" v-if="tableLength != 0">
+            <b-table
+              small
+              id="iterationsTable"
+              :items="iterations"
+              :fields="fields"
+              :current-page="currentPage"
+              :per-page="perPage"
+              striped
+              responsive="sm"
+            >
+              <template #cell(emotion)="data">
+                {{
+                  data.item.emotion.charAt(0).toUpperCase() +
+                  data.item.emotion.slice(1)
+                }}
+              </template>
+              <template v-slot:cell(Frames)="row">
+                <b-button variant="dark" :to="`/iterations/${row.item.id}`">
+                  View
+                </b-button>
+              </template>
+              <template #cell(created_at)="data">
+                {{
+                  data.item.created_at != null
+                    ? new Date(data.item.created_at).toLocaleString("pt-PT")
+                    : "Not Shown"
+                }}
+              </template>
+            </b-table>
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="tableLength"
+              :per-page="perPage"
+              aria-controls="my-table"
+              align="center"
+            ></b-pagination>
+          </div>
+          <div v-else class="w-75 mx-auto alert alert-info">No iterations were created so far</div>
+        </b-container>
       </div>
-      <div v-else class="w-75 mx-auto alert alert-info">No iterations were created so far</div>
     </b-container>
     <b-modal ref="modal" hide-footer title="Frame Selected">
       <div class="text-center">
@@ -121,7 +124,8 @@ export default {
       yLabels: [],
       chartOptions: {
         chart: {
-          type: "line"
+          type: "line",
+          backgroundColor: 'rgba(0,0,0,0)'
         },
         plotOptions: {
           series: {
