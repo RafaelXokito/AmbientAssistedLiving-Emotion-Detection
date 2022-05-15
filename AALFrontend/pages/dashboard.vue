@@ -4,8 +4,10 @@
     <body class="text-white text-center">
     <div class="row">
       <div class="col-6">
-        <h1 class="font-mono">Bem vindo(a) {{currentUser.name}}</h1>
-        <img src="/DashboardImage.svg" class="rounded-circle mx-auto" width="500">
+        <div class="p-lg-5">
+          <h1 class="font-mono text-slate-500">Bem vindo(a) {{currentUser.name}}</h1>
+          <img src="/DashboardImage.svg" class="rounded-circle mx-auto" width="500">
+        </div>
       </div>
       <div class="col-6">
         <div class="p-lg-5">
