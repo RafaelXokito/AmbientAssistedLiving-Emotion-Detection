@@ -3,7 +3,7 @@
     <navbar />
     <b-container >
       <h1>Iterations</h1>
-      <div class="backdrop-blur-md bg-white/30">
+      <div class="backdrop-blur-md bg-black/5">
         <b-container class="p-lg-5">
           <highchart v-if="showChart == true"
                      :options="chartOptions"
