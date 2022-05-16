@@ -177,7 +177,7 @@ public class FrameBean {
 
 
     public List<Frame> getGraphDataFrames(Long id) throws MyEntityNotFoundException {
-        TypedQuery<Frame> query = entityManager.createQuery("SELECT f FROM Frame f  WHERE f.iteration.client.id = "+id+" AND f.emotion.name NOT LIKE 'invalid' ORDER BY f.createDate", Frame.class);
+        TypedQuery<Frame> query = entityManager.createQuery("SELECT f FROM Frame f JOIN Iteration i ON f.iteration.id = i.id JOIN Emotion e ON i.emotion.name = e.name WHERE i.client.id = "+id+" AND e.name <> 'invalid' ORDER BY f.createDate", Frame.class);
         return query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
     }
 }
