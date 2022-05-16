@@ -165,7 +165,6 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 				metrics=metrics
 			)
 			model_obj[model_name] = model
-			#print(model_name," built")
 		else:
 			raise ValueError('Invalid model_name passed - {}'.format(model_name))
 
@@ -182,32 +181,42 @@ def processTopFrames(predictionEmotion, arrayTopDominantAccuracies, arrayTopPred
 	if os.path.exists('top10Frames/'+emotion) is False:
 		os.mkdir('top10Frames/'+emotion)
 
-	framesEmotions =  [w.replace(os.sep, '/') for w in  glob('top10Frames/'+emotion+'/*.jpg')]
+	framesEmotions = [w.replace(os.sep, '/') for w in glob('top10Frames/'+emotion+'/*.jpg')]
 	count = len(framesEmotions)
 	now = int(time.time())
-	#if emotion == 'negative':
-		#print("now - ",now)
-		#print("previous - ", previous)
-		#print("previousPrediction - ", previousPrediction)
-		#print("predictionEmotion - ", predictionEmotion)
 	
-	if now != previous or previousPrediction < predictionEmotion:
+	if now != previous or previousPrediction < predictionEmotion:  # or previousPrediction < predictionEmotion:
 		# if on different seconds
-		if now!=previous:
+		if now != previous:
 			previousPrediction = 0					
 		# if on the same second
 		else:
 			previousPrediction = predictionEmotion
 		
 		if len(arrayTopDominantAccuracies) >= 10:
-			if arrayOrderedTopPredictions[0] < predictionEmotion: 
+
+			filenameFrameLowerValue = ""
+
+			if now == previous and previousPrediction < predictionEmotion:
+				arrayTopDominantAccuracies.pop()
+				arrayTopPredictions.pop()
+				times.pop()
+
+				filenameFrameLowerValue = framesEmotions[-1]
+
+			elif now != previous and arrayOrderedTopPredictions[0] < predictionEmotion:
+
 				# finds original index of lower prediction value
-				lowerValueIndex = arrayTopDominantAccuracies.index(arrayOrderedTopPredictions[0]) 
+				lowerValueIndex = arrayTopDominantAccuracies.index(arrayOrderedTopPredictions[0])
+
 				# deletes the lower value from the top 10 array and folder
 				arrayTopDominantAccuracies.pop(lowerValueIndex)
 				arrayTopPredictions.pop(lowerValueIndex)
 				times.pop(lowerValueIndex)
+
 				filenameFrameLowerValue = framesEmotions[lowerValueIndex]
+
+			if filenameFrameLowerValue != "":
 				if os.path.exists(filenameFrameLowerValue) is True:
 					os.remove(filenameFrameLowerValue)
 
@@ -227,10 +236,10 @@ def processTopFrames(predictionEmotion, arrayTopDominantAccuracies, arrayTopPred
 				cv2.imwrite(filePath, frame)
 				previous = int(time.time())
 				times.append(previous)
-				arrayOrderedTopPredictions = sorted(arrayTopDominantAccuracies) 
+
+				arrayOrderedTopPredictions = sorted(arrayTopDominantAccuracies)
 		else:
 			count = count + 1
-			arrayTopDominantAccuracies.append(predictionEmotion)
 
 			aux = ""
 			keys = list(emotionPredictions.keys())
@@ -238,13 +247,22 @@ def processTopFrames(predictionEmotion, arrayTopDominantAccuracies, arrayTopPred
 			for index in range(len(emotionPredictions.keys())):
 				aux += keys[index]+"#"+str(values[index])+";"
 			aux = aux[:-1]
+
+			if now == previous and len(times) != 0:
+				times.pop()
+				arrayTopPredictions.pop()
+				arrayTopDominantAccuracies.pop()
+
+			arrayTopDominantAccuracies.append(predictionEmotion)
 			arrayTopPredictions.append(aux)
 			
 			filePath = 'top10Frames/'+emotion+'/frame_'+str(count)+'.jpg'
 			
 			cv2.imwrite(filePath, frame)		
 			previous = int(time.time())
+
 			times.append(previous)
+
 			arrayOrderedTopPredictions = sorted(arrayTopDominantAccuracies)
 
 	return arrayTopDominantAccuracies, arrayTopPredictions, arrayOrderedTopPredictions, previous, previousPrediction, times
@@ -349,6 +367,7 @@ if r.status_code == 200:
 	framesDominantAccuraciesTop10Emotions = []
 	framesPredictionsTop10Emotions = []
 	orderedPredictionsTop10Emotions = []
+	times = []
 	resetFolderFrames()
 
 	previous = []
@@ -376,7 +395,7 @@ if r.status_code == 200:
 				)
 
 				if result["dominant_emotion"] != "Not Found":
-					img=cv2.rectangle(frame,(result["region"]["x"],result["region"]["y"]),(result["region"]["x"]+result["region"]["w"],result["region"]["y"]+result["region"]["h"]),(0,0,255),1)
+					img=cv2.rectangle(frame, (result["region"]["x"], result["region"]["y"]), (result["region"]["x"]+result["region"]["w"], result["region"]["y"]+result["region"]["h"]), (0,0,255),1)
 					roi = img[result["region"]["y"]:result["region"]["y"]+result["region"]["h"], result["region"]["x"]:result["region"]["x"]+result["region"]["w"]]
 					roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
@@ -385,10 +404,8 @@ if r.status_code == 200:
 					if len(previous) == 0:
 						emotions = result["emotion"].keys()
 						previous = []
-						times = []
 						for i in range(len(emotions)):
 							previous.append(int(time.time()))
-							times.append([])
 							previousPrediction.append(0)
 					i = 0
 					for emotion in emotions:
@@ -399,14 +416,12 @@ if r.status_code == 200:
 							framesDominantAccuraciesTop10Emotions.append([])
 							framesPredictionsTop10Emotions.append([])
 							orderedPredictionsTop10Emotions.append([])
+							times.append([])
 						
-						if emotion == "neutral":
+						if emotion == "neutral" or result["dominant_emotion"] == emotion:
 							framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i], times[i] = processTopFrames(percentageEmotion, framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i], result["emotion"], times[i])
-						else:
-							if result["dominant_emotion"] == emotion:
-								framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i], times[i] = processTopFrames(percentageEmotion, framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i], result["emotion"], times[i])
+
 						i = i + 1
-						#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
 			except Exception as e:
 				ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Error: "+str(e)+";"+CLIENT_EMAIL)
 			
@@ -473,10 +488,13 @@ if r.status_code == 200:
 		time.sleep(1)	
 		for file in files:
 			file[1][1].close()
+
 		framesDominantAccuraciesTop10Emotions = []
 		framesPredictionsTop10Emotions = []
 		orderedPredictionsTop10Emotions = []
+		times = []
 		resetFolderFrames()
+		
 	#video.release()
 else:
 	print("Erro ao realizar Login com a sua conta")
