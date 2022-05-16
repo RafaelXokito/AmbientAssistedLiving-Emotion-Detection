@@ -171,7 +171,7 @@ def build_model(model_name, dataset_dir, modelPath,classIndicesPath,forceRetrain
 
 	return model_obj[model_name]
 
-def processTopFrames(predictionEmotion, arrayTopPredictions, arrayOrderedTopPredictions, emotion, frame, previous, previousPrediction):
+def processTopFrames(predictionEmotion, arrayTopDominantAccuracies, arrayTopPredictions, arrayOrderedTopPredictions, emotion, frame, previous, previousPrediction, emotionPredictions):
 	"""
 	Order the top predictions array in descrescent order, of the first percentage is smaller than the 
 	current frame's prediction we have to replace one with the other
@@ -188,18 +188,28 @@ def processTopFrames(predictionEmotion, arrayTopPredictions, arrayOrderedTopPred
 	now = int(time.time())
 
 	if now != int(previous) or (now == int(previous) and previousPrediction < predictionEmotion):
-		if len(arrayTopPredictions) >= 10:
+		if len(arrayTopDominantAccuracies) >= 10:
 			if arrayOrderedTopPredictions[0] < predictionEmotion: 
 				# finds original index of lower prediction value
-				lowerValueIndex = arrayTopPredictions.index(arrayOrderedTopPredictions[0]) 
+				lowerValueIndex = arrayTopDominantAccuracies.index(arrayOrderedTopPredictions[0]) 
 				# deletes the lower value from the top 10 array and folder
-				arrayTopPredictions.pop(lowerValueIndex) 
+				arrayTopDominantAccuracies.pop(lowerValueIndex)
+				arrayTopPredictions.pop(lowerValueIndex)
 				filenameFrameLowerValue = framesEmotions[lowerValueIndex]
 				if os.path.exists(filenameFrameLowerValue) is True:
 					os.remove(filenameFrameLowerValue)
 
 				# adds the new frame to the top 10 array and folder
-				arrayTopPredictions.append(predictionEmotion)
+				arrayTopDominantAccuracies.append(predictionEmotion)
+
+				aux = ""
+				keys = list(emotionPredictions.keys())
+				values = list(emotionPredictions.values())
+				for index in range(len(emotionPredictions.keys())):
+					aux += keys[index] + "#" + str(values[index]) + ";"
+				aux = aux[:-1]
+				arrayTopPredictions.append(aux)
+
 				filePath = filenameFrameLowerValue
 
 				cv2.imwrite(filePath, frame)
@@ -207,10 +217,19 @@ def processTopFrames(predictionEmotion, arrayTopPredictions, arrayOrderedTopPred
 				previous = now
 				previousPrediction = predictionEmotion
 			
-				arrayOrderedTopPredictions = sorted(arrayTopPredictions) 
+				arrayOrderedTopPredictions = sorted(arrayTopDominantAccuracies) 
 		else:
 			count = count + 1
-			arrayTopPredictions.append(predictionEmotion)	
+			arrayTopDominantAccuracies.append(predictionEmotion)
+
+			aux = ""
+			keys = list(emotionPredictions.keys())
+			values = list(emotionPredictions.values())
+			for index in range(len(emotionPredictions.keys())):
+				aux += keys[index]+"#"+str(values[index])+";"
+			aux = aux[:-1]
+			arrayTopPredictions.append(aux)
+
 			filePath = 'top10Frames/'+emotion+'/frame_'+str(count)+'.jpg'
 			
 			cv2.imwrite(filePath, frame)
@@ -218,9 +237,9 @@ def processTopFrames(predictionEmotion, arrayTopPredictions, arrayOrderedTopPred
 			previous = now
 			previousPrediction = predictionEmotion
 
-			arrayOrderedTopPredictions = sorted(arrayTopPredictions)
+			arrayOrderedTopPredictions = sorted(arrayTopDominantAccuracies)
 
-	return arrayTopPredictions, arrayOrderedTopPredictions, previous, previousPrediction
+	return arrayTopDominantAccuracies, arrayTopPredictions, arrayOrderedTopPredictions, previous, previousPrediction
 
 
 def resetFolderFrames():
@@ -319,6 +338,7 @@ if r.status_code == 200:
 	classIndicesPath = 'analysis/class_indices.json'
 	model = build_model('EmotionDeepFace', datasetPath, modelPath,classIndicesPath,forceRetrain, epochs, batches, activationFunction, lossFunction, metrics)
 
+	framesDominantAccuraciesTop10Emotions = []
 	framesPredictionsTop10Emotions = []
 	orderedPredictionsTop10Emotions = []
 	resetFolderFrames()
@@ -366,15 +386,16 @@ if r.status_code == 200:
 
 						# Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
 						percentageEmotion = round(np.double(result["emotion"][emotion]), 4)
-						if len(framesPredictionsTop10Emotions) != len(emotions):
+						if len(framesDominantAccuraciesTop10Emotions) != len(emotions):
+							framesDominantAccuraciesTop10Emotions.append([])
 							framesPredictionsTop10Emotions.append([])
 							orderedPredictionsTop10Emotions.append([])
 						
 						if emotion == "neutral":
-							framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i] = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i])
+							framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i] = processTopFrames(percentageEmotion, framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i], result["emotion"])
 						else:
 							if result["dominant_emotion"] == emotion:
-								framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i] = processTopFrames(percentageEmotion, framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i])
+								framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i] = processTopFrames(percentageEmotion, framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], orderedPredictionsTop10Emotions[i], emotion, roi,  previous[i], previousPrediction[i], result["emotion"])
 						i = i + 1
 						#print(result["dominant_emotion"], int(time.time() - start_time))  #here we will only go print out the dominant emotion also explained in the previous example
 			except Exception as e:
@@ -410,7 +431,8 @@ if r.status_code == 200:
 				"macAddress": MAC_ADDRESS,
 				"emotion": emotion,
 				"datesFrames": [],
-				"accuraciesFrames": framesPredictionsTop10Emotions[i]
+				"accuraciesFrames": framesDominantAccuraciesTop10Emotions[i],
+				"preditionsFrames": framesPredictionsTop10Emotions[i]
 			}
 
 			i = i + 1
@@ -442,6 +464,7 @@ if r.status_code == 200:
 		time.sleep(1)	
 		for file in files:
 			file[1][1].close()
+		framesDominantAccuraciesTop10Emotions = []
 		framesPredictionsTop10Emotions = []
 		orderedPredictionsTop10Emotions = []
 		resetFolderFrames()

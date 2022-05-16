@@ -5,7 +5,9 @@ import com.sun.istack.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @NamedQueries({
     @NamedQuery(
@@ -33,6 +35,8 @@ public class Frame implements Serializable{
     @ManyToOne
     @Nullable
     private Emotion emotion; //Human Labelling - Emotion classified
+    @OneToMany(mappedBy = "frame", cascade = CascadeType.PERSIST)
+    private List<Classification> predictions;
     @Temporal(TemporalType.TIMESTAMP)
     private Date updated_at;
     @NotNull
@@ -47,6 +51,7 @@ public class Frame implements Serializable{
         this.name = "";
         this.accuracy = null;
         this.createDate = new Date();
+        this.predictions = new ArrayList<>();
     }
 
     public Frame(String name, Double accuracy, String path, Iteration iteration, Date createDate){
@@ -55,6 +60,7 @@ public class Frame implements Serializable{
         this.accuracy = accuracy;
         this.name = name;
         this.createDate = createDate;
+        this.predictions = new ArrayList<>();
     }
 
     public Date getCreateDate() {
@@ -112,5 +118,21 @@ public class Frame implements Serializable{
 
     public void setAccuracy(Double accuracy) {
         this.accuracy = accuracy;
+    }
+
+    public List<Classification> getPredictions() {
+        return predictions;
+    }
+
+    public void setPredictions(List<Classification> predictions) {
+        this.predictions = predictions;
+    }
+
+    public Classification addPrediction(Classification classification){
+        if (classification != null && !this.predictions.contains(classification)) {
+            this.predictions.add(classification);
+            return classification;
+        }
+        return null;
     }
 }

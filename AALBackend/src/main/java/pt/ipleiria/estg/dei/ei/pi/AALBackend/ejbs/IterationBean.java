@@ -1,5 +1,6 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
@@ -29,17 +30,18 @@ public class IterationBean {
     /***
      * Register a new iteration from client
      * @param macAddress
-     * @param emotion
+     * @param emotionName
      * @param clientEmail
      * @return
      * @throws Exception
      */
-    public Long create(String macAddress, String emotion, String clientEmail) throws Exception{
+    public Long create(String macAddress, String emotionName, String clientEmail) throws Exception{
         if(macAddress == null || macAddress.trim().isEmpty() || !Pattern.compile("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$").matcher(macAddress).matches()){
             throw new IllegalArgumentException("[Error] - Mac Address is missing or invalid");
         }
-        if(emotion == null || emotion.trim().isEmpty()){
-            throw new IllegalArgumentException("[Error] - Emotion is missing");
+        Emotion emotion = findEmotion(emotionName);
+        if(emotion == null){
+            throw new IllegalArgumentException("[Error] - Emotion is missing or not found");
         }
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){
@@ -47,7 +49,8 @@ public class IterationBean {
         }
 
         Iteration iteration = new Iteration(macAddress, emotion, clientFound);
-        
+        emotion.addIteration(iteration);
+
         try {
             entityManager.persist(iteration);
             entityManager.flush();
@@ -57,6 +60,19 @@ public class IterationBean {
         iteration.getClient().addIteration(iteration);
 
         return iteration.getId();
+    }
+
+    /**
+     * Finds Emotion by given @Id:name
+     * @param name
+     * @return
+     */
+    public Emotion findEmotion(String name) throws Exception{
+        Emotion emotion = entityManager.find(Emotion.class, name);
+        if(emotion == null){
+            throw new MyEntityNotFoundException("[Error] - Emotion with name: \'"+name+"\' not Found");
+        }
+        return emotion;
     }
 
     /**

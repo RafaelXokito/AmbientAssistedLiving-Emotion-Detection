@@ -1,38 +1,36 @@
 <template>
   <div>
     <navbar />
-    <div class="mt-5 ml-5">
-      <h1>Frames of Iteration nº {{ id }}</h1>
-      <h4>Emotion - {{ emotion }}</h4>
+    <div class="mt-5 ml-5 text-center font-mono">
+      <h1 class="text-red-400">Frames of Iteration nº {{ id }}</h1>
+      <h4>Emotion Group - {{ firstCapitalLetter(emotion) }}</h4>
     </div>
-    <div class="d-flex flex-row flex-wrap">
-      <b-card-group
-        class="mt-5 col-md-4"
-        v-for="frame in frames"
+    <b-container class="p-lg-4">
+      <div class="d-flex flex-row flex-wrap rounded-md backdrop-blur-md bg-black/5 pb-lg-5">
+        <b-card-group
+        class="pt-5 col-md-2"
+        v-for="(frame, index) in frames"
         :key="frame.id"
       >
         <b-card
           :img-src="frame.base64"
           img-alt="Image"
           tag="article"
-          style="max-width: 20rem"
+          style="max-width: 150px"
           class="mb-2 mx-auto"
-          img-height="96px"
-          img-width="96px"
-          img-left
+          img-top
         >
           <b-card-text>
-            <form v-on:submit.prevent="classify(frame.id, frame.base64)">
-              <div class="input-group">
+            <form v-on:submit.prevent="classify(frame.id, frame.base64, index)">
+              <div class="text-center">
                 <b-select
-                  v-model="emotionsClassified[frame.id - 1]"
+                  v-model="emotionsClassified[index]"
                   :options="humanLabelEmotions"
                   required
-                  value-field="name"
-                  text-field="name"
                 >
                 </b-select>
-                <b-button class="float-right" type="submit" variant="dark">
+
+                <b-button type="submit" variant="outline-danger" class="mt-lg-2">
                   Classify
                 </b-button>
               </div>
@@ -40,7 +38,8 @@
           </b-card-text>
         </b-card>
       </b-card-group>
-    </div>
+      </div>
+    </b-container>
   </div>
 </template>
 
@@ -54,7 +53,6 @@ export default {
   data() {
     return {
       frames: [],
-      emotionGroup: null,
       humanLabelEmotions: [],
       emotionsClassified: [],
       socket: null,
@@ -72,7 +70,10 @@ export default {
       this.$axios
         .$get("/api/emotions/groups/" + this.emotion)
         .then((emotions) => {
-          this.humanLabelEmotions = emotions;
+          this.humanLabelEmotions.push({ value: null, text: 'None' })
+          emotions.forEach(e => {
+            this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
+          })
         })
         .catch((error) => {
           // We have a personalized emotion, so we need to find its group first
@@ -81,7 +82,10 @@ export default {
             this.$axios
               .$get("/api/emotions/groups/" + emotion.group)
               .then((emotions) => {
-                this.humanLabelEmotions = emotions;
+                this.humanLabelEmotions.push({ value: null, text: 'None' })
+                emotions.forEach(e => {
+                  this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
+                })
               });
           });
           }else{
@@ -96,7 +100,7 @@ export default {
       .$get("/api/frames/iteration/" + this.id)
       .then((responseFrames) => {
         responseFrames.forEach((frame) => {
-          this.emotionsClassified.push(frame.emotion.name);
+          this.emotionsClassified.push(frame.emotion.name === '' ? null : frame.emotion.name);
           this.$axios
             .$get("/api/frames/download/" + frame.id)
             .then((imageBase64) => {
@@ -115,10 +119,13 @@ export default {
     );
   },
   methods: {
-    classify(id, base64) {
+    firstCapitalLetter(str=""){
+      return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)
+    },
+    classify(id, base64, index) {
       this.$axios
         .$patch("/api/frames/" + id + "/classify", {
-          name: this.emotionsClassified[id - 1],
+          name: this.emotionsClassified[index],
         })
         .then(() => {
           this.$toast
@@ -128,14 +135,14 @@ export default {
           //console.log(this.socket)
           let jsonData =
             '{ "emotion" : "' +
-            this.emotionsClassified[id - 1] +
+            this.emotionsClassified[index] +
             '", "image": "' +
             base64 +
             '"}';
           if (this.socket.readyState == 1) this.socket.send(jsonData);
         });
     },
-  },
+  }
 };
 </script>
 

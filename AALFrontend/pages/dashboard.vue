@@ -5,14 +5,14 @@
     <div class="row">
       <div class="col-6">
         <div class="p-lg-5">
-          <h1 class="font-mono text-slate-500">Bem vindo(a) {{currentUser.name}}</h1>
+          <h1 class="font-mono text-red-400">Bem vindo(a) {{currentUser.name}}</h1>
           <img src="/DashboardImage.svg" class="rounded-circle mx-auto" width="500">
         </div>
       </div>
       <div class="col-6">
         <div class="p-lg-5 h-100">
           <div class="rounded-md backdrop-blur-md bg-black/5 h-100">
-            <h1 class="font-mono text-slate-500">Statistics</h1>
+            <h1 class="font-mono text-red-400">Statistics</h1>
             <div id="wrapper" class="max-w-xl px-4 py-4 mx-auto h-100">
               <div id="jh-stats-positive" class="flex flex-col justify-center px-4 py-4 bg-white border border-gray-300 rounded-md">
                 <div>

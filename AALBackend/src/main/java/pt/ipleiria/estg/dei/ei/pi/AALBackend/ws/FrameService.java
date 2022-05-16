@@ -6,24 +6,16 @@ import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import com.sun.tools.javac.util.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.EmotionDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.*;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FramesGraphDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.IterationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.FrameBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -87,6 +79,11 @@ public class FrameService {
         for (InputPart inputPart : accuraciesFrames) {
             accuracies.add(Double.parseDouble(inputPart.getBodyAsString()));
         }
+        List<InputPart> preditionsFrames = uploadForm.get("preditionsFrames");
+        List<String> predictions = new LinkedList<>();
+        for (InputPart inputPart : preditionsFrames) {
+            predictions.add(inputPart.getBodyAsString());
+        }
         List<InputPart> inputParts = uploadForm.get("file");
         int index = 0;
         for (InputPart inputPart : inputParts) {
@@ -108,7 +105,7 @@ public class FrameService {
                 writeFile(bytes, filepath);
                 if (!customDir.exists())
                     continue;
-                frameBean.create(filename, accuracies.get(index), filepath, iteration.getId(), dates.get(index));
+                frameBean.create(filename, accuracies.get(index), filepath, iteration.getId(), dates.get(index), predictions.get(index));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -196,14 +193,14 @@ public class FrameService {
         if (securityContext.isUserInRole("Client") && id != personBean.getPersonByAuthToken(auth).getId())
             throw new MyUnauthorizedException("You are not allowed to see this iteration");
 
-        List<Frame> graphData = frameBean.getGraphDataClassifiedEmotions(id);
+        List<Frame> graphData = frameBean.getGraphDataFrames(id);
         return Response.status(Response.Status.OK).entity(graphToDTOs(graphData)).build();
 
     }
 
     FramesGraphDTO graphToDTO(Frame frame) { return new FramesGraphDTO(
         frame.getId(),
-        frame.getIteration().getEmotion(),
+        frame.getIteration().getEmotion().getName(),
         frame.getEmotion() == null ? "N/A" : frame.getEmotion().getName(),
         frame.getAccuracy(),
         frame.getCreateDate());
@@ -227,7 +224,20 @@ public class FrameService {
                 frame.getPath(),
                 emotionToDTO(frame.getEmotion() == null ? new Emotion() : frame.getEmotion()),
                 frame.getCreateDate(),
-                frame.getIteration().getEmotion()
+                emotionToDTO(frame.getIteration().getEmotion()),
+                classificationsToDTO(frame.getPredictions())
+        );
+    }
+
+    List<ClassificationDTO> classificationsToDTO(List<Classification> classifications) {
+        return classifications.stream().map(this::classificationToDTO).collect(Collectors.toList());
+    }
+
+    ClassificationDTO classificationToDTO(Classification classification) {
+        return new ClassificationDTO(
+                classification.getId(),
+                emotionToDTO(classification.getEmotion()) ,
+                classification.getAccuracy()
         );
     }
 
@@ -249,7 +259,7 @@ public class FrameService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
-            iteration.getEmotion(),
+            emotionToDTO(iteration.getEmotion()),
             iteration.getCreated_at(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())

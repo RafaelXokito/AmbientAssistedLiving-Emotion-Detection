@@ -23,6 +23,10 @@ public class Emotion implements Serializable {
         private String group; // Positive, Negative, Neutral
         @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
         private List<Frame> frames;
+        @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
+        private List<Iteration> iterations;
+        @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
+        private List<Classification> classifications;
         @Version
         private int version;
 
@@ -30,12 +34,16 @@ public class Emotion implements Serializable {
                 this.name = "";
                 this.group = "";
                 this.frames = new ArrayList<>();
+                this.iterations = new ArrayList<>();
+                this.classifications = new ArrayList<>();
         }
 
         public Emotion(String name, String group) {
                 this.name = name.toLowerCase();
                 this.group = group.toLowerCase();
                 this.frames = new ArrayList<>();
+                this.iterations = new ArrayList<>();
+                this.classifications = new ArrayList<>();
         }
 
         public String getName() {
@@ -67,6 +75,22 @@ public class Emotion implements Serializable {
                 if (frame != null && !this.frames.contains(frame)) {
                         this.frames.add(frame);
                         return frame;
+                }
+                return null;
+        }
+
+        public Iteration addIteration(Iteration iteration){
+                if (iteration != null && !this.iterations.contains(iteration)) {
+                        this.iterations.add(iteration);
+                        return iteration;
+                }
+                return null;
+        }
+
+        public Classification addClassification(Classification classification){
+                if (classification != null && !this.classifications.contains(classification)) {
+                        this.classifications.add(classification);
+                        return classification;
                 }
                 return null;
         }

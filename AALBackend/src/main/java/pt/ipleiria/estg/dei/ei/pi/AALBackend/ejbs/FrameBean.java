@@ -1,7 +1,7 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 
-import com.sun.tools.javac.util.Pair;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Classification;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
@@ -19,13 +19,18 @@ public class FrameBean {
     @PersistenceContext
     private EntityManager entityManager;
 
-    /***
+    /**
      * Register a new frame from iteration
+     * @param fileName
+     * @param accuracy
      * @param filePath
+     * @param iterationID
+     * @param createDate
+     * @param predictionsString “neutral#67;neutral#67;neutral#67;neutral#67”
      * @return
      * @throws Exception
      */
-    public Long create(String fileName, Double accuracy, String filePath, Long iterationID, Date createDate) throws Exception{
+    public Long create(String fileName, Double accuracy, String filePath, Long iterationID, Date createDate, String predictionsString) throws Exception{
         if (fileName == null || fileName.trim().isEmpty())
             throw new MyIllegalArgumentException("Field \"File Name\" is required");
         if (filePath == null || filePath.trim().isEmpty())
@@ -41,8 +46,16 @@ public class FrameBean {
         if(iterationFound == null){
             throw new MyEntityNotFoundException("[Error] - Iteration with email: \'"+iterationID+"\' not found");
         }
+
         Frame frame = new Frame(fileName, accuracy, filePath, iterationFound, createDate);
         iterationFound.addFrame(frame);
+
+        for (String predictionString:predictionsString.split(";")) {
+            Emotion emotion = findEmotion(predictionString.split("#")[0]);
+            Classification prediction = new Classification(emotion,Double.parseDouble(predictionString.split("#")[1]), frame);
+            frame.addPrediction(prediction);
+            emotion.addClassification(prediction);
+        }
         
         try {
             entityManager.persist(frame);
@@ -50,7 +63,7 @@ public class FrameBean {
         }catch (Exception ex){
             throw new MyIllegalArgumentException("Error persisting your data");
         }
-        System.out.println("FrameBean"+iterationFound.getFrames().size());
+
         return frame.getId();
     }
 
@@ -163,12 +176,8 @@ public class FrameBean {
     }
 
 
-    public List<Frame> getGraphDataClassifiedEmotions(Long id) throws MyEntityNotFoundException {
-        TypedQuery<Frame> query = entityManager.createQuery("SELECT distinct f FROM Frame f INNER JOIN Iteration i INNER JOIN Emotion e WHERE i.client.id = "+id+" ORDER BY f.createDate", Frame.class);
-        List<Frame> frames = query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        if(frames.isEmpty()){
-            throw new MyEntityNotFoundException("[Error] - No frames that belong to client with id: \'"+id+"\' were classified yet");
-        }
-        return frames;
+    public List<Frame> getGraphDataFrames(Long id) throws MyEntityNotFoundException {
+        TypedQuery<Frame> query = entityManager.createQuery("SELECT f FROM Frame f  WHERE f.iteration.client.id = "+id+" AND f.emotion.name NOT LIKE 'invalid' ORDER BY f.createDate", Frame.class);
+        return query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
     }
 }

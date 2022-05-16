@@ -59,10 +59,14 @@ public class ConfigBean {
             String e2 = emotionBean.create("Happy", "Positive");
 
             String e3 = emotionBean.create("Neutral", "Neutral");
+            String e7 = emotionBean.create("Positive", "Positive");
+            String e8 = emotionBean.create("Negative", "Negative");
 
             String e4 = emotionBean.create("Fear", "Negative");
             String e5 = emotionBean.create("Interest", "Positive");
             String e6 = emotionBean.create("Pain", "Negative");
+
+            String e9 = emotionBean.create("Invalid", "Invalid");
             System.out.println("## Deleting Emotions ");
             emotionBean.delete(e5);
 

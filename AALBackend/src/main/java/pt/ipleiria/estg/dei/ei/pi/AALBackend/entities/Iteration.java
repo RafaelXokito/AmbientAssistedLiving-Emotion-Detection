@@ -24,7 +24,8 @@ public class Iteration implements Serializable{
     @NotNull
     private String macAddress;
     @NotNull
-    private String emotion; //Emotion Name Positive, Neutral, Negative, ...
+    @ManyToOne
+    private Emotion emotion; //Emotion AI
     @NotNull
     @ManyToOne
     private Client client;
@@ -36,13 +37,13 @@ public class Iteration implements Serializable{
     public Iteration() {
         this.macAddress = "";
         this.client = new Client();
-        this.emotion = "";
+        this.emotion = new Emotion();
     }
 
-    public Iteration(String macAddress, String emotion, Client client){
+    public Iteration(String macAddress, Emotion emotion, Client client){
         this.macAddress = macAddress;
         this.client = client;
-        this.emotion = emotion.toLowerCase();
+        this.emotion = emotion;
     }
 
     public Long getId(){
@@ -57,11 +58,11 @@ public class Iteration implements Serializable{
         this.client = client;
     }
 
-    public String getEmotion() {
+    public Emotion getEmotion() {
         return emotion;
     }
 
-    public void setEmotion(String emotion) {
+    public void setEmotion(Emotion emotion) {
         this.emotion = emotion;
     }
 

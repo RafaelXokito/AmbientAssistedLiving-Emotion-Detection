@@ -1,6 +1,7 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos;
 
 import java.util.Date;
+import java.util.List;
 
 public class FrameDTO {
     private long id;
@@ -8,14 +9,15 @@ public class FrameDTO {
     private String filepath;
     private EmotionDTO emotion;
     private Date createDate;
-    private String emotionIteration;
+    private EmotionDTO emotionIteration;
+    private List<ClassificationDTO> predictions;
 
     public FrameDTO(long id, String filename, String filepath, Date createDate) {
         this.id = id;
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = new EmotionDTO();
-        this.emotionIteration = "";
+        this.emotionIteration = new EmotionDTO();
         this.createDate = createDate;
     }
     public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion) {
@@ -23,10 +25,20 @@ public class FrameDTO {
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = emotion;
-        this.emotionIteration = "";
+        this.emotionIteration = new EmotionDTO();
     }
 
-    public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion, Date createDate, String emotionIteration) {
+    public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion, Date createDate, EmotionDTO emotionIteration, List<ClassificationDTO> predictions) {
+        this.id = id;
+        this.filename = filename;
+        this.filepath = filepath;
+        this.emotion = emotion;
+        this.createDate = createDate;
+        this.emotionIteration = emotionIteration;
+        this.predictions = predictions;
+    }
+
+    public FrameDTO(long id, String filename, String filepath, EmotionDTO emotion, Date createDate, EmotionDTO emotionIteration) {
         this.id = id;
         this.filename = filename;
         this.filepath = filepath;
@@ -40,7 +52,7 @@ public class FrameDTO {
         this.filename = filename;
         this.filepath = filepath;
         this.emotion = emotion;
-        this.emotionIteration = "";
+        this.emotionIteration = new EmotionDTO();
         this.createDate = createDate;
     }
 
@@ -49,7 +61,7 @@ public class FrameDTO {
         this.filename = "";
         this.filepath = "";
         this.emotion = new EmotionDTO();
-        this.emotionIteration = "";
+        this.emotionIteration = new EmotionDTO();
         this.createDate = new Date();
     }
 
@@ -94,12 +106,20 @@ public class FrameDTO {
         this.createDate = createDate;
     }
 
-    public String getEmotionIteration() {
+    public EmotionDTO getEmotionIteration() {
         return emotionIteration;
     }
 
-    public void setEmotionIteration(String emotionIteration) {
+    public void setEmotionIteration(EmotionDTO emotionIteration) {
         this.emotionIteration = emotionIteration;
+    }
+
+    public List<ClassificationDTO> getPredictions() {
+        return predictions;
+    }
+
+    public void setPredictions(List<ClassificationDTO> predictions) {
+        this.predictions = predictions;
     }
 }
 

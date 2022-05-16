@@ -7,7 +7,7 @@ import java.util.List;
 public class IterationDTO {
     private long id;
     private String macAddress;
-    private String emotion;
+    private EmotionDTO emotion;
     private ClientDTO client;
     private List<FrameDTO> frames;
     private Date created_at;
@@ -17,7 +17,7 @@ public class IterationDTO {
     public IterationDTO(){
         this.id = -1;
         this.macAddress = "";
-        this.emotion = "";
+        this.emotion = new EmotionDTO();
         this.created_at = new Date();
         this.client = new ClientDTO();
         this.frames = new ArrayList<>();
@@ -25,7 +25,7 @@ public class IterationDTO {
         this.totalFrames = 0;
     }
 
-    public IterationDTO(long id, String macAddress, String emotion, Date created_at, ClientDTO client){
+    public IterationDTO(long id, String macAddress, EmotionDTO emotion, Date created_at, ClientDTO client){
         this.id = id;
         this.macAddress = macAddress;
         this.emotion = emotion;
@@ -36,7 +36,7 @@ public class IterationDTO {
         this.totalFrames = 0;
     }
 
-    public IterationDTO(long id, String macAddress, String emotion, Date created_at, ClientDTO client, List<FrameDTO> frames){
+    public IterationDTO(long id, String macAddress, EmotionDTO emotion, Date created_at, ClientDTO client, List<FrameDTO> frames){
         this.id = id;
         this.macAddress = macAddress;
         this.emotion = emotion;
@@ -47,7 +47,7 @@ public class IterationDTO {
         this.totalFrames = (short) frames.size();
     }
 
-    public IterationDTO(long id, String macAddress, String emotion, Date created_at, short classifiedFrames, short totalFrames){
+    public IterationDTO(long id, String macAddress, EmotionDTO emotion, Date created_at, short classifiedFrames, short totalFrames){
         this.id = id;
         this.macAddress = macAddress;
         this.emotion = emotion;
@@ -58,7 +58,7 @@ public class IterationDTO {
         this.totalFrames = totalFrames;
     }
 
-    public IterationDTO(String macAddress, String emotion, Date created_at, ClientDTO client){
+    public IterationDTO(String macAddress, EmotionDTO emotion, Date created_at, ClientDTO client){
         this.id = -1;
         this.macAddress = macAddress;
         this.emotion = emotion;
@@ -109,11 +109,11 @@ public class IterationDTO {
         this.macAddress = macAddress;
     }
 
-    public String getEmotion() {
+    public EmotionDTO getEmotion() {
         return emotion;
     }
 
-    public void setEmotion(String emotion) {
+    public void setEmotion(EmotionDTO emotion) {
         this.emotion = emotion;
     }
 

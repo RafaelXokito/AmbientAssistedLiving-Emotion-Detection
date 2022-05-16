@@ -5,6 +5,8 @@ import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.EmotionDTO;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
@@ -93,12 +95,20 @@ public class IterationService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
-            iteration.getEmotion(),
+            emotionToDTO(iteration.getEmotion()),
             iteration.getCreated_at(),
             countClassifiedFrames(iteration.getFrames()),
             (short) iteration.getFrames().size()
         );
     }
+
+    EmotionDTO emotionToDTO(Emotion emotion) {
+        return new EmotionDTO(
+                emotion.getName(),
+                emotion.getGroup()
+        );
+    }
+
     private short countClassifiedFrames(List<Frame> frames){
         short countClassifiedFrames = 0;
         for (Frame frame:frames) {
@@ -117,7 +127,7 @@ public class IterationService {
         return new IterationDTO(
             iteration.getId(),
             iteration.getMacAddress(),
-            iteration.getEmotion(),
+            emotionToDTO(iteration.getEmotion()),
             iteration.getCreated_at(),
             clientToDTO(iteration.getClient()),
             framesToDTOs(iteration.getFrames())
