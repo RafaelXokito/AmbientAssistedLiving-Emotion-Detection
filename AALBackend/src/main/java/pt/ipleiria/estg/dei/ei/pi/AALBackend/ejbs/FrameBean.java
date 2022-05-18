@@ -175,9 +175,41 @@ public class FrameBean {
         return iteration;
     }
 
-
+    /**
+     * Queries the database for graph data of hte frames
+     * @param id
+     * @return
+     * @throws MyEntityNotFoundException
+     */
     public List<Frame> getGraphDataFrames(Long id) throws MyEntityNotFoundException {
         TypedQuery<Frame> query = entityManager.createQuery("SELECT f FROM Frame f JOIN Iteration i ON f.iteration.id = i.id JOIN Emotion e ON i.emotion.name = e.name WHERE i.client.id = "+id+" AND e.name <> 'invalid' ORDER BY f.createDate", Frame.class);
         return query.setLockMode(LockModeType.OPTIMISTIC).getResultList();
     }
+
+    /**
+     * Returns the statistics for the classifications
+     * @param pattern
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public List<Object[]> getCountClassifiedFramesByDate(String pattern, Long id) throws Exception {
+        String sql;
+        if(id == null){
+            sql = "SELECT count(*),to_char(updated_at,"+pattern+") from Frames where emotion_name IS NOT NULL group by to_char(updated_at,"+pattern+")";
+        }else{
+            sql = "SELECT count(*),to_char(f.updated_at,"+pattern+") from Frames f JOIN Iterations i ON f.iteration_id = i.id where i.client_id = "+id+" and f.emotion_name IS NOT NULL group by to_char(f.updated_at,"+pattern+")";
+        }
+
+        List<Object[]> data;
+        try{
+            Query query = entityManager.createNativeQuery(sql);
+            data = query.getResultList();
+        }catch (Exception e){
+            throw new MyIllegalArgumentException("[Error] - "+e.getMessage());
+        }
+        return data;
+
+    }
+
 }

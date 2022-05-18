@@ -1,6 +1,5 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ws;
 
-
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ws.rs.*;
@@ -26,6 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Path("frames")
+@Produces({MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_JSON})
 @RolesAllowed({"Client", "Administrator"})
 public class FrameService {
     @EJB
@@ -197,6 +198,44 @@ public class FrameService {
         return Response.status(Response.Status.OK).entity(graphToDTOs(graphData)).build();
 
     }
+
+    @GET
+    @Path("/graphData")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getClassificationGraphData(@HeaderParam("Authorization") String auth, @DefaultValue("HOURS") @QueryParam("pattern")  String pattern) throws Exception {
+        List<Object[]> graphData;
+        System.out.println(pattern);
+        if(!pattern.equals("YEARMONTHDAY") && !pattern.equals("YEARMONTH") && !pattern.equals("YEAR") && !pattern.equals("MONTH")  && !pattern.equals("WEEKDAY") && !pattern.equals("HOURS")){
+            throw new MyIllegalArgumentException("[Error] -  pattern is invalid");
+        }
+        switch (pattern){
+            case "YEARMONTHDAY":
+                pattern = "'yyyy-MM-DD'";
+                break;
+            case "YEARMONTH":
+                pattern = "'yyyy-MM'";
+                break;
+            case "YEAR":
+                pattern = "'yyyy'";
+                break;
+            case "MONTH":
+                pattern = "'MM'";
+                break;
+            case "WEEKDAY":
+                pattern = "'D'";
+                break;
+            default:
+                pattern = "'HH24'";
+                break;
+        }
+        if (securityContext.isUserInRole("Client")) {
+            graphData = frameBean.getCountClassifiedFramesByDate(pattern, personBean.getPersonByAuthToken(auth).getId());
+        }else{
+            graphData = frameBean.getCountClassifiedFramesByDate(pattern, null);
+        }
+        return Response.status(Response.Status.OK).entity(graphData).build();
+    }
+
 
     FramesGraphDTO graphToDTO(Frame frame) { return new FramesGraphDTO(
         frame.getId(),

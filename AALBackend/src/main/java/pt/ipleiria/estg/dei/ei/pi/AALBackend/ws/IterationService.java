@@ -5,17 +5,16 @@ import javax.ejb.EJB;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.EmotionDTO;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.*;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.*;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.ClientDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.FrameDTO;
-import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.IterationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +59,42 @@ public class IterationService {
         return Response.status(Response.Status.OK)
                 .entity(toDTO(iteration))
                 .build();
+    }
+
+    @GET
+    @Path("/graphData")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGraphData(@HeaderParam("Authorization") String auth, @DefaultValue("HOURS") @QueryParam("pattern")  String pattern) throws Exception {
+        List<Object[]> graphData;
+        if(!pattern.equals("YEARMONTHDAY") && !pattern.equals("YEARMONTH") && !pattern.equals("YEAR") && !pattern.equals("MONTH")  && !pattern.equals("WEEKDAY") && !pattern.equals("HOURS")){
+            throw new MyIllegalArgumentException("[Error] -  pattern is invalid");
+        }
+        switch (pattern){
+            case "YEARMONTHDAY":
+                pattern = "'yyyy-MM-DD'";
+                break;
+            case "YEARMONTH":
+                pattern = "'yyyy-MM'";
+                break;
+            case "YEAR":
+                pattern = "'yyyy'";
+                break;
+            case "MONTH":
+                pattern = "'MM'";
+                break;
+            case "WEEKDAY":
+                pattern = "'D'";
+                break;
+            default:
+                pattern = "'HH24'";
+                break;
+        }
+        if (securityContext.isUserInRole("Client")) {
+            graphData = iterationBean.getCountIterationByDate(pattern, personBean.getPersonByAuthToken(auth).getId());
+        }else{
+            graphData = iterationBean.getCountIterationByDate(pattern, null);
+        }
+        return Response.status(Response.Status.OK).entity(graphData).build();
     }
 
     /*
