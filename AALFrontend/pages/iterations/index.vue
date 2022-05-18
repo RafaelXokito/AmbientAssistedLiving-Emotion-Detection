@@ -9,22 +9,6 @@
             v-if="showIterationChart == true"
             :options="iterationsChartOptions"
           />
-          <b-select
-            v-model="pattern"
-          >
-          <option value="'yyyy-MM-DD'">YEAR-MONTH-DAY</option>
-          <option value="'yyyy-MM'">YEAR-MONTH</option>
-          <option value="'yyyy'">YEAR</option>
-          <option value="'MM'">MONTH</option>
-          <option value="'HH24'">HOURS</option>
-          </b-select>
-          <b-button variant="outline-danger" class="mt-2 mb-2" v-on:click="showGraph()">
-          Show Graph
-        </b-button>
-          <highchart
-            v-if="showIterationBarChart == true"
-            :options="iterationsBarChartOptions"
-          />
           <div class="mt-5" v-if="tableLength != 0">
             <b-table
               id="iterationsTable"
@@ -178,10 +162,8 @@ export default {
         },
         "Frames",
       ],
-      pattern:null,
       socket: null,
       showIterationChart: false,
-      showIterationBarChart: false,
       emotionsDataGraph: [],
       iterations: [],
       perPage: 10,
@@ -474,36 +456,6 @@ export default {
     },
     firstCapitalLetter(str = "") {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1);
-    },
-    showGraph(){
-      if(this.pattern == null){
-        this.$toast.info("Choose a pattern first!").goAway(3000);
-        return
-      }
-      this.collectBarGraphData()
-    },
-    collectBarGraphData() {
-      this.iterationsBarChartOptions.series = [];
-      this.iterationsBarChartOptions.xAxis.categories = []
-      this.$axios
-        .$get("/api/iterations/graphData/"+this.pattern)
-        .then((graphData) => {
-          if (graphData != []) {
-            for (let i = 0; i < graphData.length; i++) {
-              console.log(graphData[i])
-              this.iterationsBarChartOptions.series.push({
-                name: String(parseInt(graphData[i][1])+1),
-                data: [graphData[i][0]],
-              });
-              this.iterationsBarChartOptions.xAxis.categories.push(
-                String(parseInt(graphData[i][1])+1)
-              );
-              console.log(this.iterationsBarChartOptions.series);
-            }
-
-            this.showIterationBarChart = true;
-          }
-        });
     },
     async collectGraphData() {
       let graphData = [];

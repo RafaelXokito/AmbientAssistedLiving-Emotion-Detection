@@ -62,11 +62,33 @@ public class IterationService {
     }
 
     @GET
-    @Path("/graphData/{pattern}")
+    @Path("/graphData")
     @Produces(MediaType.APPLICATION_JSON)
-    @Consumes({MediaType.TEXT_PLAIN})
-    public Response getGraphData(@HeaderParam("Authorization") String auth, @PathParam("pattern")  String pattern) throws Exception {
+    public Response getGraphData(@HeaderParam("Authorization") String auth, @DefaultValue("HOURS") @QueryParam("pattern")  String pattern) throws Exception {
         List<Object[]> graphData;
+        if(!pattern.equals("YEARMONTHDAY") && !pattern.equals("YEARMONTH") && !pattern.equals("YEAR") && !pattern.equals("MONTH")  && !pattern.equals("WEEKDAY") && !pattern.equals("HOURS")){
+            throw new MyIllegalArgumentException("[Error] -  pattern is invalid");
+        }
+        switch (pattern){
+            case "YEARMONTHDAY":
+                pattern = "'yyyy-MM-DD'";
+                break;
+            case "YEARMONTH":
+                pattern = "'yyyy-MM'";
+                break;
+            case "YEAR":
+                pattern = "'yyyy'";
+                break;
+            case "MONTH":
+                pattern = "'MM'";
+                break;
+            case "WEEKDAY":
+                pattern = "'D'";
+                break;
+            default:
+                pattern = "'HH24'";
+                break;
+        }
         if (securityContext.isUserInRole("Client")) {
             graphData = iterationBean.getCountIterationByDate(pattern, personBean.getPersonByAuthToken(auth).getId());
         }else{

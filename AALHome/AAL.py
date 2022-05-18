@@ -501,8 +501,9 @@ if r.status_code == 200:
 		else:
 			ws.send(MAC_ADDRESS+";"+sys.argv[0]+";"+"Ocorreu um erro no registo de frames"+";"+CLIENT_EMAIL)
 		time.sleep(1)	
-		for file in files:
-			file[1][1].close()
+		if len(files) != 0:
+			for file in files:
+				file[1][1].close()
 
 		# Variáveis POPable
 		framesDominantAccuraciesTop10Emotions = []
