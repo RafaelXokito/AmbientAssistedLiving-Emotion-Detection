@@ -33,6 +33,8 @@ public class Iteration implements Serializable{
     private List<Frame> frames;
     @Temporal(TemporalType.TIMESTAMP)
     private Date created_at;
+    @Version
+    private int version;
 
     public Iteration() {
         this.macAddress = "";

@@ -1,12 +1,16 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Frame;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 
 import javax.ejb.Stateless;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 import java.util.regex.Pattern;
@@ -119,6 +123,25 @@ public class IterationBean {
         Iteration iteration = findIteration(id);
         entityManager.remove(iteration);
         return entityManager.find(Iteration.class, id) == null;
+    }
+
+    public List<Object[]> getCountIterationByDate(String pattern, Long id) throws Exception {
+        String sql;
+        if(id == null){
+            sql = "SELECT count(*),to_char(created_at,"+pattern+") from Iterations group by to_char(created_at,"+pattern+")";
+        }else{
+            sql = "SELECT count(*),to_char(created_at,"+pattern+") from Iterations where client_id = "+id+" group by to_char(created_at,"+pattern+")";
+        }
+
+        List<Object[]> data;
+        try{
+            Query query = entityManager.createNativeQuery(sql);
+            data = query.getResultList();
+        }catch (Exception e){
+            throw new MyIllegalArgumentException("[Error] - "+e.getMessage());
+        }
+        return data;
+
     }
 
 }
