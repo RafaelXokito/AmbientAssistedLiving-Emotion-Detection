@@ -28,8 +28,6 @@ public class Client extends Person implements Serializable {
     private List<Iteration> iterations;
     @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
     private List<Log> logs;
-    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
-    private List<EmotionNotification> emotionNotifications;
     @ManyToOne
     private Administrator administrator;
 
@@ -102,21 +100,5 @@ public class Client extends Person implements Serializable {
 
     public void setLogs(List<Log> logs) {
         this.logs = logs;
-    }
-
-    public List<EmotionNotification> getEmotionNotifications() {
-        return emotionNotifications;
-    }
-
-    public void setEmotionNotifications(List<EmotionNotification> emotionsNotification) {
-        this.emotionNotifications = emotionsNotification;
-    }
-
-    public EmotionNotification addEmotionNotification(EmotionNotification emotionNotification){
-        if (emotionNotification != null && !this.emotionNotifications.contains(emotionNotification)) {
-            this.emotionNotifications.add(emotionNotification);
-            return emotionNotification;
-        }
-        return null;
     }
 }

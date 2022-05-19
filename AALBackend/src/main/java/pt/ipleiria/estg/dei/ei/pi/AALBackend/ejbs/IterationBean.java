@@ -45,7 +45,7 @@ public class IterationBean {
         }
         Emotion emotion = findEmotion(emotionName);
         if(emotion == null){
-            throw new IllegalArgumentException("[Error] - Emotion with the name: \'"+emotionName+"\' is missing or not found");
+            throw new IllegalArgumentException("[Error] - Emotion is missing or not found");
         }
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){

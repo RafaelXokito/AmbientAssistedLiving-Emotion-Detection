@@ -204,6 +204,7 @@ public class FrameService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClassificationGraphData(@HeaderParam("Authorization") String auth, @DefaultValue("HOURS") @QueryParam("pattern")  String pattern) throws Exception {
         List<Object[]> graphData;
+        System.out.println(pattern);
         if(!pattern.equals("YEARMONTHDAY") && !pattern.equals("YEARMONTH") && !pattern.equals("YEAR") && !pattern.equals("MONTH")  && !pattern.equals("WEEKDAY") && !pattern.equals("HOURS")){
             throw new MyIllegalArgumentException("[Error] -  pattern is invalid");
         }
