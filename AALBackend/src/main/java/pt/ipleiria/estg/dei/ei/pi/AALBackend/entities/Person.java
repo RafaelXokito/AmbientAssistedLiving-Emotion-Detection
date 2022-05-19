@@ -36,6 +36,7 @@ public abstract class Person {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created_at;
 
+
     @Version
     private int version;
 
