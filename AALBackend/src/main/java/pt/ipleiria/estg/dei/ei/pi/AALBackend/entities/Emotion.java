@@ -27,6 +27,9 @@ public class Emotion implements Serializable {
         private List<Iteration> iterations;
         @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
         private List<Classification> classifications;
+        @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
+        private List<EmotionNotification> emotionNotifications;
+
         @Version
         private int version;
 
@@ -36,6 +39,7 @@ public class Emotion implements Serializable {
                 this.frames = new ArrayList<>();
                 this.iterations = new ArrayList<>();
                 this.classifications = new ArrayList<>();
+                this.emotionNotifications = new ArrayList<>();
         }
 
         public Emotion(String name, String group) {
@@ -44,6 +48,7 @@ public class Emotion implements Serializable {
                 this.frames = new ArrayList<>();
                 this.iterations = new ArrayList<>();
                 this.classifications = new ArrayList<>();
+                this.emotionNotifications = new ArrayList<>();
         }
 
         public String getName() {
@@ -91,6 +96,20 @@ public class Emotion implements Serializable {
                 if (classification != null && !this.classifications.contains(classification)) {
                         this.classifications.add(classification);
                         return classification;
+                }
+                return null;
+        }
+        public List<EmotionNotification> getEmotionNotifications() {
+                return emotionNotifications;
+        }
+
+        public void setEmotionNotifications(List<EmotionNotification> emotionsNotification) {
+                this.emotionNotifications = emotionsNotification;
+        }
+        public EmotionNotification addEmotionNotification(EmotionNotification emotionNotification){
+                if (emotionNotification != null && !this.emotionNotifications.contains(emotionNotification)) {
+                        this.emotionNotifications.add(emotionNotification);
+                        return emotionNotification;
                 }
                 return null;
         }
