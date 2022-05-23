@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8">
         <div>
@@ -59,9 +58,22 @@ export default {
       },
     }
   },
+  computed: {
+    currentUser(){
+      return this.$auth.loggedIn
+    }
+  },
   created() {
     if (this.$auth.loggedIn) {
-      this.$router.push({name: 'dashboard'});
+
+      if (this.$auth.$storage.getUniversal('redirect')) {
+        this.$router.replace(this.$auth.$storage.getUniversal('redirect'))
+        this.$auth.$storage.removeUniversal('redirect')
+        return;
+      }
+
+      this.$router.replace('/')
+      return
     }
   },
   methods: {

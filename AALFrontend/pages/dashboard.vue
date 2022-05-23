@@ -1,9 +1,9 @@
 <template>
   <div>
     <navbar />
-    <body class="text-white text-center">
+    <body class="text-white text-center p-3">
       <div class="row">
-        <div class="col-6">
+        <div :class="statistics.length > 0 ? 'col-md-6 col-sm-12' : 'col'" >
           <div class="p-lg-5">
             <h1 class="font-mono text-red-400">
               Bem vindo(a) {{ currentUser.name }}
@@ -15,13 +15,12 @@
             />
           </div>
         </div>
-        <div class="col-6">
+        <div class="col-md-6 col-sm-12" v-if="statistics.length > 0">
           <div class="p-lg-5 h-100">
             <div class="rounded-md backdrop-blur-md bg-black/5 h-100">
               <h1 class="font-mono text-red-400">Statistics</h1>
               <div id="wrapper" class="max-w-xl px-4 py-4 mx-auto h-100">
                 <div
-                  id="jh-stats-positive"
                   class="
                     flex flex-col
                     justify-center
@@ -31,205 +30,80 @@
                     border border-gray-300
                     rounded-md
                   "
+                  v-for="(statistic, index) in statistics"
+                  :class="index > 0 ? 'mt-2' : ''"
                 >
                   <div>
-                    <div>
+                    <div class="row" >
+                      <p
+                        class="
+                          flex
+                          items-center
+                          justify-start
+                          text-md
+                          col-9
+                          text-gray-800
+                        "
+                      >
+                        <span class="font-bold">{{ pattern + ": " + statistic.value }}</span>
+                      </p>
                       <p
                         class="
                           flex
                           items-center
                           justify-end
-                          text-green-500 text-md
+                          text-md
+                          col-3
                         "
+                        :class="`text-${statistic.state}-500`"
+                        v-if="statistic.showPercentage"
                       >
-                        <span class="font-bold">6%</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="w-5 h-5 fill-current"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            class="heroicon-ui"
-                            d="M20 15a1 1 0 002 0V7a1 1 0 00-1-1h-8a1 1 0 000 2h5.59L13 13.59l-3.3-3.3a1 1 0 00-1.4 0l-6 6a1 1 0 001.4 1.42L9 12.4l3.3 3.3a1 1 0 001.4 0L20 9.4V15z"
-                          />
-                        </svg>
+                        <span class="font-bold">{{Math.abs(statistic.percentage)}}%</span>
+
+                        <svg v-if="statistic.state === 'green'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-current" viewBox="0 0 24 24"> <path class="heroicon-ui" d="M17 11a1 1 0 010 2H7a1 1 0 010-2h10z"/> </svg>
+                        <svg v-else-if="statistic.state === 'red'" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path class="heroicon-ui"  d="M20 9a1 1 0 012 0v8a1 1 0 01-1 1h-8a1 1 0 010-2h5.59L13 10.41l-3.3 3.3a1 1 0 01-1.4 0l-6-6a1 1 0 011.4-1.42L9 11.6l3.3-3.3a1 1 0 011.4 0l6.3 6.3V9z" /></svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-current" viewBox="0 0 24 24"> <path class="heroicon-ui" d="M17 11a1 1 0 010 2H7a1 1 0 010-2h10z"/> </svg>
+
                       </p>
                     </div>
                     <p class="text-3xl font-semibold text-center text-gray-800">
-                      43
+                      {{ statistic.number }}
                     </p>
-                    <p class="text-lg text-center text-gray-500">New Tickets</p>
+                    <p class="text-lg text-center text-gray-500">{{ statistic.name }}</p>
+                    <p class="flex items-center justify-end text-md">
+                      <button v-if="!statistic.showGraph" @click="statistic.showGraph = true" type="button" class="text-white bg-black/5 hover:bg-black/20 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center mr-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                        <svg class="h-4 w-4 text-red-400"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                      </button>
+                      <button v-else @click="statistic.showGraph = false" type="button" class="text-white bg-black/5 hover:bg-black/20 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center mr-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                        <svg class="h-4 w-4 text-red-400"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="5" y1="12" x2="19" y2="12" /></svg>
+                      </button>
+                    </p>
+                    <div class="mt-2">
+                      <highchart
+                        v-if="statistic.showGraph"
+                        :options="statistic.graphOptions"
+                      />
+                    </div>
                   </div>
                 </div>
-
-                <div
-                  id="jh-stats-negative"
-                  class="
-                    flex flex-col
-                    justify-center
-                    px-4
-                    py-4
-                    mt-4
-                    bg-white
-                    border border-gray-300
-                    rounded-md
-                    sm:mt-0
-                  "
-                >
-                  <div>
-                    <div>
-                      <p
-                        class="
-                          flex
-                          items-center
-                          justify-end
-                          text-red-500 text-md
-                        "
-                      >
-                        <span class="font-bold">6%</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="w-5 h-5 fill-current"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            class="heroicon-ui"
-                            d="M20 9a1 1 0 012 0v8a1 1 0 01-1 1h-8a1 1 0 010-2h5.59L13 10.41l-3.3 3.3a1 1 0 01-1.4 0l-6-6a1 1 0 011.4-1.42L9 11.6l3.3-3.3a1 1 0 011.4 0l6.3 6.3V9z"
-                          />
-                        </svg>
-                      </p>
-                    </div>
-                    <p class="text-3xl font-semibold text-center text-gray-800">
-                      43
-                    </p>
-                    <p class="text-lg text-center text-gray-500">New Tickets</p>
-                  </div>
-                </div>
-
-                <div
-                  id="jh-stats-negative"
-                  class="
-                    flex flex-col
-                    justify-center
-                    px-4
-                    py-4
-                    mt-4
-                    bg-white
-                    border border-gray-300
-                    rounded-md
-                    sm:mt-0
-                  "
-                >
-                  <div>
-                    <div>
-                      <p
-                        class="
-                          flex
-                          items-center
-                          justify-end
-                          text-red-500 text-md
-                        "
-                      >
-                        <span class="font-bold">6%</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="w-5 h-5 fill-current"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            class="heroicon-ui"
-                            d="M20 9a1 1 0 012 0v8a1 1 0 01-1 1h-8a1 1 0 010-2h5.59L13 10.41l-3.3 3.3a1 1 0 01-1.4 0l-6-6a1 1 0 011.4-1.42L9 11.6l3.3-3.3a1 1 0 011.4 0l6.3 6.3V9z"
-                          />
-                        </svg>
-                      </p>
-                    </div>
-                    <p class="text-3xl font-semibold text-center text-gray-800">
-                      43
-                    </p>
-                    <p class="text-lg text-center text-gray-500">New Tickets</p>
-                  </div>
-                </div>
-
-                <div
-                  id="jh-stats-neutral"
-                  class="
-                    flex flex-col
-                    justify-center
-                    px-4
-                    py-4
-                    mt-4
-                    bg-white
-                    border border-gray-300
-                    rounded-md
-                    sm:mt-0
-                  "
-                >
-                  <div>
-                    <div>
-                      <p
-                        class="
-                          flex
-                          items-center
-                          justify-end
-                          text-gray-500 text-md
-                        "
-                      >
-                        <span class="font-bold">0%</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="w-5 h-5 fill-current"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            class="heroicon-ui"
-                            d="M17 11a1 1 0 010 2H7a1 1 0 010-2h10z"
-                          />
-                        </svg>
-                      </p>
-                    </div>
-                    <p class="text-3xl font-semibold text-center text-gray-800">
-                      43
-                    </p>
-                    <p class="text-lg text-center text-gray-500">New Tickets</p>
-                  </div>
+                <div class="mt-4">
+                  <label class="font-mono text-red-600 ml-2">
+                    Choose a date pattern for the graphs by:
+                  </label>
+                  <b-select class="w-50" v-model="pattern">
+                    <option value="YEARMONTHDAY">Year-Month-Day</option>
+                    <option value="YEARMONTH">Year-Month</option>
+                    <option value="YEAR">Year</option>
+                    <option value="MONTH">Month</option>
+                    <option value="WEEKDAY">Weekday</option>
+                    <option value="HOURS">Hour</option>
+                  </b-select>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="h-100">
-        <h1 class="font-mono text-red-600">
-         Nº of Iterations by time
-        </h1>
-        <label class="font-mono text-red-600 ml-2">
-          Choose a pattern for the graph to appear
-        </label>
-        <b-select class="w-50" v-model="pattern">
-          <option value="YEARMONTHDAY">YEAR-MONTH-DAY</option>
-          <option value="YEARMONTH">YEAR-MONTH</option>
-          <option value="YEAR">YEAR</option>
-          <option value="MONTH">MONTH</option>
-          <option value="WEEKDAY">WEEKDAY</option>
-          <option value="HOURS">HOURS</option>
-        </b-select>
-        <b-button
-          variant="outline-danger"
-          class="mt-2 mb-2 mr-2"
-          v-on:click="showGraph()"
-        >
-          Show Graph
-        </b-button>
-        <highchart
-          v-if="showIterationBarChart == true"
-          :options="iterationsBarChartOptions"
-        />
-        <highchart
-          v-if="showClassificationsBarChart == true"
-          :options="classificationsBarChartOptions"
-        />
-      </div>
-
     </body>
     <footer>
       <a href="https://storyset.com/people">People illustrations by Storyset</a>
@@ -269,11 +143,69 @@ export default {
         "Friday",
         "Saturday",
       ],
-      pattern: null,
+      pattern: 'HOURS',
       showIterationBarChart: false,
-      iterationsBarChartOptions: {
+      generalChartOptions: {
         chart: {
           type: "column",
+          height: 200,
+          weight: null,
+          marginTop: 15
+        },
+        title: {
+          text: "",
+        },
+        yAxis: {
+          title: {
+            text: "",
+          },
+        },
+        xAxis: {
+          title: {
+            text: "",
+          },
+          categories: [],
+        },
+        series: [],
+        plotOptions: {
+          column: {
+            borderRadius: 5
+          }
+        },
+        responsive: {
+          rules: [{
+            condition: {
+              maxWidth: 500
+            },
+            chartOptions: {
+              legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                layout: 'horizontal'
+              },
+              yAxis: {
+                labels: {
+                  align: 'left',
+                  x: 0,
+                  y: -5
+                },
+                title: {
+                  text: null
+                }
+              },
+              subtitle: {
+                text: null
+              },
+              credits: {
+                enabled: false
+              }
+            }
+          }]
+        }
+      },
+      iterationsBarChartOptions: {
+        chart: {
+          type: "line",
         },
         title: {
           text: "Iterations over time",
@@ -312,26 +244,31 @@ export default {
         },
         series: [],
       },
+      statistics: []
     };
   },
+  mounted() {
+    this.loadStatistics()
+  },
   methods: {
-    showGraph() {
-      if (this.pattern == null) {
-        this.$toast.info("Choose a pattern first!").goAway(3000);
-        return;
-      }
-      this.collectBarGraphDataIterations();
-      this.collectBarGraphDataClassifications();
+    loadStatistics(){
+      this.statistics = []
+      this.collectBarGraphDataIterations()
+      this.collectBarGraphDataClassifications()
     },
     collectBarGraphDataIterations() {
-      this.iterationsBarChartOptions.series = [];
-      this.iterationsBarChartOptions.xAxis.categories = [];
+
+      let graphOptions = {...this.generalChartOptions}
+      graphOptions.series = [];
+      graphOptions.xAxis.categories = [];
+
+      let value = []
       this.$axios
         .$get("/api/iterations/graphData?pattern=" + this.pattern)
         .then((graphData) => {
           if (graphData != []) {
             for (let i = 0; i < graphData.length; i++) {
-              let value = [graphData[i][1]];
+              value = [graphData[i][1]];
               if (this.pattern == "HOURS") {
                 value = String(parseInt(value) + 1);
               } else if (this.pattern == "WEEKDAY") {
@@ -339,26 +276,43 @@ export default {
               }else if(this.pattern == "MONTH"){
                 value = this.months[parseInt(value) - 1];
               }
-              this.iterationsBarChartOptions.series.push({
+              graphOptions.series.push({
                 name: value,
                 data: [graphData[i][0]],
               });
-              this.iterationsBarChartOptions.xAxis.categories.push(value);
+              graphOptions.xAxis.categories.push(value);
             }
 
-            this.showIterationBarChart = true;
           }
+
+          let percentage = graphData.length > 1 ? ((graphData[graphData.length-1][0]/graphData[graphData.length-2][0])*100)-100 : 0
+          let state = graphData.length > 1 ? percentage > 0 ? 'green' : percentage < 0 ? 'red' : 'gray' : ''
+
+          this.statistics.push({
+            name: 'Number of Iterations',
+            number: graphData[graphData.length-1][0],
+            showPercentage: graphData.length > 1,
+            percentage: parseFloat(percentage).toFixed(2),
+            state: state,
+            value: value,
+            showGraph: false,
+            graphOptions: graphOptions
+          })
         });
     },
     collectBarGraphDataClassifications() {
-      this.classificationsBarChartOptions.series = [];
-      this.classificationsBarChartOptions.xAxis.categories = [];
+
+      let graphOptions = {...this.generalChartOptions}
+      graphOptions.series = [];
+      graphOptions.xAxis.categories = [];
+
+      let value = []
       this.$axios
         .$get("/api/frames/graphData?pattern=" + this.pattern)
         .then((graphData) => {
           if (graphData != []) {
             for (let i = 0; i < graphData.length; i++) {
-              let value = [graphData[i][1]];
+              value = [graphData[i][1]];
               if (this.pattern == "HOURS") {
                 value = String(parseInt(value) + 1);
               } else if (this.pattern == "WEEKDAY") {
@@ -367,14 +321,26 @@ export default {
               else if(this.pattern == "MONTH"){
                 value = this.months[parseInt(value) - 1];
               }
-              this.classificationsBarChartOptions.series.push({
+              graphOptions.series.push({
                 name: value,
                 data: [graphData[i][0]],
               });
-              this.classificationsBarChartOptions.xAxis.categories.push(value);
+              graphOptions.xAxis.categories.push(value);
             }
 
-            this.showClassificationsBarChart = true;
+            let percentage = graphData.length > 1 ? ((graphData[graphData.length-1][0]/graphData[graphData.length-2][0])*100)-100 : 0
+            let state = graphData.length > 1 ? percentage > 0 ? 'green' : percentage < 0 ? 'red' : 'gray' : ''
+
+            this.statistics.push({
+              name: 'Number of Classifications',
+              number: graphData[graphData.length-1][0],
+              showPercentage: graphData.length > 1,
+              percentage: parseFloat(percentage).toFixed(2),
+              state: state,
+              value: value,
+              showGraph: false,
+              graphOptions: graphOptions
+            })
           }
         });
     },
@@ -384,6 +350,11 @@ export default {
       return this.$auth.user;
     },
   },
+  watch: {
+    pattern(){
+      this.loadStatistics()
+    }
+  }
 };
 </script>
 
