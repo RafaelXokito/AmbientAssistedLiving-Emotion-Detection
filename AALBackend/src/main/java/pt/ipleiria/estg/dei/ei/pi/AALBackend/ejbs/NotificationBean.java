@@ -74,7 +74,7 @@ public class NotificationBean {
             entityManager.persist(notification);
             entityManager.flush();
         }catch (Exception ex){
-            throw new MyIllegalArgumentException(ex.getMessage());//"Error persisting your data"
+            throw new MyIllegalArgumentException("Error persisting your data");
         }
         notification.getClient().addNotification(notification);
         return notification.getId();
