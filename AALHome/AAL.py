@@ -341,11 +341,18 @@ if r.status_code == 200:
     r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
     userId = r.json()["id"]
 
+    r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
+    emotionsNotification = r.json()
     websocket.enableTrace(True)
     ws = websocket.WebSocket()
     ws.connect(os.getenv('LOG_WEBSOCKET_URL') + str(userId))
 
     ws.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL)
+    
+    wsNotification = websocket.WebSocket()
+    wsNotification.connect(os.getenv('NOTIFICATION_WEBSOCKET_URL') + str(userId))
+
+    wsNotification.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL)
 
     # Run websocket client
     # p = subprocess.Popen([sys.executable, 'Websocket.py'],
@@ -390,8 +397,18 @@ if r.status_code == 200:
 
     auxModelCreationDate = update_date(modelPath)
 
+    #Notifications Variables
+    predictionWhereAboveAccuracyLimit = []
+    predictionAboveAccuracyLimitTimers = []
+    emotionNames = []
+    start_durationsEmotions = []
+    if len(emotionsNotification) != 0:
+        for emotion in emotionsNotification:
+            predictionWhereAboveAccuracyLimit.append(False)
+            emotionNames.append(emotion['emotion_name'])
+            predictionAboveAccuracyLimitTimers.append(emotion['durationSeconds'])
+            start_durationsEmotions.append(int(time.time()))
     emotions = []
-
     while True:
 
         start_time = time.time()
@@ -401,7 +418,7 @@ if r.status_code == 200:
                                 activationFunction, lossFunction, metrics)
 
         # It will capture video until reaching the parameterized time (seconds) and proceed to the human labeling phase
-        while int(time.time() - start_time) < time_HLIteration:
+        while int(time.time() - start_time) < time_HLIteration:            
             _, frame = video.read()
 
             try:
@@ -448,6 +465,22 @@ if r.status_code == 200:
                                                                      previous[i], previousPrediction[i],
                                                                      result["emotion"], times[i], arrayTopFramePaths[i])
 
+                        try:                         
+                            index = emotionNames.index(emotion)
+                            limitEmotion = emotionsNotification[index]['accuracyLimit']      
+                            # if the emotion has high values - bigger than the limit
+                            if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
+                                predictionWhereAboveAccuracyLimit[index] = True
+                            
+                            if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
+                                #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
+                                wsNotification.send(MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL)
+                                print("Notification was sent")
+                                #Resets counters
+                                predictionWhereAboveAccuracyLimit[index] = False
+                                start_durationsEmotions[index] = int(time.time())
+                        except Exception as e:
+                            continue                    
                         i = i + 1
             except Exception as e:
                 ws.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL)
@@ -543,7 +576,22 @@ if r.status_code == 200:
 
         orderedPredictionsTop10Emotions = []
         resetFolderFrames()
-
+        # Checks for new emotions notifications
+        r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
+        emotionsNotification = r.json()
+        # updates the variables
+        predictionWhereAboveAccuracyLimit = []
+        emotionNames = []
+        predictionAboveAccuracyLimitTimers = []
+      
+        if len(emotionsNotification) != 0:
+            for emotion in emotionsNotification:
+                try:
+                    index = emotionNames.index(emotion['emotion_name'])
+                except Exception as e:                   
+                    predictionWhereAboveAccuracyLimit.append(False)
+                    emotionNames.append(emotion['emotion_name'])
+                    predictionAboveAccuracyLimitTimers.append(int(time.time()))
 # video.release()
 else:
     print("Error when logging in with your account")

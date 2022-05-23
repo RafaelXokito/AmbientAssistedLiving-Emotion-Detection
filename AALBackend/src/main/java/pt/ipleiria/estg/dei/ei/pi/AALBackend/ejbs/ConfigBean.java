@@ -47,7 +47,7 @@ public class ConfigBean {
 
             System.out.println("# Clients ");
             System.out.println("## Creating Clients ");
-           Long c1 = clientBean.create("client@gmail.com", "1234567", "Client", getDate(1950, 10, 25), "912934543", a2);
+            Long c1 = clientBean.create("client@gmail.com", "1234567", "Client", getDate(1950, 10, 25), "912934543", a2);
             System.out.println("## Updating Clients ");
             clientBean.update(c1, "Domingos Jesus Mendes",getDate(1950, 10, 25), "913406043");
             System.out.println("## Deleting Client ");
@@ -68,6 +68,7 @@ public class ConfigBean {
 
             String e9 = emotionBean.create("Invalid", "Invalid");
             System.out.println("## Deleting Emotions ");
+
             emotionBean.delete(e5);
 
         } catch (Exception e) {

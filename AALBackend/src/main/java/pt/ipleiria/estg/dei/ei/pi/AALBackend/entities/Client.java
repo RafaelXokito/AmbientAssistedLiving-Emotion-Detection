@@ -30,6 +30,8 @@ public class Client extends Person implements Serializable {
     private List<Log> logs;
     @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
     private List<EmotionNotification> emotionNotifications;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
+    private List<Notification> notifications;
     @ManyToOne
     private Administrator administrator;
 
@@ -118,5 +120,22 @@ public class Client extends Person implements Serializable {
             return emotionNotification;
         }
         return null;
+    }
+
+    public Notification addNotification(Notification notification){
+        if (notification != null && !this.notifications.contains(notification)) {
+            this.notifications.add(notification);
+            return notification;
+        }
+        return null;
+    }
+
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 }
