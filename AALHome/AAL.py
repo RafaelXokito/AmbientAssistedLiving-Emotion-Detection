@@ -480,7 +480,8 @@ if r.status_code == 200:
                                 predictionWhereAboveAccuracyLimit[index] = False
                                 start_durationsEmotions[index] = int(time.time())
                         except Exception as e:
-                            continue                    
+                            i = i + 1
+                            continue                       
                         i = i + 1
             except Exception as e:
                 ws.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL)
