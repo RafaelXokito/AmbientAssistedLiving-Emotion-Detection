@@ -23,11 +23,11 @@ import java.util.Date;
         ),
         @NamedQuery(
                 name = "getEmotionWithTheLeastNotificationsConfiguredByClient",
-                query = "SELECT n.emotion.name, count(n.emotion.name) FROM EmotionNotification em JOIN Notification n ON n.emotion.name = em.emotion.name WHERE n.client.id = :id GROUP BY n.emotion ORDER BY 1 ASC"
+                query = "SELECT n.emotion.name, count(n.emotion) FROM EmotionNotification em JOIN Notification n ON n.emotion.name = em.emotion.name WHERE n.client.id = :id GROUP BY n.emotion ORDER BY 1 ASC"
         ),
         @NamedQuery(
                 name = "getEmotionWithTheLeastNotificationsConfigured",
-                query = "SELECT n.emotion.name, count(n.emotion.name) FROM EmotionNotification em JOIN Notification n ON n.emotion.name = em.emotion.name GROUP BY n.emotion ORDER BY 1 ASC"
+                query = "SELECT n.emotion.name, count(n.emotion) FROM EmotionNotification em JOIN Notification n ON n.emotion.name = em.emotion.name GROUP BY n.emotion ORDER BY 1 ASC"
         ),
 })
 
