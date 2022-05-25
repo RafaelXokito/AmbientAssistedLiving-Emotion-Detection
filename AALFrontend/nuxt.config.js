@@ -1,55 +1,64 @@
-
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 export default {
+  // Target: https://go.nuxtjs.dev/config-target
+  target: 'static',
+
+  ssr: false,
+
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: "AALFrontend",
+    titleTemplate: '%s - Politécnico de Leiria',
+    title: 'AALFrontend',
     htmlAttrs: {
-      lang: "en",
+      lang: 'en',
     },
     meta: [
-      { charset: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { hid: "description", name: "description", content: "" },
-      { name: "format-detection", content: "telephone=no" },
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'description', name: 'description', content: '' },
+      { name: 'format-detection', content: 'telephone=no' },
     ],
-    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    '@/assets/css/main.css',
+    '~/plugins/vuetify/default-preset/preset/overrides.scss',
+    '~/assets/scss/styles.scss',
+    '~/assets/scss/variables.scss',
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [
+    { src: '~/plugins/vuetify.js', mode: 'client' },
+    { src: '~/plugins/vue-composition-api.js', mode: 'client' },
+    { src: '~/plugins/vue-apexchart.js', ssr: false },
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
+    //'@nuxtjs/eslint-module',
     '@nuxtjs/dotenv',
-    '@nuxt/postcss8'
+    '@nuxtjs/vuetify',
   ],
-
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
-    // https://go.nuxtjs.dev/bootstrap
-    "bootstrap-vue/nuxt",
     // https://go.nuxtjs.dev/axios
-    "@nuxtjs/axios",
-    "@nuxtjs/auth",
+    '@nuxtjs/axios',
     "@nuxtjs/toast",
+    "@nuxtjs/auth",
     'nuxt-highcharts',
   ],
 
   auth: {
     redirect: {
-      login: "/",
-      logout: "/",
+      login: "/login",
+      logout: "/login",
       home: "/",
     },
     watchLoggedIn: true,
@@ -76,10 +85,6 @@ export default {
     middleware: ["auth"],
   },
 
-  bootstrapVue: {
-    icons: true
-  },
-
   toast: {
     position: "top-center",
     register: [
@@ -94,9 +99,13 @@ export default {
     ],
   },
 
+  highcharts: {
+    /* module options */
+  },
+
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    proxy: true, //TODO se estiveres a dar deploy e der erro mete esta opção a false :)
+    proxy: false, //TODO se estiveres a dar deploy e der erro mete esta opção a false :)
     credentials: true,
   },
 
@@ -109,13 +118,9 @@ export default {
     },
   },
 
+  // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
+  vuetify: {},
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-    postcss: {
-      plugins: {
-        tailwindcss: {},
-        autoprefixer: {},
-      },
-    },
-  },
-};
+  build: {},
+}

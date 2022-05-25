@@ -1,0 +1,32 @@
+{
+  "name": "AALFrontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build --mode production",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/auth": "^4.9.1",
+    "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/dotenv": "^1.4.1",
+    "@nuxtjs/toast": "^3.3.1",
+    "bootstrap": "^4.6.1",
+    "bootstrap-vue": "^2.21.2",
+    "core-js": "^3.19.3",
+    "nuxt": "^2.15.8",
+    "nuxt-highcharts": "^2.0.4",
+    "vue": "^2.6.14",
+    "vue-server-renderer": "^2.6.14",
+    "vue-template-compiler": "^2.6.14",
+    "webpack": "^4.46.0"
+  },
+  "devDependencies": {
+    "@nuxt/postcss8": "^1.1.3",
+    "autoprefixer": "^10.4.7",
+    "postcss": "^8.4.13",
+    "tailwindcss": "^3.0.24"
+  }
+}

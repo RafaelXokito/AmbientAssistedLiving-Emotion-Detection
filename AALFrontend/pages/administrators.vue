@@ -1,112 +1,190 @@
 <template>
   <div>
-    <navbar/>
-    <div align="right">
-      <b-button class="m-5" variant="outline-info" v-b-modal.modalCreate>+ Administrator</b-button>
-    </div>
-    <b-container>
-      <div class="mt-5" v-if="tableLength != 0">
-        <b-table
-          small
-          id="administratorsTable"
+    <v-container>
+      <v-card>
+        <v-data-table
+          :loading="tableLength === 0"
+          :headers="fields"
           :items="administrators"
-          :fields="fields"
-          :current-page="currentPage"
-          :per-page="perPage"
-          striped
-          responsive="sm"
+          :search="search"
+          sort-by="name"
+          class="elevation-1"
+          :items-per-page="perPage"
         >
-        </b-table>
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="tableLength"
-          :per-page="perPage"
-          aria-controls="my-table"
-          align="center"
-        ></b-pagination>
-      </div>
-      <div v-else class="w-75 mx-auto alert alert-info">No more administrators registered in the system yet</div>
-    </b-container>
-    <b-modal id="modalCreate" size="lg" title="Create Administrator" hide-footer>
-      <b-form @submit.prevent="onSubmit" @reset.prevent="resetCreate">
-        <b-form-group
-          id="input-group-name"
-          label="Name:"
-          label-for="input-name"
-          label-class="font-weight-bold"
-        >
-          <b-form-input
-            id="input-name"
-            aria-describedby="input-name-feedback"
-            v-model="form.name"
-            trim
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          id="input-group-email"
-          label="E-mail:"
-          label-for="input-email"
-          label-class="font-weight-bold"
-        >
-          <b-form-input
-            id="input-email"
-            aria-describedby="input-email-feedback"
-            v-model="form.email"
-            trim
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group
-          id="input-group-password"
-          label="Password:"
-          label-for="input-password"
-          label-class="font-weight-bold"
-        >
-          <b-form-input
-            id="input-password"
-            aria-describedby="input-password-feedback"
-            v-model="form.password"
-            type="password"
-            name="password"
-            autocomplete="on"
-            trim
-          ></b-form-input>
-        </b-form-group>
-        <div align="center">
-          <b-button type="submit" variant="primary">Create</b-button>
-          <b-button type="reset" variant="danger">Reset</b-button>
-        </div>
-      </b-form>
-    </b-modal>
+          <template v-slot:top>
+            <v-toolbar
+              flat
+            >
+                <v-toolbar-title>Administrators</v-toolbar-title>
+              <v-divider
+                class="mx-4"
+                inset
+                vertical
+              ></v-divider>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+              <v-spacer></v-spacer>
+              <v-dialog
+                v-model="dialog"
+                max-width="500px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    class="mb-2"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    New Item
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">{{ formTitle }}</span>
+                  </v-card-title>
 
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col
+                          cols="12"
+                          md="12"
+                        >
+                          <v-text-field
+                            v-model="editedItem.name"
+                            label="Name"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="12"
+                          md="6"
+                        >
+                          <v-text-field
+                            v-model="editedItem.email"
+                            label="Email"
+                            type="email"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="12"
+                          md="6"
+                        >
+                          <v-text-field
+                            v-model="editedItem.password"
+                            label="Password"
+                            type="password"
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="close"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="save"
+                    >
+                      Save
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-dialog v-model="dialogDelete" max-width="500px">
+                <v-card>
+                  <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+                    <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-toolbar>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon
+              small
+              class="mr-2"
+              @click="editItem(item)"
+            >
+              mdi-pencil
+            </v-icon>
+            <v-icon
+              small
+              @click="deleteItem(item)"
+            >
+              mdi-delete
+            </v-icon>
+          </template>
+          <template v-slot:no-data>
+            <v-btn
+              color="primary"
+              @click="getAdministrators"
+            >
+              Reset
+            </v-btn>
+          </template>
+        </v-data-table>
+      </v-card>
+    </v-container>
   </div>
 </template>
 
 <script>
-import navbar from '~/components/utils/NavBar.vue'
+
 export default {
-  middleware: ('auth'),
   components: {
-    navbar,
   },
+  middleware: ('auth', 'admin'),
   data() {
     return {
-      form: {
+      dialog: false,
+      dialogDelete: false,
+      search: '',
+      editedItem: {
+        email: null,
+        password: null,
+        name: null,
+      },
+      defaultItem: {
         email: null,
         password: null,
         name: null,
       },
       fields: [
         {
-          key: "name",
-          label: "Name",
-          sortable: true,
+          value: "name",
+          text: "Name",
           sortDirection: "desc",
         },
         {
-          key: "email",
-          label: "Email",
-          sortable: true,
+          value: "email",
+          text: "Email",
           sortDirection: "desc",
+        },
+        {
+          value: "actions",
+          text: "Actions",
+          sortable: false,
         },
       ],
       administrators: [],
@@ -119,39 +197,69 @@ export default {
       return this.$auth.user
     },
     tableLength() {
-      return this.administrators.length;
+      return this.administrators.length
+    },
+    formTitle () {
+      return this.editedIndex === -1 ? 'New Administrator' : 'Edit Administrator'
     },
   },
+  created() {
+    this.getAdministrators()
+  },
   methods: {
-    onSubmit() {
-      this.form.birthDate = new Date(this.form.birthDate)
+    editItem(item){
 
+    },
+    deleteItem(item){
+
+    },
+    deleteItemConfirm () {
+      this.administrators.splice(this.editedIndex, 1)
+      this.closeDelete()
+    },
+    close () {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+    closeDelete () {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+    save () {
+      if (this.editedIndex > -1) {
+        // TODO - Edit administrator request
+        Object.assign(this.administrators[this.editedIndex], this.editedItem)
+      } else {
       this.$axios
-        .$post("/api/administrators", this.form)
-        .then((administrator) => {
-          this.$toast.success('Administrator '+this.form.name+' created').goAway(3000);
-          this.administrators.push(administrator);
+        .$post("/api/administrators", this.editedItem)
+        .then(administrator => {
+          this.$toast.success('Administrator '+this.editedItem.name+' created').goAway(3000)
+
+          this.administrators.push(administrator)
+
+          this.close()
         })
         .catch(() => {
-          this.$toast.error("Error creating administrator").goAway(3000);
-        });
-    },
-    resetCreate() {
-      this.administrators = null;
+          this.$toast.error("Error creating administrator").goAway(3000)
+        })
+      }
     },
     getAdministrators() {
       this.$axios
         .$get("/api/administrators")
-        .then((administrators) => {
-          this.administrators = administrators;
+        .then( administrators => {
+          this.administrators = administrators
         })
         .catch(() => {
-          this.$toast.info("No administrators found").goAway(3000);
-        });
+          this.$toast.info("No administrators found").goAway(3000)
+        })
     }
-  },
-  created() {
-    this.getAdministrators();
   },
 }
 </script>
