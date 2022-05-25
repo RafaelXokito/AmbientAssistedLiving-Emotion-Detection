@@ -48,6 +48,7 @@ public class Iteration implements Serializable{
         this.macAddress = "";
         this.client = new Client();
         this.emotion = new Emotion();
+        this.created_at = null;
     }
 
     public Iteration(String macAddress, Emotion emotion, Client client){
