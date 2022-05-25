@@ -122,6 +122,10 @@ public class Client extends Person implements Serializable {
         return null;
     }
 
+    public EmotionNotification removeEmotionNotification(EmotionNotification emotionNotification) {
+        return emotionNotification != null && this.emotionNotifications.remove(emotionNotification) ? emotionNotification : null;
+    }
+
     public Notification addNotification(Notification notification){
         if (notification != null && !this.notifications.contains(notification)) {
             this.notifications.add(notification);
@@ -129,6 +133,7 @@ public class Client extends Person implements Serializable {
         }
         return null;
     }
+
 
 
     public List<Notification> getNotifications() {

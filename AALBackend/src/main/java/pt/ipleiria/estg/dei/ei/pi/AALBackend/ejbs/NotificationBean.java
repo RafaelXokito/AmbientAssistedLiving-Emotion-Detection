@@ -1,6 +1,8 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
+import jdk.internal.net.http.common.Pair;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Notification;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyEntityNotFoundException;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyIllegalArgumentException;
@@ -17,8 +19,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Stateless
 public class NotificationBean {
@@ -50,6 +54,19 @@ public class NotificationBean {
     }
 
     /**
+     * Finds Emotion by given @Id:name
+     * @param name
+     * @return
+     */
+    public Emotion findEmotion(String name) throws Exception{
+        Emotion emotion = entityManager.find(Emotion.class, name);
+        if(emotion == null){
+            throw new MyEntityNotFoundException("[Error] - Emotion with name: \'"+name+"\' not Found");
+        }
+        return emotion;
+    }
+
+    /**
      * Register a new Notification in the System
      * @param title
      * @param content
@@ -57,18 +74,29 @@ public class NotificationBean {
      * @return
      * @throws Exception
      */
-    public Long create(String title, String content, String clientEmail) throws Exception{
+    public Long create(String title, String content, String clientEmail, String emotionName, Double accuracy, Double duration) throws Exception{
         if(title == null || title.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Title is missing");
         }
         if(content == null || content.trim().isEmpty()){
             throw new IllegalArgumentException("[Error] - Content is missing");
         }
+        Emotion emotion = findEmotion(emotionName);
+        if(emotion == null){
+            throw new IllegalArgumentException("[Error] - Emotion is missing");
+        }
+        if(accuracy == null || accuracy < 0){
+            throw new IllegalArgumentException("[Error] - Accuracy is missing");
+        }
+        if(duration == null || duration < 0){
+            throw new IllegalArgumentException("[Error] - Duration is missing");
+        }
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){
             throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
         }
-        Notification notification = new Notification(title,content,clientFound);
+        Notification notification = new Notification(title,content,clientFound,emotion,accuracy,duration);
+        emotion.addNotification(notification);
 
         try {
             entityManager.persist(notification);
@@ -98,20 +126,88 @@ public class NotificationBean {
      * Gets all the Notifications
      * @return
      */
-    public List<Notification> getAllNotifications(){
-        return entityManager.createNamedQuery("getAllNotifications", Notification.class).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+    public List<Notification> getAllNotifications(String isShort){
+        if (Objects.equals(isShort, "yes"))
+            return entityManager.createNamedQuery("getAllNotifications", Notification.class).setMaxResults(5).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        else
+            return entityManager.createNamedQuery("getAllNotifications", Notification.class).setLockMode(LockModeType.OPTIMISTIC).getResultList();
     }
 
     /**
      * Gets all the Notifications by client
      * @return
      */
-    public List<Notification> getAllNotificationsByClient(String clientEmail) throws Exception{
+    public List<Notification> getAllNotificationsByClient(String clientEmail, String isShort) throws Exception{
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){
             throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
         }
-        return clientFound.getNotifications();
+        if (Objects.equals(isShort, "yes"))
+            return entityManager.createNamedQuery("getAllNotificationsByClient", Notification.class).setParameter("id", clientFound.getId()).setMaxResults(5).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        else
+            return entityManager.createNamedQuery("getAllNotificationsByClient", Notification.class).setParameter("id", clientFound.getId()).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+    }
+
+    public List<Pair<String, Integer>> getEmotionsWithMostNotificationsByClient(String clientEmail) throws Exception {
+        Client clientFound = findClient(clientEmail);
+        if(clientFound == null){
+            throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
+        }
+
+        List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheMostNotificationsByClient").setParameter("id", clientFound.getId()).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        for (Object[] obj : list) {
+            String name = (String) obj[0];
+            int count = (int) obj[1];
+
+            returnVal.add(new Pair<>(name, count));
+        }
+
+        return returnVal;
+    }
+
+    public List<Pair<String, Integer>> getEmotionsWithMostNotifications() throws Exception {
+        List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheMostNotifications").setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        for (Object[] obj : list) {
+            String name = (String) obj[0];
+            int count = (int) obj[1];
+
+            returnVal.add(new Pair<>(name, count));
+        }
+
+        return returnVal;
+    }
+
+    public List<Pair<String, Integer>> getEmotionWithTheLeastNotificationsConfiguredByClient(String clientEmail) throws Exception {
+        Client clientFound = findClient(clientEmail);
+        if(clientFound == null){
+            throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
+        }
+
+        List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheLeastNotificationsConfiguredByClient").setParameter("id", clientFound.getId()).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        for (Object[] obj : list) {
+            String name = (String) obj[0];
+            int count = (int) obj[1];
+
+            returnVal.add(new Pair<>(name, count));
+        }
+
+        return returnVal;
+    }
+
+    public List<Pair<String, Integer>> getEmotionWithTheLeastNotificationsConfigured() throws Exception {
+        List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheLeastNotificationsConfigured").setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        for (Object[] obj : list) {
+            String name = (String) obj[0];
+            int count = (int) obj[1];
+
+            returnVal.add(new Pair<>(name, count));
+        }
+
+        return returnVal;
     }
 
     public void updateVisibleStatus(Long id)throws Exception{

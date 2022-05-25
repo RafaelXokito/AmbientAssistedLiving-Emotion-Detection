@@ -33,7 +33,7 @@ public class EmotionNotificationBean {
         if(emotionExistsClientEmotion(clientEmail,emotionName)){
             throw new MyEntityExistsException("[Error] - Emotion Notification for the client: '"+clientEmail+"' with the emotion: \'"+emotionName+"\' already exists");
         }
-        Emotion emotion = findEmotion(emotionName);
+        Emotion emotion = findEmotion(emotionName.toLowerCase());
         if(emotion == null){
             throw new IllegalArgumentException("[Error] - Emotion with the name: \'"+emotionName+"\' is missing or not found");
         }
@@ -126,6 +126,9 @@ public class EmotionNotificationBean {
      */
     public boolean delete(Long id) throws Exception{
         EmotionNotification emotionNotification = findEmotionNotification(id);
+
+        entityManager.lock(emotionNotification, LockModeType.PESSIMISTIC_WRITE);
+        emotionNotification.getClient().removeEmotionNotification(emotionNotification);
         entityManager.remove(emotionNotification);
         return entityManager.find(EmotionNotification.class, id) == null;
     }

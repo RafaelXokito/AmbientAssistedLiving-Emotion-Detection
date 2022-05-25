@@ -4,6 +4,7 @@ import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.EmotionDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.NotificationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.NotificationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Notification;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.exceptions.MyUnauthorizedException;
 
@@ -32,16 +33,16 @@ public class NotificationService {
 
     @GET
     @Path("/")
-    public Response getAllNotificationsWS(@HeaderParam("Authorization") String auth) throws Exception {
+    public Response getAllNotificationsWS(@HeaderParam("Authorization") String auth, @DefaultValue("yes") @QueryParam("is-short")  String isShort) throws Exception {
         String clientEmail = personBean.getPersonByAuthToken(auth).getEmail();
 
         if (securityContext.isUserInRole("Client"))
             return Response.status(Response.Status.OK)
-                    .entity(toDTOs(notificationBean.getAllNotificationsByClient(clientEmail)))
+                    .entity(toDTOs(notificationBean.getAllNotificationsByClient(clientEmail, isShort)))
                     .build();
 
         return Response.status(Response.Status.OK)
-                .entity(toDTOs(notificationBean.getAllNotifications()))
+                .entity(toDTOs(notificationBean.getAllNotifications(isShort)))
                 .build();
     }
 
@@ -84,7 +85,17 @@ public class NotificationService {
                 notification.getClient().getEmail(),
                 notification.getTitle(),
                 notification.getContent(),
+                notification.getCreated_at(),
                 notification.getNotificationSeen(),
-                notification.getCreated_at());
+                emotionToDTO(notification.getEmotion()),
+                notification.getAccuracy(),
+                notification.getDuration());
+    }
+
+    EmotionDTO emotionToDTO(Emotion emotion) {
+        return new EmotionDTO(
+                emotion.getName(),
+                emotion.getGroup()
+        );
     }
 }

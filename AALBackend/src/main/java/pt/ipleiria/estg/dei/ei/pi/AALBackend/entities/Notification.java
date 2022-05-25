@@ -8,7 +8,27 @@ import java.util.Date;
         @NamedQuery(
                 name = "getAllNotifications",
                 query = "SELECT n FROM Notification n ORDER BY n.created_at DESC"
-        )
+        ),
+        @NamedQuery(
+                name = "getAllNotificationsByClient",
+                query = "SELECT n FROM Notification n WHERE n.client.id = :id ORDER BY n.created_at DESC"
+        ),
+        @NamedQuery(
+                name = "getEmotionWithTheMostNotificationsByClient",
+                query = "SELECT n.emotion.name, count(n.emotion) FROM Notification n WHERE n.client.id = :id GROUP BY n.emotion ORDER BY 1 DESC"
+        ),
+        @NamedQuery(
+                name = "getEmotionWithTheMostNotifications",
+                query = "SELECT n.emotion.name, count(n.emotion) FROM Notification n GROUP BY n.emotion ORDER BY 1 DESC"
+        ),
+        @NamedQuery(
+                name = "getEmotionWithTheLeastNotificationsConfiguredByClient",
+                query = "SELECT n.emotion.name, count(n.emotion.name) FROM EmotionNotification em JOIN Notification n ON n.emotion.name = em.emotion.name WHERE n.client.id = :id GROUP BY n.emotion ORDER BY 1 ASC"
+        ),
+        @NamedQuery(
+                name = "getEmotionWithTheLeastNotificationsConfigured",
+                query = "SELECT n.emotion.name, count(n.emotion.name) FROM EmotionNotification em JOIN Notification n ON n.emotion.name = em.emotion.name GROUP BY n.emotion ORDER BY 1 ASC"
+        ),
 })
 
 @Table(name = "NOTIFICATIONS")
@@ -29,6 +49,14 @@ public class Notification {
     private Date created_at;
     @NotNull
     private Boolean notificationSeen;
+    @NotNull
+    @ManyToOne
+    private Emotion emotion;
+    @NotNull
+    private Double accuracy;
+    @NotNull
+    private Double duration;
+
     @Version
     private int version;
 
@@ -36,13 +64,20 @@ public class Notification {
         this.client = new Client();
         this.title = "";
         this.content = "";
+        this.notificationSeen = null;
+        this.emotion = new Emotion();
+        this.accuracy = null;
+        this.duration = null;
     }
 
-    public Notification(String title, String content, Client client) {
+    public Notification(String title, String content, Client client, Emotion emotion, Double accuracy, Double duration) {
         this.title = title;
         this.content = content;
         this.client = client;
         this.notificationSeen = false;
+        this.emotion = emotion;
+        this.accuracy = accuracy;
+        this.duration = duration;
     }
 
     public Boolean getNotificationSeen() {
@@ -95,5 +130,29 @@ public class Notification {
     @PrePersist
     protected void onCreate() {
         this.created_at = new Date();
+    }
+
+    public Emotion getEmotion() {
+        return emotion;
+    }
+
+    public void setEmotion(Emotion emotion) {
+        this.emotion = emotion;
+    }
+
+    public Double getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Double accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public Double getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Double duration) {
+        this.duration = duration;
     }
 }

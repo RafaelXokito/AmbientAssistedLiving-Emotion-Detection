@@ -589,10 +589,11 @@ if r.status_code == 200:
             for emotion in emotionsNotification:
                 try:
                     index = emotionNames.index(emotion['emotion_name'])
-                except Exception as e:                   
+                except Exception as e:
                     predictionWhereAboveAccuracyLimit.append(False)
                     emotionNames.append(emotion['emotion_name'])
-                    predictionAboveAccuracyLimitTimers.append(int(time.time()))
+                    predictionAboveAccuracyLimitTimers.append(emotion['durationSeconds'])
+                    start_durationsEmotions.append(int(time.time()))
 # video.release()
 else:
     print("Error when logging in with your account")

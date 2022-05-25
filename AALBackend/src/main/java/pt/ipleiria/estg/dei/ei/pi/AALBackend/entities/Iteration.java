@@ -12,7 +12,15 @@ import java.io.Serializable;
     @NamedQuery(
             name = "getAllIterations",
             query = "SELECT i FROM Iteration i"
-    )
+    ),
+    @NamedQuery(
+            name = "getLastIteration",
+            query = "SELECT i FROM Iteration i ORDER BY 1 DESC"
+    ),
+    @NamedQuery(
+            name = "getLastIterationByClient",
+            query = "SELECT i FROM Iteration i WHERE i.client.id = :id ORDER BY 1 DESC"
+    ),
 })
 
 @Table(name = "ITERATIONS")

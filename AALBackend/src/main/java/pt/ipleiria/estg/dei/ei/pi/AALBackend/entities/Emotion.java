@@ -29,6 +29,8 @@ public class Emotion implements Serializable {
         private List<Classification> classifications;
         @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
         private List<EmotionNotification> emotionNotifications;
+        @OneToMany(mappedBy = "emotion", cascade = CascadeType.PERSIST)
+        private List<Notification> notifications;
 
         @Version
         private int version;
@@ -112,5 +114,29 @@ public class Emotion implements Serializable {
                         return emotionNotification;
                 }
                 return null;
+        }
+
+        public Notification addNotification(Notification notification){
+                if (notification != null && !this.notifications.contains(notification)) {
+                        this.notifications.add(notification);
+                        return notification;
+                }
+                return null;
+        }
+
+        public List<Classification> getClassifications() {
+                return classifications;
+        }
+
+        public void setClassifications(List<Classification> classifications) {
+                this.classifications = classifications;
+        }
+
+        public List<Notification> getNotifications() {
+                return notifications;
+        }
+
+        public void setNotifications(List<Notification> notifications) {
+                this.notifications = notifications;
         }
 }

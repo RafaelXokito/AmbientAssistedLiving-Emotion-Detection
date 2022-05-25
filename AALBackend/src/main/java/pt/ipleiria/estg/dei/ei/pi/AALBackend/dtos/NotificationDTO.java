@@ -9,6 +9,9 @@ public class NotificationDTO {
     private String content;
     private Date created_at;
     private boolean notificationSeen;
+    private EmotionDTO emotion;
+    private double accuracy;
+    private double duration;
     public NotificationDTO() {
     }
 
@@ -27,6 +30,18 @@ public class NotificationDTO {
         this.content = content;
         this.created_at = created_at;
         this.notificationSeen = notificationSeen;
+    }
+
+    public NotificationDTO(long id, String clientEmail, String title, String content, Date created_at, boolean notificationSeen, EmotionDTO emotion, double accuracy, double duration) {
+        this.id = id;
+        this.clientEmail = clientEmail;
+        this.title = title;
+        this.content = content;
+        this.created_at = created_at;
+        this.notificationSeen = notificationSeen;
+        this.emotion = emotion;
+        this.accuracy = accuracy;
+        this.duration = duration;
     }
 
     public long getId() {

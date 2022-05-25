@@ -113,6 +113,20 @@ public class IterationBean {
         return clientFound.getIterations();
     }
 
+    public Iteration getLastIterationByClient(String clientEmail) throws Exception {
+        Client clientFound = findClient(clientEmail);
+        if(clientFound == null){
+            throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
+        }
+        List<Iteration> aux = entityManager.createNamedQuery("getLastIterationByClient", Iteration.class).setParameter("id", clientFound.getId()).setMaxResults(1).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        return aux.size() > 0 ? aux.get(9) : new Iteration();
+    }
+
+    public Iteration getLastIteration() throws Exception {
+        List<Iteration> aux = entityManager.createNamedQuery("getLastIteration", Iteration.class).setMaxResults(1).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        return aux.size() > 0 ? aux.get(9) : new Iteration();
+    }
+
     /**
      * Deletes a Iteration by given @Email:email
      * @param id
