@@ -1,11 +1,13 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ws;
 
-import jdk.internal.net.http.common.Pair;
+
+import com.sun.tools.javac.util.Pair;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.NotificationDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.StatisticDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.IterationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.NotificationBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Iteration;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Notification;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,7 +29,9 @@ public class StatisticService {
 
 
     @EJB
-    private IterationBean iterationBean;private NotificationBean notificationBean;
+    private IterationBean iterationBean;
+    @EJB
+    private NotificationBean notificationBean;
     @EJB
     private PersonBean personBean;
     @Context
@@ -40,32 +44,61 @@ public class StatisticService {
 
         List<StatisticDTO> statistics = new ArrayList<>();
         if (securityContext.isUserInRole("Client")) {
+            List<Notification> notifications = notificationBean.getAllNotificationsByClient(clientEmail, "false");
+            if(notifications.size() > 0){
+                statistics.add(toDTO("Total of notifications", String.valueOf(notifications.size())));
+            }else{
+                statistics.add(toDTO("Total of notifications", "No notifications"));
+            }
+            List<Pair<String, Long>> listPair = notificationBean.getEmotionsWithMostNotificationsByClient(clientEmail);
+            if(listPair != null){
+                statistics.add(toDTOExtended("Emotion with the most notifications", listPair.get(0).fst, String.valueOf(listPair.get(0).snd)));
+            }else{
+                statistics.add(toDTO("Emotion with the most notifications", "No notifications"));
+            }
 
-            statistics.add(toDTO("Total of notifications", String.valueOf(notificationBean.getAllNotificationsByClient(clientEmail, "false").size())));
-
-            List<Pair<String, Integer>> listPair = notificationBean.getEmotionsWithMostNotificationsByClient(clientEmail);
-            statistics.add(toDTOExtended("Emotion with the most notifications", listPair.get(0).first, String.valueOf(listPair.get(0).second)));
-
-            statistics.add(toDTO("Last Iteration Time", String.valueOf(iterationBean.getLastIterationByClient(clientEmail).getCreated_at().getTime())));
-
-            List<Pair<String, Integer>> listPair2 = notificationBean.getEmotionWithTheLeastNotificationsConfiguredByClient(clientEmail);
-            statistics.add(toDTOExtended("Emotion with the least notifications configured", listPair2.get(0).first, String.valueOf(listPair2.get(0).second)));
+            Iteration iteration = iterationBean.getLastIterationByClient(clientEmail);
+            if(iteration != null){
+                statistics.add(toDTO("Last Iteration Time", String.valueOf(iteration.getCreated_at().getTime())));
+            }else{
+                statistics.add(toDTO("Last Iteration Time", "No iterations"));
+            }
+            List<Pair<String, Long>> listPair2 = notificationBean.getEmotionWithTheLeastNotificationsConfiguredByClient(clientEmail);
+            if(listPair2 != null){
+                statistics.add(toDTOExtended("Emotion with the least notifications configured", listPair2.get(0).fst, String.valueOf(listPair2.get(0).snd)));
+            }else{
+                statistics.add(toDTO("Emotion with the least notifications configured", "No notifications"));
+            }
 
             return Response.status(Response.Status.OK)
                     .entity(statistics)
                     .build();
         }
+        List<Notification> notifications = notificationBean.getAllNotifications( "false");
+        if(notifications.size() > 0){
+            statistics.add(toDTO("Total of notifications",String.valueOf(notifications.size())));
+        }else{
+            statistics.add(toDTO("Total of notifications","No notifications"));
+        }
 
-        statistics.add(toDTO("Total of notifications",String.valueOf(notificationBean.getAllNotifications( "false").size())));
-
-        List<Pair<String, Integer>> listPair = notificationBean.getEmotionsWithMostNotifications();
-        statistics.add(toDTOExtended("Emotion with the most notifications", listPair.get(0).first, String.valueOf(listPair.get(0).second)));
-
-        statistics.add(toDTO("Last Iteration Time", String.valueOf(iterationBean.getLastIteration().getCreated_at().getTime())));
-
-        List<Pair<String, Integer>> listPair2 = notificationBean.getEmotionWithTheLeastNotificationsConfigured();
-        statistics.add(toDTOExtended("Emotion with the least notifications configured", listPair2.get(0).first, String.valueOf(listPair2.get(0).second)));
-
+        List<Pair<String, Long>> listPair = notificationBean.getEmotionsWithMostNotifications();
+        if(listPair != null){
+            statistics.add(toDTOExtended("Emotion with the most notifications", listPair.get(0).fst, String.valueOf(listPair.get(0).snd)));
+        }else{
+            statistics.add(toDTO("Emotion with the most notifications", "No notifications"));
+        }
+        Iteration iteration = iterationBean.getLastIteration();
+        if(iteration != null){
+            statistics.add(toDTO("Last Iteration Time", String.valueOf(iteration.getCreated_at().getTime())));
+        }else{
+            statistics.add(toDTO("Last Iteration Time", "No iterations"));
+        }
+        List<Pair<String, Long>> listPair2 = notificationBean.getEmotionWithTheLeastNotificationsConfigured();
+        if(listPair2 != null){
+            statistics.add(toDTOExtended("Emotion with the least notifications configured", listPair2.get(0).fst, String.valueOf(listPair2.get(0).snd)));
+        }else{
+            statistics.add(toDTO("Emotion with the least notifications configured", "No notifications"));
+        }
         return Response.status(Response.Status.OK)
                 .entity(statistics)
                 .build();

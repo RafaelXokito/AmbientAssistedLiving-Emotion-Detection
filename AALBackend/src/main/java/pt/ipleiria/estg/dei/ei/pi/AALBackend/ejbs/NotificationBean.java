@@ -1,6 +1,6 @@
 package pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs;
 
-import jdk.internal.net.http.common.Pair;
+import com.sun.tools.javac.util.Pair;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Client;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Emotion;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.Notification;
@@ -148,66 +148,64 @@ public class NotificationBean {
             return entityManager.createNamedQuery("getAllNotificationsByClient", Notification.class).setParameter("id", clientFound.getId()).setLockMode(LockModeType.OPTIMISTIC).getResultList();
     }
 
-    public List<Pair<String, Integer>> getEmotionsWithMostNotificationsByClient(String clientEmail) throws Exception {
+    public List<Pair<String, Long>> getEmotionsWithMostNotificationsByClient(String clientEmail) throws Exception {
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){
             throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
         }
-
         List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheMostNotificationsByClient").setParameter("id", clientFound.getId()).setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+
+        List<Pair<String, Long>> returnVal = new ArrayList<>();
         for (Object[] obj : list) {
             String name = (String) obj[0];
-            int count = (int) obj[1];
+            long count = (long) obj[1];
 
             returnVal.add(new Pair<>(name, count));
         }
 
-        return returnVal;
+        return returnVal.size() > 0 ? returnVal : null;
     }
 
-    public List<Pair<String, Integer>> getEmotionsWithMostNotifications() throws Exception {
+    public List<Pair<String, Long>> getEmotionsWithMostNotifications() throws Exception {
         List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheMostNotifications").setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        List<Pair<String, Long>> returnVal = new ArrayList<>();
         for (Object[] obj : list) {
             String name = (String) obj[0];
-            int count = (int) obj[1];
+            long count = (long) obj[1];
 
             returnVal.add(new Pair<>(name, count));
         }
 
-        return returnVal;
+        return returnVal.size() > 0 ? returnVal : null;
     }
 
-    public List<Pair<String, Integer>> getEmotionWithTheLeastNotificationsConfiguredByClient(String clientEmail) throws Exception {
+    public List<Pair<String, Long>> getEmotionWithTheLeastNotificationsConfiguredByClient(String clientEmail) throws Exception {
         Client clientFound = findClient(clientEmail);
         if(clientFound == null){
             throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
         }
 
         List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheLeastNotificationsConfiguredByClient").setParameter("id", clientFound.getId()).setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        List<Pair<String, Long>> returnVal = new ArrayList<>();
         for (Object[] obj : list) {
             String name = (String) obj[0];
-            int count = (int) obj[1];
+            long count = (long) obj[1];
 
             returnVal.add(new Pair<>(name, count));
         }
-
-        return returnVal;
+        return returnVal.size() > 0 ? returnVal : null;
     }
 
-    public List<Pair<String, Integer>> getEmotionWithTheLeastNotificationsConfigured() throws Exception {
+    public List<Pair<String, Long>> getEmotionWithTheLeastNotificationsConfigured() throws Exception {
         List<Object[]> list = entityManager.createNamedQuery("getEmotionWithTheLeastNotificationsConfigured").setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        List<Pair<String, Integer>> returnVal = new ArrayList<>();
+        List<Pair<String, Long>> returnVal = new ArrayList<>();
         for (Object[] obj : list) {
             String name = (String) obj[0];
-            int count = (int) obj[1];
+            long count = (long) obj[1];
 
             returnVal.add(new Pair<>(name, count));
         }
-
-        return returnVal;
+        return returnVal.size() > 0 ? returnVal : null;
     }
 
     public void updateVisibleStatus(Long id)throws Exception{

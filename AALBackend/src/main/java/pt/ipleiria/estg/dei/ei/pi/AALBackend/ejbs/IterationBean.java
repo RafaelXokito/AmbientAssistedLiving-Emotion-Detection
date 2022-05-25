@@ -119,12 +119,12 @@ public class IterationBean {
             throw new MyEntityNotFoundException("[Error] - Client with email: \'"+clientEmail+"\' not found");
         }
         List<Iteration> aux = entityManager.createNamedQuery("getLastIterationByClient", Iteration.class).setParameter("id", clientFound.getId()).setMaxResults(1).setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        return aux.size() > 0 ? aux.get(9) : new Iteration();
+        return aux.size() > 0 ? aux.get(0) : null;
     }
 
     public Iteration getLastIteration() throws Exception {
         List<Iteration> aux = entityManager.createNamedQuery("getLastIteration", Iteration.class).setMaxResults(1).setLockMode(LockModeType.OPTIMISTIC).getResultList();
-        return aux.size() > 0 ? aux.get(9) : new Iteration();
+        return aux.size() > 0 ? aux.get(0) : null;
     }
 
     /**
