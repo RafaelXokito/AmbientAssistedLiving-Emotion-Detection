@@ -122,6 +122,11 @@ public class ClientBean {
         return entityManager.find(Client.class, id) == null;
     }
 
+    public void activateClient(String clientEmail) {
+        findClient(clientEmail).setActive(true);
+        entityManager.flush();
+    }
+
     /**
      * Updates a Client by the given @Email:email
      * @param id

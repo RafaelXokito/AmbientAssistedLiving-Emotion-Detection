@@ -40,6 +40,7 @@
               placeholder="john@example.com"
               hide-details
               class="mb-3"
+              required
             ></v-text-field>
 
             <v-text-field
@@ -51,6 +52,7 @@
               :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
               hide-details
               @click:append="isPasswordVisible = !isPasswordVisible"
+              required
             ></v-text-field>
 
             <div class="d-flex align-center justify-space-between flex-wrap">
@@ -126,6 +128,36 @@
       height="289"
       src="@/assets/images/misc/tree-3.png"
     ></v-img>
+
+    <v-dialog
+      v-model="dialog"
+      persistent
+      max-width="500"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Activate your account
+        </v-card-title>
+        <v-card-text>Do you agree that your data is used for research reasons aiming improving user experience?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red darken-1"
+            text
+            @click="activateAccount(false)"
+          >
+            Disagree
+          </v-btn>
+          <v-btn
+            color="red darken-1"
+            text
+            @click="activateAccount(true)"
+          >
+            Agree
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -172,6 +204,7 @@ export default {
         email: '',
         password: ''
       },
+      dialog: false
     }
   },
   methods: {
@@ -185,8 +218,13 @@ export default {
       }).then(e => {
         this.$router.push({name: 'index'})
         this.$axios.defaults.headers.common = {Authorization: `${e.data.type} ${e.data.token}`}
-      }).catch(() => {
-        this.$toast.error('Sorry, you cant login. Ensure your credentials are correct').goAway(3000)
+      }).catch(e => {
+        if (e.response && e.response.data && e.response.data.includes("not activated")) {
+          this.$toast.error('Sorry, you cant login. You should activate your account first').goAway(3000)
+          this.dialog = true
+        } else {
+          this.$toast.error('Sorry, you cant login. Ensure your credentials are correct').goAway(3000)
+        }
       })
     },
     onReset() {
@@ -196,6 +234,25 @@ export default {
       this.$nextTick(() => {
         this.show = true
       })
+    },
+    activateAccount(agree){
+      if (agree) {
+        this.$axios.$patch("/api/auth/activateClient", {
+            email: this.form.email,
+            password: this.form.password
+          }).then(() => {
+          this.$auth.loginWith('local', {
+            data: {
+              email: this.form.email,
+              password: this.form.password
+            }
+          }).then(e => {
+            this.$router.push({name: 'index'})
+            this.$axios.defaults.headers.common = {Authorization: `${e.data.type} ${e.data.token}`}
+          })
+        })
+      }
+      this.dialog = false
     }
   },
 }

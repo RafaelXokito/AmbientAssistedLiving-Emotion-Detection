@@ -2,6 +2,7 @@ package pt.ipleiria.estg.dei.ei.pi.AALBackend.ws;
 
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.AuthDTO;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.dtos.PersonDTO;
+import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.ClientBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.JwtBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.ejbs.PersonBean;
 import pt.ipleiria.estg.dei.ei.pi.AALBackend.entities.*;
@@ -30,6 +31,9 @@ public class AuthService {
     @EJB
     PersonBean personBean;
 
+    @EJB
+    ClientBean clientBean;
+
     @POST
     @Path("/login")
     public Response authenticateUser(AuthDTO authDTO) {
@@ -37,12 +41,32 @@ public class AuthService {
             Person user = personBean.authenticate(authDTO.getEmail(), authDTO.getPassword());
             System.out.println("Login Service");
             if (user != null) {
+                if (user.getClass().getSimpleName().equals("Client") && !((Client)user).getActive())
+                    return Response.status(Response.Status.UNAUTHORIZED).entity("Client not activated!").build();
                 if (user.getId() > 0) {
                     log.info("Generating JWT for user " + user.getId());
                 }
                 String token = jwtBean.createJwt(String.valueOf(user.getId()), new
                         String[]{user.getClass().getSimpleName()});
                 return Response.ok(new Jwt("Bearer",token)).build();
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        }
+        return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+
+    @PATCH
+    @Path("/activateClient")
+    public Response activateClient(AuthDTO authDTO) {
+        try {
+            Person user = personBean.authenticate(authDTO.getEmail(), authDTO.getPassword());
+            System.out.println("Activating client");
+            if (user != null) {
+                if (user.getClass().getSimpleName().equals("Client") && !((Client)user).getActive()) {
+                    clientBean.activateClient(user.getEmail());
+                    return Response.ok().entity("Client activated").build();
+                }
             }
         } catch (Exception e) {
             log.info(e.getMessage());

@@ -34,6 +34,7 @@ public class Client extends Person implements Serializable {
     private List<Notification> notifications;
     @ManyToOne
     private Administrator administrator;
+    private Boolean isActive;
 
     @Version
     private int version;
@@ -43,6 +44,7 @@ public class Client extends Person implements Serializable {
         this.birthDate = new Date();
         this.contact = "";
         this.administrator = new Administrator();
+        this.isActive = false;
     }
 
     public Client(String email, String password, String name, Date birthDate, String contact, Administrator administrator) {
@@ -50,6 +52,7 @@ public class Client extends Person implements Serializable {
         this.birthDate = birthDate;
         this.contact = contact;
         this.administrator = administrator;
+        this.isActive = false;
     }
 
     public Date getBirthDate() {
@@ -134,7 +137,13 @@ public class Client extends Person implements Serializable {
         return null;
     }
 
+    public Boolean getActive() {
+        return isActive;
+    }
 
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
 
     public List<Notification> getNotifications() {
         return notifications;

@@ -183,6 +183,8 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
+        Reliese\Coders\CodersServiceProvider::class,
+
         /*
          * Package Service Providers...
          */
