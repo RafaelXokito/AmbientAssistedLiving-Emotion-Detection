@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property float  $duration
  * @property string $emotion_name
  */
-class Emotionsnotification extends Model
+class EmotionsNotification extends Model
 {
     /**
      * The database table used by the model.
