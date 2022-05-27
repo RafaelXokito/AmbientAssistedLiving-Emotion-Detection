@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * @property int    $created_at
@@ -11,8 +13,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @property string $password
  */
-class User extends Model
+class User extends Authenticatable implements JWTSubject
 {
+    use HasFactory, Notifiable, MustVerifyEmail;
     /**
      * The database table used by the model.
      *
@@ -75,4 +78,13 @@ class User extends Model
     // Functions ...
 
     // Relations ...
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }
