@@ -10,8 +10,8 @@
           >
             <v-img
               :src="require('@/assets/images/logos/logo.png')"
-              max-height="150px"
-              max-width="150px"
+              max-height="300px"
+              max-width="300px"
               alt="logo"
               contain
               class="me-3 "
@@ -23,7 +23,7 @@
         <!-- title -->
         <v-card-text>
           <p class="text-2xl font-weight-semibold text--primary mb-2">
-            Welcome to AAL-Emotion! 👋🏻
+            Welcome to SmartEmotion! 👋🏻
           </p>
           <p class="mb-2">
             Please sign-in to your account and start the monitoring

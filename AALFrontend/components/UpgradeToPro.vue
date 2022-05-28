@@ -36,10 +36,10 @@
         alt="materio-pro-banner"
       ></v-img>
       <v-card-title class="font-weight-semibold">
-        AAL-Emotion - Vuetify Admin Template
+        SmartEmotion - Vuetify Admin Template
       </v-card-title>
       <v-card-text>
-        AAL-Emotion Admin is the most developer friendly &amp; highly customisable Admin Dashboard Template based on Vuetify.
+        SmartEmotion Admin is the most developer friendly &amp; highly customisable Admin Dashboard Template based on Vuetify.
       </v-card-text>
       <v-card-text>
         <span>Click on below button to explore PRO version.</span>

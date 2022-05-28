@@ -16,9 +16,9 @@
         class="d-flex align-center text-decoration-none"
       >
         <v-img
-          :src="require('@/assets/images/logos/logo.png')"
-          max-height="30px"
-          max-width="30px"
+          :src="require('@/assets/images/logos/logo_simple.png')"
+          max-height="50px"
+          max-width="50px"
           alt="logo"
           contain
           eager
@@ -26,7 +26,7 @@
         ></v-img>
         <v-slide-x-transition>
           <h2 class="app-title text--primary">
-            AAL-Emotion
+            SmartEmotion
           </h2>
         </v-slide-x-transition>
       </NuxtLink>

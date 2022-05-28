@@ -18,7 +18,7 @@
             ></v-img>
 
             <h2 class="text-2xl font-weight-semibold">
-              AAL-Emotion
+              SmartEmotion
             </h2>
           </nuxt-link>
         </v-card-title>
