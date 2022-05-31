@@ -28,6 +28,12 @@ class CreateFrameRequest extends FormRequest
             'emotion'              => ['required', 'string'],
             'file'              => ['required', 'array'],
             'file.*'              => ['required', 'image', 'mimes:jpg,bmp,png', 'max:512'],
+            'datesFrames'              => ['required', 'array'],
+            'datesFrames.*'              => ['required', 'date_format:Y-m-d H:i:s'],
+            'accuraciesFrames'              => ['required', 'array'],
+            'accuraciesFrames.*'              => ['required', 'regex:/^[0-9]+(\.[0-9][0-9]?)?$/'],
+            'preditionsFrames'              => ['required', 'array'],
+            'preditionsFrames.*'              => ['required', 'string'],
         ];
     }
 
@@ -38,8 +44,14 @@ class CreateFrameRequest extends FormRequest
             'macAddress.string' => "Frame's macAddress must be a string",
             'emotion.required' => "Frame's emotion is required",
             'emotion.string' => "Frame's emotion must be a string",
-            'file.required' => "Frame's emotion is required",
+            'file.required' => "Frame's files is required",
             'file.array' => "Frame's file must be an array",
+            'datesFrames.required' => "Frame's dates is required",
+            'datesFrames.array' => "Frame's dates must be an array",
+            'accuraciesFrames.required' => "Frame's accuracies is required",
+            'accuraciesFrames.array' => "Frame's accuracies must be an array",
+            'preditionsFrames.required' => "Frame's predictions is required",
+            'preditionsFrames.array' => "Frame's predictions must be an array",
         ];
     }
 }
