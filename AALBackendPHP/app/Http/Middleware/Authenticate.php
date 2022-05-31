@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class Authenticate extends Middleware
@@ -15,7 +16,19 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return route('login');
+            return abort(response()->json('Unauthorized', 403));
         }
+    }
+
+    public function handle($request, Closure $next, ...$guards)
+    {
+        if ($jwt = $request->cookie('jwt')) {
+            $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+            $request->headers->set('Authorization', 'Bearer ' . $jwt);
+        }
+
+        $this->authenticate($request,$guards);
+
+        return $next($request);
     }
 }

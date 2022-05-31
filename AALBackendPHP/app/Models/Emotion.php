@@ -23,6 +23,8 @@ class Emotion extends Model
      * @var string
      */
     protected $primaryKey = 'name';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * Attributes that should be mass-assignable.
@@ -30,7 +32,7 @@ class Emotion extends Model
      * @var array
      */
     protected $fillable = [
-        'category'
+        'name', 'category'
     ];
 
     /**
@@ -72,4 +74,39 @@ class Emotion extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the frames associated with the emotion.
+     */
+    public function frames()
+    {
+        return $this->hasMany(Frame::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the iterations associated with the emotion.
+     */
+    public function iterations()
+    {
+        return $this->hasMany(Iteration::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the classifications associated with the emotion.
+     */
+    public function classifications()
+    {
+        return $this->hasMany(Classification::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the emotion notifications associated with the emotion.
+     */
+    public function emotionNotifications()
+    {
+        return $this->hasMany(EmotionsNotification::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the notifications associated with the emotion.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'emotion_name', 'name');
+    }
 }

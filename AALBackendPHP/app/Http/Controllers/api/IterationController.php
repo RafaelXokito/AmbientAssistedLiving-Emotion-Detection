@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
+use App\Http\Resources\Iteration\IterationResource;
+use App\Models\Iteration;
 use Illuminate\Http\Request;
 
-class EmotionNotificationController extends Controller
+class IterationController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return IterationResource
      */
     public function index()
     {
-        //
+        return new IterationResource(Iteration::all());
     }
 
     /**
@@ -23,7 +25,7 @@ class EmotionNotificationController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
@@ -34,18 +36,18 @@ class EmotionNotificationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        abort(404);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  Iteration  $iteration
+     * @return IterationResource
      */
-    public function show($id)
+    public function show(Iteration $iteration)
     {
-        //
+        return new IterationResource($iteration);
     }
 
     /**
@@ -56,7 +58,7 @@ class EmotionNotificationController extends Controller
      */
     public function edit($id)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -68,7 +70,7 @@ class EmotionNotificationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -79,6 +81,6 @@ class EmotionNotificationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        abort(404);
     }
 }

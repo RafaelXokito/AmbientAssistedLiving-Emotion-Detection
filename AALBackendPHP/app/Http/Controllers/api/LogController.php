@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\api;
 
 use Illuminate\Http\Request;
 
-class IterationController extends Controller
+class LogController extends Controller
 {
     /**
      * Display a listing of the resource.

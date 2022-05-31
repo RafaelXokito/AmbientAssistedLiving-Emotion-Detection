@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property string $contact
@@ -10,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Client extends Model
 {
+
+    use SoftDeletes;
+
+
     /**
      * The database table used by the model.
      *
@@ -30,7 +35,7 @@ class Client extends Model
      * @var array
      */
     protected $fillable = [
-        'contact', 'birthdate', 'administrator_id'
+        'contact', 'birthdate', 'administrator_id', 'is_active'
     ];
 
     /**
@@ -48,7 +53,7 @@ class Client extends Model
      * @var array
      */
     protected $casts = [
-        'contact' => 'string', 'birthdate' => 'timestamp'
+        'contact' => 'string', 'birthdate' => 'timestamp', 'is_active' => 'boolean'
     ];
 
     /**
@@ -72,4 +77,46 @@ class Client extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the administrator associated with the client.
+     */
+    public function administrator()
+    {
+        return $this->belongsTo(Administrator::class, 'administrator_id', 'id')->withTrashed();
+    }
+    /**
+     * Get the iterations associated with the emotion.
+     */
+    public function iterations()
+    {
+        return $this->hasMany(Iteration::class, 'client_id', 'id');
+    }
+    /**
+     * Get the logs associated with the emotion.
+     */
+    public function logs()
+    {
+        return $this->hasMany(Log::class, 'client_id', 'id');
+    }
+    /**
+     * Get the emotion notifications associated with the emotion.
+     */
+    public function emotionNotifications()
+    {
+        return $this->hasMany(EmotionsNotification::class, 'client_id', 'id');
+    }
+    /**
+     * Get the notifications associated with the emotion.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'client_id', 'id');
+    }
+    /**
+     * Get the user associated with the client.
+     */
+    public function user()
+    {
+        return $this->morphOne(User::class, 'userable');
+    }
 }

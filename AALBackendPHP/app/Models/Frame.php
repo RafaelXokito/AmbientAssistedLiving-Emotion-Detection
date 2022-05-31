@@ -76,4 +76,25 @@ class Frame extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the iteration associated with the frame.
+     */
+    public function iteration()
+    {
+        return $this->belongsTo(Iteration::class, 'iteration_id', 'id');
+    }
+    /**
+     * Get the emotion associated with the frame.
+     */
+    public function emotion()
+    {
+        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the classifications associated with the frame.
+     */
+    public function classifications()
+    {
+        return $this->hasMany(Classification::class, 'frame_id', 'id');
+    }
 }

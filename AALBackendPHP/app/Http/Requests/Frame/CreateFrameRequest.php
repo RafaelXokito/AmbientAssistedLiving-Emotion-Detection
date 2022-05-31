@@ -13,7 +13,7 @@ class CreateFrameRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,22 @@ class CreateFrameRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'macAddress'              => ['required', 'string'],
+            'emotion'              => ['required', 'string'],
+            'file'              => ['required', 'array'],
+            'file.*'              => ['required', 'image', 'mimes:jpg,bmp,png', 'max:512'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'macAddress.required' => "Frame's macAddress is required",
+            'macAddress.string' => "Frame's macAddress must be a string",
+            'emotion.required' => "Frame's emotion is required",
+            'emotion.string' => "Frame's emotion must be a string",
+            'file.required' => "Frame's emotion is required",
+            'file.array' => "Frame's file must be an array",
         ];
     }
 }

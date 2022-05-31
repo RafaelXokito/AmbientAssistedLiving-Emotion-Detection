@@ -1,21 +1,23 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * @property int    $created_at
- * @property string $dtype
+ * @property string $scope
  * @property string $email
  * @property string $name
  * @property string $password
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, MustVerifyEmail;
+    use HasFactory, Notifiable, MustVerifyEmail, SoftDeletes;
     /**
      * The database table used by the model.
      *
@@ -36,7 +38,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'created_at', 'dtype', 'email', 'name', 'password'
+        'userable_type', 'created_at', 'email', 'name', 'password', 'userable_id', 'updated_at', 'deleted_at'
     ];
 
     /**
@@ -45,7 +47,9 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-
+        'password',
+        'remember_token',
+        'confirmation_code',
     ];
 
     /**
@@ -54,7 +58,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $casts = [
-        'created_at' => 'timestamp', 'dtype' => 'string', 'email' => 'string', 'name' => 'string', 'password' => 'string'
+        'userable_type' => 'string', 'created_at' => 'timestamp', 'email' => 'string', 'name' => 'string', 'password' => 'string', 'updated_at' => 'timestamp', 'deleted_at' => 'timestamp', 'email_verified_at' => 'datetime',
     ];
 
     /**
@@ -63,7 +67,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $dates = [
-        'created_at'
+        'created_at', 'updated_at', 'deleted_at'
     ];
 
     /**
@@ -75,9 +79,7 @@ class User extends Authenticatable implements JWTSubject
 
     // Scopes...
 
-    // Functions ...
-
-    // Relations ...
+    // Functions
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -86,5 +88,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    // Relations
+    public function userable() {
+        return $this->morphTo();
     }
 }

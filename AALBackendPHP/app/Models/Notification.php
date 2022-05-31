@@ -77,4 +77,18 @@ class Notification extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the emotion associated with the notification.
+     */
+    public function emotion()
+    {
+        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the client associated with the notification.
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
+    }
 }

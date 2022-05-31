@@ -65,11 +65,25 @@ class Classification extends Model
      *
      * @var boolean
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     // Scopes...
 
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the emotion associated with the classification.
+     */
+    public function emotion()
+    {
+        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the classifications associated with the classification.
+     */
+    public function frame()
+    {
+        return $this->belongsTo(Frame::class, 'frame_id', 'id');
+    }
 }

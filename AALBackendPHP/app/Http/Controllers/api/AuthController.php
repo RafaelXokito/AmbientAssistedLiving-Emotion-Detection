@@ -1,8 +1,7 @@
 <?php
-namespace App\Http\Controllers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+namespace App\Http\Controllers\api;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Validator;
 
 class AuthController extends Controller
@@ -13,7 +12,7 @@ class AuthController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'activateClient']]);
     }
     /**
      * Get a JWT via given credentials.
@@ -31,7 +30,35 @@ class AuthController extends Controller
         if (! $token = auth()->attempt($validator->validated())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
+        $user = User::where('email',$validator->validated()["email"])->first();
+        if (str_contains($user->userable_type, "Client") && ! $user->userable->is_active)
+            return response()->json(['error' => 'Client not activated!'], 403);
         return $this->createNewToken($token);
+    }
+
+    /***
+     * Activate the client
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function activateClient(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+        if (! auth()->attempt($validator->validated())) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $user = User::where('email',$validator->validated()["email"])->first();
+        if (str_contains($user->userable_type, "Client") && ! $user->userable->is_active) {
+            $user->userable->is_active = true;
+            $user->userable->save();
+            return response()->json(['success' => 'Client activated!'], 200);
+        }
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
 
     /**

@@ -73,4 +73,25 @@ class Iteration extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the frames associated with the iteration.
+     */
+    public function frames()
+    {
+        return $this->hasMany(Frame::class, 'iteration_id', 'id');
+    }
+    /**
+     * Get the emotion associated with the iteration.
+     */
+    public function emotion()
+    {
+        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
+    }
+    /**
+     * Get the client associated with the iteration.
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
+    }
 }

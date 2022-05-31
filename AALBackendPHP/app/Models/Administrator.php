@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  */
 class Administrator extends Model
 {
+
+    use SoftDeletes;
+
+
     /**
      * The database table used by the model.
      *
@@ -70,4 +75,18 @@ class Administrator extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the clients associated with the administrator.
+     */
+    public function clients()
+    {
+        return $this->hasMany(Client::class, 'administrator_id', 'id')->withTrashed();
+    }
+    /**
+     * Get the user associated with the administrator.
+     */
+    public function user()
+    {
+        return $this->morphOne(User::class, 'userable');
+    }
 }

@@ -74,4 +74,11 @@ class Log extends Model
     // Functions ...
 
     // Relations ...
+    /**
+     * Get the client associated with the iteration.
+     */
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id', 'id');
+    }
 }
