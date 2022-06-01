@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Models\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\Notification\NotificationResource;
+use App\Http\Resources\Notification\NotificationCollection;
 
 class NotificationController extends Controller
 {
@@ -13,7 +17,7 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        //
+        return new NotificationCollection(Notification::all());
     }
 
     /**
@@ -23,7 +27,7 @@ class NotificationController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
@@ -34,18 +38,19 @@ class NotificationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        abort(404);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  $notification
+     * @return NotificationResource
      */
-    public function show($id)
+    public function show($notification)
     {
-        //
+        $notification = Notification::findOrFail($notification);
+        return new NotificationResource($notification);
     }
 
     /**
@@ -56,7 +61,7 @@ class NotificationController extends Controller
      */
     public function edit($id)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -71,6 +76,32 @@ class NotificationController extends Controller
         //
     }
 
+ /**
+     * Patch - update notification visibility
+     *
+     * @param  $notification
+     * @return NotificationResource
+     */
+    public function patch($notification){
+
+        $notification = Notification::findOrFail($notification);
+        try {
+            DB::beginTransaction();
+            $notification->notificationseen = true;
+            $notification->save();
+            DB::commit();
+        }catch(\Throwable $th){
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+
+        return new NotificationResource($notification);
+
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -79,6 +110,6 @@ class NotificationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        abort(404);
     }
 }

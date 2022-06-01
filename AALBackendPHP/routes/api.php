@@ -1,15 +1,17 @@
 <?php
 
-use App\Http\Controllers\api\AdministratorController;
-use App\Http\Controllers\api\AuthController;
-use App\Http\Controllers\api\ClientController;
-use App\Http\Controllers\api\EmotionController;
-use App\Http\Controllers\api\FrameController;
-use App\Http\Controllers\api\IterationController;
-use App\Http\Controllers\api\StatisticCoontroller;
+use App\Http\Controllers\api\StatisticController;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\api\AuthController;
+use App\Http\Controllers\api\FrameController;
+use App\Http\Controllers\api\ClientController;
+use App\Http\Controllers\api\EmotionController;
+use App\Http\Controllers\api\IterationController;
+use App\Http\Controllers\api\NotificationController;
+use App\Http\Controllers\api\AdministratorController;
+use App\Http\Controllers\api\EmotionsNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +35,11 @@ Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/frames/clients/{client}/graphData', [FrameController::class, 'showGraphData']);
     Route::get('/frames/graphData', [FrameController::class, 'showClassificationGraphData']);
 
-    Route::get('/statistics', [StatisticCoontroller::class, 'index']);
+    Route::get('/statistics', [StatisticController::class, 'index']);
+
+    Route::resources([
+        'notifications' => NotificationController::class
+    ]);
 });
 
 // Admin restrict
@@ -50,6 +56,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::resources([
         'iterations' => IterationController::class,
         'frames' => FrameController::class,
+        'emotionsNotification' => EmotionsNotificationController::class,
     ]);
 
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
