@@ -119,6 +119,16 @@ class FrameController extends Controller
         return new FrameResource($frame);
     }
 
+    public function showFoto(Frame $frame)
+    {
+        $path = storage_path('app/iterations/'.Auth::user()->userable_id.'/'.$frame->path);
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+        return $base64;
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -139,7 +149,7 @@ class FrameController extends Controller
     public function showFramesByIteration(Iteration $iteration)
     {
         FrameResource::$format = "extended";
-        return new FrameCollection($iteration->frames());
+        return new FrameCollection($iteration->frames);
     }
 
     /**
@@ -211,26 +221,26 @@ class FrameController extends Controller
             ), 400);
         switch ($pattern){
             case "YEARMONTHDAY":
-                $pattern = "'yyyy-MM-DD'";
+                $pattern = "'%Y-%M-%D'";
                 break;
             case "YEARMONTH":
-                $pattern = "'yyyy-MM'";
+                $pattern = "'%Y-%M'";
                 break;
             case "YEAR":
-                $pattern = "'yyyy'";
+                $pattern = "'%Y'";
                 break;
             case "MONTH":
-                $pattern = "'MM'";
+                $pattern = "'%M'";
                 break;
             case "WEEKDAY":
-                $pattern = "'D'";
+                $pattern = "'%W'";
                 break;
             default:
-                $pattern = "'HH24'";
+                $pattern = "'%H'";
                 break;
         }
 
-        $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(updated_at,'.$pattern.') as d'))->whereNotNull('frames.emotion_name')->groupBy(DB::raw('DATE_FORMAT(updated_at,'.$pattern.')'));
+        $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.') as d'))->whereNotNull('frames.emotion_name')->groupBy(DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.')'));
         if(str_contains(strtolower(Auth::user()->userable_type), "client")) {
             $query = $query->join('iterations', 'frames.iteration_id','=', 'iterations.id')
                 ->where('iterations.client_id', '=', Auth::user()->userable_id)->get();

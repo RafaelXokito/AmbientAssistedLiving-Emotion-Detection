@@ -186,9 +186,9 @@ export default {
     getNotifications() {
       this.$axios
         .$get("/api/notifications?is-short=false")
-        .then( notifications => {
-          this.notifications = notifications
-          notifications.forEach(n => {
+        .then( ({data}) => {
+          this.notifications = data
+        data.forEach(n => {
             if (!n.notificationSeen)
               this.countNewNotification++
           })

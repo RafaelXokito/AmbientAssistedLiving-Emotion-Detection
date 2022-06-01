@@ -118,7 +118,6 @@ import DashboardDatatable from '@/components/dashboard/DashboardDatatable.vue'
 import DashboardCardNotifications from "~/components/dashboard/DashboardCardNotifications"
 
 export default {
-  middleware: "auth",
   components: {
     DashboardCardNotifications,
     StatisticsCardVertical,
@@ -128,6 +127,61 @@ export default {
     DashboardCardDepositAndWithdraw,
     DashboardCardSalesByCountries,
     DashboardDatatable,
+  },
+  middleware: "auth",
+  setup() {
+    const totalProfit = {
+      statTitle: 'Total Profit',
+      icon: mdiPoll,
+      color: 'success',
+      subtitle: 'Weekly Project',
+      statistics: '$25.6k',
+      change: '+42%',
+    }
+
+    const totalSales = {
+      statTitle: 'Refunds',
+      icon: mdiCurrencyUsd,
+      color: 'secondary',
+      subtitle: 'Past Month',
+      statistics: '$78',
+      change: '-15%',
+    }
+
+    // vertical card options
+    const newProject = {
+      statTitle: 'New Project',
+      icon: mdiLabelVariantOutline,
+      color: 'primary',
+      subtitle: 'Yearly Project',
+      statistics: '862',
+      change: '-18%',
+    }
+
+    const salesQueries = {
+      statTitle: 'Sales Quries',
+      icon: mdiHelpCircleOutline,
+      color: 'warning',
+      subtitle: 'Last week',
+      statistics: '15',
+      change: '-18%',
+    }
+
+    return {
+      totalProfit,
+      totalSales,
+      newProject,
+      salesQueries,
+
+      icons: {
+        mdiDotsVertical,
+        mdiTrendingUp,
+        mdiCurrencyUsd,
+        mdiMenuUp,
+        mdiMenuDown,
+        mdiMinus
+      },
+    }
   },
   data() {
     return {
@@ -155,7 +209,6 @@ export default {
         "Saturday",
       ],
       pattern: [],
-      showIterationBarChart: false,
       generalChartOptions: {
         chart: {
           type: "column",
@@ -214,6 +267,7 @@ export default {
           }]
         }
       },
+      showIterationBarChart: false,
       iterationsBarChartOptions: {
         chart: {
           type: "line",
@@ -266,68 +320,14 @@ export default {
       ],
     }
   },
-  setup() {
-    const totalProfit = {
-      statTitle: 'Total Profit',
-      icon: mdiPoll,
-      color: 'success',
-      subtitle: 'Weekly Project',
-      statistics: '$25.6k',
-      change: '+42%',
-    }
-
-    const totalSales = {
-      statTitle: 'Refunds',
-      icon: mdiCurrencyUsd,
-      color: 'secondary',
-      subtitle: 'Past Month',
-      statistics: '$78',
-      change: '-15%',
-    }
-
-    // vertical card options
-    const newProject = {
-      statTitle: 'New Project',
-      icon: mdiLabelVariantOutline,
-      color: 'primary',
-      subtitle: 'Yearly Project',
-      statistics: '862',
-      change: '-18%',
-    }
-
-    const salesQueries = {
-      statTitle: 'Sales Quries',
-      icon: mdiHelpCircleOutline,
-      color: 'warning',
-      subtitle: 'Last week',
-      statistics: '15',
-      change: '-18%',
-    }
-
-    return {
-      totalProfit,
-      totalSales,
-      newProject,
-      salesQueries,
-
-      icons: {
-        mdiDotsVertical,
-        mdiTrendingUp,
-        mdiCurrencyUsd,
-        mdiMenuUp,
-        mdiMenuDown,
-        mdiMinus
-      },
-    }
-  },
-  mounted() {
-    this.loadStatistics()
-    for (const k in this.statistics) { this.$watch('statistics.' + k, function (val, oldVal) { console.log(k, val, oldVal) }) }
-  },
   computed: {
     currentUser() {
       return this.$auth.user
     },
+  },
+  mounted() {
+    this.loadStatistics()
+    for (const k in this.statistics) { this.$watch('statistics.' + k, function (val, oldVal) { console.log(k, val, oldVal) }) }
   },
   methods: {
     updatePattern(statistic, index, value){
@@ -345,65 +345,118 @@ export default {
       }
 
     },
-    loadStatistics(){
+    async loadStatistics(){
       this.statistics = []
-      this.collectBarGraphDataIterations(0)
-      this.collectBarGraphDataClassifications(1)
+      await this.collectBarGraphDataIterations(0)
+      await this.collectBarGraphDataClassifications(1)
     },
     collectBarGraphDataIterations(index, statistic=null) {
 
-      const graphOptions = {...this.generalChartOptions}
-      graphOptions.series = []
-      graphOptions.xAxis.categories = []
+      const graphOptionsIterations = JSON.parse(JSON.stringify({
+        chart: {
+          type: "column",
+          height: 210,
+          weight: null,
+          marginTop: 15
+        },
+        title: {
+          text: "",
+        },
+        yAxis: {
+          title: {
+            text: "",
+          },
+        },
+        xAxis: {
+          labels: {
+            enabled: false // disable labels
+          },
+          title: {
+            text: "",
+          },
+          categories: [],
+        },
+        series: [],
+        plotOptions: {
+          column: {
+            borderRadius: 5
+          }
+        },
+        responsive: {
+          rules: [{
+            condition: {
+              maxWidth: 500
+            },
+            chartOptions: {
+              legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                layout: 'horizontal'
+              },
+              yAxis: {
+                labels: {
+                  align: 'left',
+                  x: 0,
+                  y: -5
+                },
+                title: {
+                  text: null
+                }
+              },
+              subtitle: {
+                text: null
+              },
+              credits: {
+                enabled: false
+              }
+            }
+          }]
+        }
+      }))
 
       const pattern = statistic !== null ? statistic.pattern[1] : 'HOURS'
 
       let value = []
+      let number = []
       this.$axios
         .$get("/api/iterations/graphData?pattern=" + pattern)
         .then(graphData => {
           if (graphData !== []) {
             for (let i = 0; i < graphData.length; i++) {
-              value = [graphData[i][1]]
-              if (pattern === "HOURS") {
-                value = String(parseInt(value) + 1)
-              } else if (pattern === "WEEKDAY") {
-                value = this.weekdays[parseInt(value) - 1]
-              }else if(pattern === "MONTH"){
-                value = this.months[parseInt(value) - 1]
-              }
-              graphOptions.series.push({
+              value = graphData[i].d
+              number = graphData[i].c
+              graphOptionsIterations.series.push({
                 name: value,
-                data: [graphData[i][0]],
+                data: [number],
               })
-              graphOptions.xAxis.categories.push(value)
             }
 
           }
 
-          const percentage = graphData.length > 1 ? ((graphData[graphData.length-1][0]/graphData[graphData.length-2][0])*100)-100 : 0
+
+          const percentage = graphData.length > 1 ? ((graphData[graphData.length-1].c/graphData[graphData.length-2].c)*100)-100 : 0
           const state = graphData.length > 1 ? percentage > 0 ? 'green' : percentage < 0 ? 'red' : 'gray' : ''
 
           if (graphData.length > 0) {
             if (statistic === null)
               this.statistics.push({
                 name: 'Number of Iterations',
-                number: graphData[graphData.length-1][0],
+                number,
                 showPercentage: graphData.length > 1,
                 percentage: parseFloat(percentage).toFixed(2),
                 state,
                 value,
                 pattern: [this.statisticsMenu.findIndex(e => e.value === pattern), pattern],
                 showGraph: false,
-                graphOptions,
+                graphOptions: graphOptionsIterations,
                 index
               })
             else {
-              statistic.number = graphData[graphData.length-1][0]
+              statistic.number = number
               statistic.showPercentage = graphData.length > 1
               statistic.state = state
               statistic.value = value
-              statistic.graphOptions = graphOptions
+              statistic.graphOptions = graphOptionsIterations
               statistic.percentage = parseFloat(percentage).toFixed(2)
             }
           }
@@ -411,56 +464,109 @@ export default {
     },
     collectBarGraphDataClassifications(index, statistic=null) {
 
-      const graphOptions = {...this.generalChartOptions}
-      graphOptions.series = []
-      graphOptions.xAxis.categories = []
+      const graphOptionsClassifications = JSON.parse(JSON.stringify({
+        chart: {
+          type: "column",
+          height: 210,
+          weight: null,
+          marginTop: 15
+        },
+        title: {
+          text: "",
+        },
+        yAxis: {
+          title: {
+            text: "",
+          },
+        },
+        xAxis: {
+          labels: {
+            enabled: false // disable labels
+          },
+          title: {
+            text: "",
+          },
+          categories: [],
+        },
+        series: [],
+        plotOptions: {
+          column: {
+            borderRadius: 5
+          }
+        },
+        responsive: {
+          rules: [{
+            condition: {
+              maxWidth: 500
+            },
+            chartOptions: {
+              legend: {
+                align: 'center',
+                verticalAlign: 'bottom',
+                layout: 'horizontal'
+              },
+              yAxis: {
+                labels: {
+                  align: 'left',
+                  x: 0,
+                  y: -5
+                },
+                title: {
+                  text: null
+                }
+              },
+              subtitle: {
+                text: null
+              },
+              credits: {
+                enabled: false
+              }
+            }
+          }]
+        }
+      }))
 
       const pattern = statistic !== null ? statistic.pattern[1] : 'HOURS'
 
       let value = []
+      let number = []
       this.$axios
         .$get("/api/frames/graphData?pattern=" + pattern)
         .then(graphData => {
           if (graphData !== []) {
+
             for (let i = 0; i < graphData.length; i++) {
-              value = [graphData[i][1]]
-              if (pattern === "HOURS") {
-                value = String(parseInt(value) + 1)
-              } else if (pattern === "WEEKDAY") {
-                value = this.weekdays[parseInt(value) - 1]
-              } else if (pattern === "MONTH") {
-                value = this.months[parseInt(value) - 1]
-              }
-              graphOptions.series.push({
+              value = graphData[i].d
+              number = graphData[i].c
+              graphOptionsClassifications.series.push({
                 name: value,
-                data: [graphData[i][0]],
+                data: [number],
               })
-              graphOptions.xAxis.categories.push(value)
             }
 
-            const percentage = graphData.length > 1 ? ((graphData[graphData.length - 1][0] / graphData[graphData.length - 2][0]) * 100) - 100 : 0
+            const percentage = graphData.length > 1 ? ((graphData[graphData.length - 1].c / graphData[graphData.length - 2].c) * 100) - 100 : 0
             const state = graphData.length > 1 ? percentage > 0 ? 'green' : percentage < 0 ? 'red' : 'gray' : ''
 
             if (graphData.length > 0) {
               if (statistic === null)
                 this.statistics.push({
                   name: 'Number of Classifications',
-                  number: graphData[graphData.length - 1][0],
+                  number,
                   showPercentage: graphData.length > 1,
                   percentage: parseFloat(percentage).toFixed(2),
                   state,
                   value,
                   pattern: [this.statisticsMenu.findIndex(e => e.value === pattern), pattern],
                   showGraph: false,
-                  graphOptions,
+                  graphOptions: graphOptionsClassifications,
                   index
                 })
               else {
-                statistic.number = graphData[graphData.length-1][0]
+                statistic.number = number
                 statistic.showPercentage = graphData.length > 1
                 statistic.state = state
                 statistic.value = value
-                statistic.graphOptions = graphOptions
+                statistic.graphOptions = graphOptionsClassifications
                 statistic.percentage = parseFloat(percentage).toFixed(2)
               }
             }

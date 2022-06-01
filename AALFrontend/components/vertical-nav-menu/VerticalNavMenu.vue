@@ -54,26 +54,6 @@
         to="/notification-settings"
         :icon="icons.mdiMessageCogOutline"
       ></nav-menu-link>
-      <nav-menu-group
-        title="Pages"
-        :icon="icons.mdiFileOutline"
-      >
-        <nav-menu-link
-          title="Login"
-          to="/login"
-          target="_blank"
-        ></nav-menu-link>
-        <nav-menu-link
-          title="Register"
-          to="/register"
-          target="_blank"
-        ></nav-menu-link>
-        <nav-menu-link
-          title="Error"
-          to="/error"
-          target="_blank"
-        ></nav-menu-link>
-      </nav-menu-group>
       <nav-menu-section-title title="USER INTERFACE"></nav-menu-section-title>
       <nav-menu-link
         v-if="currentUser.scope === 'Client'"

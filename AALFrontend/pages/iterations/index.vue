@@ -423,11 +423,11 @@ export default {
     async showModal(point) {
       // console.log(point.x, point.y, point.id, point)
 
-      await this.$axios.$get("/api/frames/" + point.id).then(r => {
-        this.frameOpened.createDate = r.createDate
-        this.frameOpened.emotion = r.emotion
-        this.frameOpened.emotionIteration = r.emotionIteration
-        this.frameOpened.id = r.id
+      await this.$axios.$get("/api/frames/" + point.id).then(async ({data}) => {
+        this.frameOpened.createDate = data.createDate
+        this.frameOpened.emotion = data.emotion
+        this.frameOpened.emotionIteration = data.emotionIteration
+        this.frameOpened.id = data.id
 
         this.frameOpened.emotionClassified =
           this.frameOpened.emotion.name !== ""
@@ -450,7 +450,7 @@ export default {
           },
         ]
 
-        r.predictions.forEach(p => {
+        data.predictions.forEach(p => {
           this.frameOpenedAllPredictionsChartOptions.xAxis.categories.push(
             this.firstCapitalLetter(p.emotion.name)
           )
@@ -480,22 +480,22 @@ export default {
         this.showFrameOpenedAllPredictionsChart = true
         this.showFrameOpenedByGroupChart = true
 
-        this.$axios
+        await this.$axios
           .$get("/api/frames/download/" + this.frameOpened.id)
           .then(imageBase64 => {
-            this.frameOpened.base64 = "data:image/jpg;base64," + imageBase64
+            this.frameOpened.base64 = imageBase64
           })
         this.$axios
           .$get(
             "/api/emotions/groups/" + this.frameOpened.emotionIteration.name
           )
-          .then(emotions => {
+          .then(({data}) => {
             this.frameOpened.humanLabelEmotions.push({
               value: null,
               text: "Please select an emotion",
               disabled: true,
             })
-            emotions.forEach(e => {
+            data.forEach(e => {
               this.frameOpened.humanLabelEmotions.push({
                 value: e.name,
                 text: this.firstCapitalLetter(e.name),
@@ -538,7 +538,7 @@ export default {
       let pointGraph = []
       await this.$axios
         .$get("/api/frames/clients/" + this.currentUser.id + "/graphData")
-        .then(data => {
+        .then(({data}) => {
           data.forEach(r => {
             pointGraph.push(r.createDate)
             pointGraph.push(r.accuracy)
@@ -580,7 +580,7 @@ return graphData
     },
     async getEmotions() {
       await this.$axios.get("/api/emotions").then(response => {
-        const emotions = response.data
+        const emotions = response.data.data
         emotions.forEach(emotion => {
           if (emotion.group !== "invalid")
             this.yLabels.push(this.firstCapitalLetter(emotion.name))
@@ -598,7 +598,7 @@ return graphData
       this.$axios
         .$get("/api/iterations")
         .then(iterations => {
-          this.iterations = iterations
+          this.iterations = iterations.data
           if (this.iterations !== []) {
             this.collectGraphData()
 

@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card v-if="notifications.length > 0">
     <v-card-title class="align-start">
       <span>Notifications</span>
 

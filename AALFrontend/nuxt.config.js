@@ -68,13 +68,13 @@ export default {
           login: {
             url: "/api/auth/login",
             method: "post",
-            propertyName: "token",
+            propertyName: "access_token",
           },
           logout: false,
           user: {
             url: "/api/auth/user",
             method: "get",
-            propertyName: "",
+            propertyName: "data",
           },
         },
       },

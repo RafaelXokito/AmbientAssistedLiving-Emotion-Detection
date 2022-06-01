@@ -162,9 +162,9 @@ export default {
   methods: {
     async initialize () {
 
-      await this.$axios.get("/api/emotionsNotification").then(response => {
-        const emotionsNotification = response.data
-        emotionsNotification.forEach(emotionNotification => {
+      await this.$axios.get("/api/emotionsNotification").then(({data}) => {
+        data = data.data
+        data.forEach(emotionNotification => {
           if (emotionNotification.name !== 'invalid')
             this.emotionsNotification.push({
               id: emotionNotification.id,
@@ -175,7 +175,7 @@ export default {
         })
 
         this.$axios.get("/api/emotions").then(response => {
-          const emotions = response.data
+          const emotions = response.data.data
           emotions.forEach(emotion => {
             if (emotion.name !== 'invalid')
               this.emotions.push({

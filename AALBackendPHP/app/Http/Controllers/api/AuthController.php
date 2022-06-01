@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers\api;
+use App\Http\Resources\Auth\AuthResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Validator;
@@ -106,10 +107,10 @@ class AuthController extends Controller
     /**
      * Get the authenticated User.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return AuthResource
      */
     public function userProfile() {
-        return response()->json(auth()->user());
+        return new AuthResource(auth()->user());
     }
     /**
      * Get the token array structure.
@@ -123,7 +124,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'user' => new AuthResource(auth()->user())
         ]);
     }
 }

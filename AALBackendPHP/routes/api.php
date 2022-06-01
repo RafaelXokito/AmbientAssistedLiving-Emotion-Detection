@@ -30,10 +30,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/emotions', [EmotionController::class, 'index']);
-    Route::get('/emotions/group/{group}', [EmotionController::class, 'showEmotionsByGroup']);
+    Route::get('/emotions/groups/{group}', [EmotionController::class, 'showEmotionsByGroup']);
 
     Route::get('/frames/clients/{client}/graphData', [FrameController::class, 'showGraphData']);
     Route::get('/frames/graphData', [FrameController::class, 'showClassificationGraphData']);
+
+    Route::get('/iterations/graphData', [IterationController::class, 'showGraphData']);
 
     Route::get('/statistics', [StatisticController::class, 'index']);
 
@@ -61,6 +63,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
 
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
     Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
+    Route::get('/frames/download/{frame}', [FrameController::class, 'showFoto']);
 });
 
 Route::group([

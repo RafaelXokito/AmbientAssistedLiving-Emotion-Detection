@@ -67,20 +67,20 @@ export default {
     },
   },
   created() {
-    this.$axios.$get("/api/iterations/" + this.id).then(iteration => {
-      this.emotion = iteration.emotion
+    this.$axios.$get("/api/iterations/" + this.id).then(({data}) => {
+      this.emotion = data.emotion
       this.$axios
         .$get("/api/emotions/groups/" + this.emotion.name)
-        .then(emotions => {
+        .then(({data}) => {
           this.humanLabelEmotions.push({ value: null, text: 'None', disabled: true, })
-          emotions.forEach(e => {
+          data.forEach(e => {
             this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
           })
 
           this.$axios
             .$get("/api/emotions/groups/" + 'invalid')
-            .then(invalidEmotions => {
-              invalidEmotions.forEach(e => {
+            .then(({data}) => {
+              data.forEach(e => {
                 this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
               })
             })
@@ -108,8 +108,8 @@ export default {
 
     this.$axios
       .$get("/api/frames/iteration/" + this.id)
-      .then(responseFrames => {
-        responseFrames.forEach(frame => {
+      .then(({data}) => {
+        data.forEach(frame => {
           this.emotionsClassified.push(frame.emotion.name === '' ? null : frame.emotion.name)
           this.$axios
             .$get("/api/frames/download/" + frame.id)
@@ -117,7 +117,7 @@ export default {
               this.frames.push({
                 id: frame.id,
                 filename: frame.filename,
-                base64: "data:image/jpg;base64," + imageBase64,
+                base64: imageBase64,
               })
               this.reveal.push(false)
             })
