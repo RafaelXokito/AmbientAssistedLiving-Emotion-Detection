@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Http\Requests\Frame\ClassifyFrameRequest;
 use App\Http\Requests\Frame\CreateFrameRequest;
 use App\Http\Resources\Emotion\EmotionResource;
+use App\Http\Resources\Frame\FrameCollection;
 use App\Http\Resources\Frame\FrameResource;
+use App\Http\Resources\Iteration\IterationResource;
 use App\Models\Classification;
 use App\Models\Client;
 use App\Models\Emotion;
@@ -24,7 +27,7 @@ class FrameController extends Controller
      */
     public function index()
     {
-        return new FrameResource(Frame::all());
+        abort(404);
     }
 
     /**
@@ -41,7 +44,7 @@ class FrameController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return EmotionResource|\Illuminate\Http\JsonResponse
+     * @return IterationResource|\Illuminate\Http\JsonResponse
      */
     public function store(CreateFrameRequest $request)
     {
@@ -73,18 +76,21 @@ class FrameController extends Controller
 
                     $classificationsAux = explode(";",$validated_data["preditionsFrames"][$i],count($files));
                     foreach ($classificationsAux as &$classificationAux) {
+
                         $classification = new Classification();
                         $aux = explode("#", $classificationAux, 2);
-                        $classification->emotion()->associate(Emotion::find($aux[0]));
+                        $classification->emotion()->associate(Emotion::find(strtolower($aux[0])));
                         $classification->accuracy = $aux[1];
                         $classification->frame()->associate($frame);
+
+                        $classification->save();
                     }
                 }
 
                 $iteration->save();
                 DB::commit();
 
-                return new EmotionResource($iteration);
+                return new IterationResource($iteration);
             }
 
             return response()->json(array(
@@ -109,6 +115,7 @@ class FrameController extends Controller
      */
     public function show(Frame $frame)
     {
+        FrameResource::$format = "extended";
         return new FrameResource($frame);
     }
 
@@ -124,6 +131,18 @@ class FrameController extends Controller
     }
 
     /**
+     * Show the specified frames by given iteration.
+     *
+     * @param  Iteration  $iteration
+     * @return FrameCollection
+     */
+    public function showFramesByIteration(Iteration $iteration)
+    {
+        FrameResource::$format = "extended";
+        return new FrameCollection($iteration->frames());
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -132,7 +151,93 @@ class FrameController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        abort(404);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  Frame  $frame
+     * @return FrameResource
+     */
+    public function classifyFrame(ClassifyFrameRequest $request,Frame $frame)
+    {
+        $validated_data = $request->validated();
+
+        $frame->emotion()->associate(Emotion::find(strtolower($validated_data["name"])));
+        $frame->save();
+
+        FrameResource::$format = "extended";
+        return new FrameResource($frame);
+    }
+
+    /**
+     * Get the graphData resource in storage.
+     *
+     * @param  Client  $client
+     * @return FrameCollection
+     */
+    public function showGraphData(Client $client)
+    {
+        $frames = Frame::select('frames.*')->join('iterations', 'frames.iteration_id','=', 'iterations.id')
+            ->where('iterations.client_id', '=', $client->id)->get();
+        FrameResource::$format = "graph";
+        return new FrameCollection($frames);
+    }
+
+    /**
+     * Get the ClassificationGraphData resource in storage.
+     *
+     * @param  string  $pattern
+     * @return FrameCollection|\Illuminate\Http\JsonResponse
+     */
+    public function showClassificationGraphData(Request $request)
+    {
+        $pattern = "HOURS";
+
+        if ($request->has("pattern"))
+            $pattern = $request["pattern"];
+
+        if (!strcmp($pattern,"YEARMONTHDAY") &&
+            !strcmp($pattern, "YEARMONTH") &&
+            !strcmp($pattern, "YEAR") &&
+            !strcmp($pattern, "MONTH") &&
+            !strcmp($pattern, "WEEKDAY") &&
+            !strcmp($pattern, "HOURS"))
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  "[Error] -  pattern is invalid"
+            ), 400);
+        switch ($pattern){
+            case "YEARMONTHDAY":
+                $pattern = "'yyyy-MM-DD'";
+                break;
+            case "YEARMONTH":
+                $pattern = "'yyyy-MM'";
+                break;
+            case "YEAR":
+                $pattern = "'yyyy'";
+                break;
+            case "MONTH":
+                $pattern = "'MM'";
+                break;
+            case "WEEKDAY":
+                $pattern = "'D'";
+                break;
+            default:
+                $pattern = "'HH24'";
+                break;
+        }
+
+        $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(updated_at,'.$pattern.') as d'))->whereNotNull('frames.emotion_name')->groupBy(DB::raw('DATE_FORMAT(updated_at,'.$pattern.')'));
+        if(str_contains(strtolower(Auth::user()->userable_type), "client")) {
+            $query = $query->join('iterations', 'frames.iteration_id','=', 'iterations.id')
+                ->where('iterations.client_id', '=', Auth::user()->userable_id)->get();
+        }else
+            $query = $query->get();
+
+        return $query;
     }
 
     /**

@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Http\Resources\Iteration\IterationCollection;
 use App\Http\Resources\Iteration\IterationResource;
 use App\Models\Iteration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IterationController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return IterationResource
+     * @return IterationCollection
      */
     public function index()
     {
-        return new IterationResource(Iteration::all());
+        return new IterationCollection(Auth::user()->iterations);
     }
 
     /**

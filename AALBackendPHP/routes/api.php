@@ -6,6 +6,7 @@ use App\Http\Controllers\api\ClientController;
 use App\Http\Controllers\api\EmotionController;
 use App\Http\Controllers\api\FrameController;
 use App\Http\Controllers\api\IterationController;
+use App\Http\Controllers\api\StatisticCoontroller;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::group(['middleware' =>  'auth:api'], function() {
+    Route::get('/emotions', [EmotionController::class, 'index']);
+    Route::get('/emotions/group/{group}', [EmotionController::class, 'showEmotionsByGroup']);
+
+    Route::get('/frames/clients/{client}/graphData', [FrameController::class, 'showGraphData']);
+    Route::get('/frames/graphData', [FrameController::class, 'showClassificationGraphData']);
+
+    Route::get('/statistics', [StatisticCoontroller::class, 'index']);
+});
+
 // Admin restrict
 Route::group(['middleware' =>  'auth:api', 'admin'], function() {
     Route::resources([
@@ -40,11 +51,9 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'iterations' => IterationController::class,
         'frames' => FrameController::class,
     ]);
-});
 
-Route::group(['middleware' =>  'auth:api'], function() {
-    Route::get('/emotions', [EmotionController::class, 'index']);
-    Route::get('/emotions/group/{group}', [EmotionController::class, 'showEmotionsByGroup']);
+    Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
+    Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
 });
 
 Route::group([

@@ -2,6 +2,10 @@
 
 namespace App\Http\Resources\Iteration;
 
+use App\Http\Resources\Client\ClientResource;
+use App\Http\Resources\Emotion\EmotionResource;
+use App\Http\Resources\Frame\FrameCollection;
+use App\Http\Resources\Frame\FrameResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class IterationResource extends JsonResource
@@ -12,8 +16,17 @@ class IterationResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
+    public static $format = "default";
     public function toArray($request)
     {
-        return parent::toArray($request);
+        FrameResource::$format = IterationResource::$format;
+        return [
+            'id' => $this->id,
+            'macaddress' => $this->macaddress,
+            'emotion' => new EmotionResource($this->emotion),
+            'created_at' => $this->created_at,
+            'client' => new ClientResource($this->client),
+            'frames' => new FrameCollection($this->frames),
+        ];
     }
 }
