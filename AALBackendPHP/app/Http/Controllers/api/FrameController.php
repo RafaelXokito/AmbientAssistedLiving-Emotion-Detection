@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Requests\Frame\CreateFrameRequest;
 use App\Http\Resources\Emotion\EmotionResource;
 use App\Http\Resources\Frame\FrameResource;
+use App\Models\Classification;
 use App\Models\Client;
 use App\Models\Emotion;
 use App\Models\Frame;
@@ -56,23 +57,40 @@ class FrameController extends Controller
                 $iteration->macaddress = $validated_data["macAddress"];
                 $iteration->client()->associate(Auth::user()->userable);
 
-                dd($request->file('file'));
-
                 $iteration->save();
 
-                $files = $request->file();
+                $files = $request->file('file');
 
                 for ($i = 0; $i < count($files); $i++) {
-                    $user->photo_url = basename(Storage::disk('local')->putFileAs('\\iterations\\'.Auth::user()->userable_id, $files[$i], $iteration->id . "_" . $id . '.jpg'));
-                }
+                    $frame = new Frame();
+                    $frame->name = $iteration->id . "_" . $i . '.jpg';
+                    $frame->accuracy = $validated_data["accuraciesFrames"][$i];
+                    $frame->path = basename(Storage::disk('local')->putFileAs('\\iterations\\'.Auth::user()->userable_id, $files[$i], $iteration->id . "_" . $i . '.jpg'));
+                    $frame->iteration()->associate($iteration);
+                    $frame->createdate = $validated_data["datesFrames"][$i];
 
-                dd($validated_data);
+                    $frame->save();
+
+                    $classificationsAux = explode(";",$validated_data["preditionsFrames"][$i],count($files));
+                    foreach ($classificationsAux as &$classificationAux) {
+                        $classification = new Classification();
+                        $aux = explode("#", $classificationAux, 2);
+                        $classification->emotion()->associate(Emotion::find($aux[0]));
+                        $classification->accuracy = $aux[1];
+                        $classification->frame()->associate($frame);
+                    }
+                }
 
                 $iteration->save();
                 DB::commit();
 
                 return new EmotionResource($iteration);
             }
+
+            return response()->json(array(
+                'code'      =>  422,
+                'message'   =>  "No files were selected"
+            ), 422);
 
         } catch (\Throwable $th) {
             DB::rollBack();
