@@ -433,7 +433,6 @@ export default {
 
           }
 
-
           const percentage = graphData.length > 1 ? ((graphData[graphData.length-1].c/graphData[graphData.length-2].c)*100)-100 : 0
           const state = graphData.length > 1 ? percentage > 0 ? 'green' : percentage < 0 ? 'red' : 'gray' : ''
 
