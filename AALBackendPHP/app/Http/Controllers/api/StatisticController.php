@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class StatisticCoontroller extends Controller
+class StatisticController extends Controller
 {
     /**
      * Display a listing of the resource.
