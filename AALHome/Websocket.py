@@ -57,21 +57,47 @@ def disconnect(sid):
 
 
 if __name__ == "__main__":
-    # standard Python
-    while not exists("token.txt"):
-        time.sleep(3)
-        continue
-    f = open("token.txt", "r")
-    token = f.read()
+    while True:
+        # standard Python
+        while not exists("token.txt"):
+            time.sleep(3)
+            continue
 
-    API_URL = os.getenv('API_URL')
+        f = open("token.txt", "r")
+        token = f.read()
 
-    r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
-    userId = r.json()["data"]["id"]
+        API_URL = os.getenv('API_URL')
 
-    sio.connect(os.getenv('WEBSOCKET_URL'))
-    sio.emit('logged_in', {"username": str(userId), "userType": "C"})
-    print("Logged In - Successful")
-    sio.wait()
-    rel.signal(2, rel.abort)  # Keyboard Interrupt
-    rel.dispatch()
+        r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
+
+        if r.status_code != 200:
+            API_URL = os.getenv('API_URL')
+            API_ENDPOINT = API_URL + "/auth/login"
+            CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
+            CLIENT_PASSWORD = os.getenv('CLIENT_PASSWORD')
+
+            json = {
+                "email": CLIENT_EMAIL,
+                "password": CLIENT_PASSWORD
+            }
+
+            r = requests.post(url=API_ENDPOINT, json=json)
+            if r.status_code == 200:
+                # extracting response text
+                token = r.json()["access_token"]
+                with open('token.txt', 'w') as f:
+                    f.write(token)
+
+            r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
+
+        if r.status_code == 200:
+            userId = r.json()["data"]["id"]
+
+            sio.connect(os.getenv('WEBSOCKET_URL'))
+            sio.emit('logged_in', {"username": str(userId), "userType": "C"})
+            print("Logged In - Successful")
+            sio.wait()
+            rel.signal(2, rel.abort)  # Keyboard Interrupt
+            rel.dispatch()
+
+        time.sleep(10)
