@@ -14,13 +14,13 @@ io.on('connection', function (socket) {
     console.log(`client ${socket.id} has connected`)
 
     socket.on('logged_in', function (data) {
-        
         if (data.userType == 'A') {
             socket.join("logsocket")
             socket.join("administrators")
             console.log(`Room Administrator ${data.username} join`)
         }
         else{
+            socket.join("message/"+data.username)
             socket.join("framesocket/"+data.username)
             socket.join("logsocket/"+data.username)
             socket.join("notificationsocket/"+data.username)
@@ -44,7 +44,6 @@ io.on('connection', function (socket) {
         }
     })
 
-    
     socket.on('newLogMessage', function (data) {
         console.log('newLogMessage',data)
         io.to('logsocket/'+data.userId).emit('newLogMessage', data)
@@ -53,7 +52,7 @@ io.on('connection', function (socket) {
 
     socket.on('newFrameMessage', function (data) {
         console.log('newFrameMessage',data)
-        io.to('logsocket/'+data.userId).emit('newLogMessage', data)
+        data = JSON.parse(data)
         io.to('framesocket/'+data.userId).emit('newFrameMessage', data)
     })
     socket.on('newNotificationMessage', function (data) {

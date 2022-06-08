@@ -144,7 +144,8 @@ export default {
           // Connection opened
           // console.log(this.socket)
           const jsonData =
-            '{ "emotion" : "' +
+            '{ "userId": ' + this.$auth.user.id +
+            ',"emotion" : "' +
             this.emotionsClassified[index] +
             '", "image": "' +
             base64 +

@@ -1,4 +1,4 @@
-#import websocket
+# import websocket
 import socketio
 import rel
 import os
@@ -9,32 +9,32 @@ import json
 import time
 from dotenv import load_dotenv
 from os.path import exists
+
 load_dotenv()
 
 PRE_DATASET_PATH = os.getenv('PRE_DATASET_PATH')
-sio = socketio.Client(logger=True, engineio_logger=True)
+sio = socketio.Client()
+
 
 @sio.on("newFrameMessage")
-async def message(data):
-    print("something!!!!!")
-    if (len(data) > 70):
+def message(data):
+    if len(data["image"]) > 70:
         print("New Frame Classified!")
-        data = json.loads(data)
-        messageContent = json.loads(data["image"])
+        messageContent = data["image"]
 
-        if "," in messageContent["image"]:
+        if "," in messageContent:
             messageContent = messageContent.split(",")[1]
 
         image64 = bytes(messageContent, 'ascii')
 
         # If path does not exists, we make it
 
-        if os.path.exists(PRE_DATASET_PATH) == False:
+        if not os.path.exists(PRE_DATASET_PATH):
             os.mkdir(PRE_DATASET_PATH)
 
         path = PRE_DATASET_PATH + "/" + data["emotion"]
 
-        if os.path.exists(path) == False:
+        if not os.path.exists(path):
             os.mkdir(path)
 
         with open(path + "/" + str(uuid.uuid4()) + '.jpg', "wb") as fh:
@@ -45,18 +45,16 @@ async def message(data):
 def connect():
     print("connected")
 
+
 @sio.event
 def connect_error(data):
     print("The connection failed!")
+
 
 @sio.on('disconnect')
 def disconnect(sid):
     print('disconnect ', sid)
 
-@sio.on('*')
-def catch_all(event, data):
-    print(data)
-    pass
 
 if __name__ == "__main__":
     # standard Python
@@ -72,7 +70,7 @@ if __name__ == "__main__":
     userId = r.json()["data"]["id"]
 
     sio.connect(os.getenv('WEBSOCKET_URL'))
-    sio.emit('logged_in', {"username":str(userId), "userType":"C"})
+    sio.emit('logged_in', {"username": str(userId), "userType": "C"})
     print("Logged In - Successful")
     sio.wait()
     rel.signal(2, rel.abort)  # Keyboard Interrupt
