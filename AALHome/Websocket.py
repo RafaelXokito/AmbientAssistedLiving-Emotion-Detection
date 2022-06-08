@@ -1,4 +1,5 @@
-import websocket
+#import websocket
+import socketio
 import rel
 import os
 import requests
@@ -11,25 +12,27 @@ from os.path import exists
 load_dotenv()
 
 PRE_DATASET_PATH = os.getenv('PRE_DATASET_PATH')
+sio = socketio.Client(logger=True, engineio_logger=True)
 
-
-def on_message(ws, message):
-    if (len(message) > 70):
-
-        message = json.loads(message)
-        messageContent = json.loads(message["content"])
+@sio.on("newFrameMessage")
+async def message(data):
+    print("something!!!!!")
+    if (len(data) > 70):
+        print("New Frame Classified!")
+        data = json.loads(data)
+        messageContent = json.loads(data["image"])
 
         if "," in messageContent["image"]:
-            messageContent["image"] = messageContent["image"].split(",")[1]
+            messageContent = messageContent.split(",")[1]
 
-        image64 = bytes(messageContent["image"], 'ascii')
+        image64 = bytes(messageContent, 'ascii')
 
         # If path does not exists, we make it
 
         if os.path.exists(PRE_DATASET_PATH) == False:
             os.mkdir(PRE_DATASET_PATH)
 
-        path = PRE_DATASET_PATH + "/" + messageContent["emotion"]
+        path = PRE_DATASET_PATH + "/" + data["emotion"]
 
         if os.path.exists(path) == False:
             os.mkdir(path)
@@ -38,21 +41,25 @@ def on_message(ws, message):
             fh.write(base64.decodebytes(image64))
 
 
-def on_error(ws, error):
-    print("Error:" + error)
+@sio.on('connect')
+def connect():
+    print("connected")
 
+@sio.event
+def connect_error(data):
+    print("The connection failed!")
 
-def on_close(ws, close_status_code, close_msg):
-    print("### closed ###")
+@sio.on('disconnect')
+def disconnect(sid):
+    print('disconnect ', sid)
 
-
-def on_open(ws):
-    print("Opened connection")
-
+@sio.on('*')
+def catch_all(event, data):
+    print(data)
+    pass
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
-
+    # standard Python
     while not exists("token.txt"):
         time.sleep(3)
         continue
@@ -62,14 +69,11 @@ if __name__ == "__main__":
     API_URL = os.getenv('API_URL')
 
     r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
-    userId = r.json()["id"]
+    userId = r.json()["data"]["id"]
 
-    ws = websocket.WebSocketApp(os.getenv('FRAMES_WEBSOCKET_URL') + str(userId),
-                                on_open=on_open,
-                                on_message=on_message,
-                                on_error=on_error,
-                                on_close=on_close)
-
-    ws.run_forever(dispatcher=rel)  # Set dispatcher to automatic reconnection
+    sio.connect(os.getenv('WEBSOCKET_URL'))
+    sio.emit('logged_in', {"username":str(userId), "userType":"C"})
+    print("Logged In - Successful")
+    sio.wait()
     rel.signal(2, rel.abort)  # Keyboard Interrupt
     rel.dispatch()

@@ -169,34 +169,35 @@ export default {
     },
   },
   created(){
-    this.socket = new WebSocket(
-      process.env.NOTIFICATION_WEBSOCKET_URL + this.$auth.user.id
-    )
-    this.socket.addEventListener('message', event => {
-      if (event.data) {
-        this.countNewNotification++
-      }
-    })
     this.getNotifications()
+    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+    this.socket.on('newNotificationMessage', () => {
+      this.countNewNotification++
+    })
   },
   methods: {
     async logout() {
+      this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+      if(this.$auth.user.scope == "Client"){
+        this.socket.emit("logged_out", {"username": this.$auth.user.id, "userType": "C"});
+      }else{
+        this.socket.emit("logged_out", {"username": this.$auth.user.id, "userType": "A"});
+      }
       await this.$auth.logout()
     },
     getNotifications() {
       this.$axios
         .$get("/api/notifications?is-short=false")
-        .then( ({data}) => {
-          this.notifications = data
-        data.forEach(n => {
-            if (!n.notificationSeen)
-              this.countNewNotification++
-          })
+        .then( data => {
+          this.notifications = data.data
+          this.notifications.forEach(n => {
+              if (!n.notificationseen)
+                this.countNewNotification++
+            })
         })
     },
     timeSince(date) {
-      const seconds = Math.floor((new Date() - date) / 1000)
-
+    const seconds = Math.floor((new Date().getTime() - new Date(date*1000).getTime()) / 1000)
       let interval = seconds / 31536000
 
       if (interval > 1) {

@@ -387,9 +387,7 @@ export default {
     },
   },
   mounted() {
-    this.socket = new WebSocket(
-      process.env.FRAMES_WEBSOCKET_URL + this.$auth.user.id
-    )
+    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
   },
   async created() {
     await this.getEmotions()
@@ -414,8 +412,7 @@ export default {
             '", "image": "' +
             base64 +
             '"}'
-          if (this.socket.readyState === 1) this.socket.send(jsonData)
-
+          this.socket.emit('newFrameMessage',jsonData)
           this.collectGraphData()
           this.hideModal()
         })
@@ -593,6 +590,9 @@ return graphData
 
         this.iterationsChartOptions.yAxis.categories = this.yLabels
       })
+      .catch(() => {
+          this.$toast.info("No emotions found").goAway(3000)
+        })
     },
     getIterations() {
       this.$axios
