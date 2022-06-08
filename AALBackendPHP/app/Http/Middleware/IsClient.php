@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IsClient
 {
@@ -16,6 +17,9 @@ class IsClient
      */
     public function handle(Request $request, Closure $next)
     {
-        return $next($request);
+        if (Auth::user() &&  str_contains(Auth::user()->userable_type, 'Client')) {
+            return $next($request);
+        }
+        return response()->json('You are not allowed', 400);
     }
 }

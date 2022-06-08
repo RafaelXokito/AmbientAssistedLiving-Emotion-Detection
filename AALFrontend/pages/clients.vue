@@ -94,6 +94,37 @@
                             type="password"
                           ></v-text-field>
                         </v-col>
+                        <v-col
+                          cols="12"
+                          md="12"
+                        >
+                          <v-menu
+                            v-model="menu"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="date"
+                                label="Picker without buttons"
+                                prepend-icon="mdi-calendar"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              v-model="date"
+                              color="red lighten-1"
+                              :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                              min="1950-01-01"
+                              @input="menu = false"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -169,6 +200,9 @@ export default {
   middleware: ('auth', 'admin'),
   data() {
     return {
+      activePicker: null,
+      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      menu: false,
       dialog: false,
       dialogDelete: false,
       search: '',
@@ -264,9 +298,9 @@ export default {
 
         this.$axios
           .$post("/api/clients", this.editedItem)
-          .then(client => {
-            this.$toast.success('Client '+client.name+' created').goAway(3000)
-            this.clients.push(client)
+          .then(({data}) => {
+            this.$toast.success('Client '+data.name+' created').goAway(3000)
+            this.clients.push(data)
           })
           .catch(() => {
             this.$toast.error("Error creating client").goAway(3000)
@@ -278,8 +312,8 @@ export default {
     getClients() {
       this.$axios
         .$get("/api/clients")
-        .then( clients => {
-          this.clients = clients
+        .then( ({data}) => {
+          this.clients = data
         })
         .catch(() => {
           this.$toast.info("No clients found").goAway(3000)

@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\StatisticController;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\FrameController;
@@ -75,6 +76,9 @@ Route::group([
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user', [AuthController::class, 'userProfile']);
+    Route::put('/update', [AuthController::class, 'update']);
 });
+
+
 
 

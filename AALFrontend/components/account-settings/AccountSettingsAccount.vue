@@ -53,18 +53,6 @@
             cols="12"
           >
             <v-text-field
-              v-model="accountDataLocale.username"
-              label="Username"
-              dense
-              outlined
-            ></v-text-field>
-          </v-col>
-
-          <v-col
-            md="6"
-            cols="12"
-          >
-            <v-text-field
               v-model="accountDataLocale.name"
               label="Name"
               dense
@@ -93,31 +81,7 @@
               dense
               label="Role"
               outlined
-            ></v-text-field>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-select
-              v-model="accountDataLocale.status"
-              dense
-              outlined
-              label="Status"
-              :items="status"
-            ></v-select>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-text-field
-              v-model="accountDataLocale.company"
-              dense
-              outlined
-              label="Company"
+              disabled
             ></v-text-field>
           </v-col>
 
@@ -152,6 +116,7 @@
             <v-btn
               color="primary"
               class="me-3 mt-4"
+              @click.prevent="save"
             >
               Save changes
             </v-btn>
@@ -201,5 +166,46 @@ export default {
       },
     }
   },
+  computed: {
+    currentUser(){
+      return this.$auth.user
+    }
+  },
+  methods: {
+    save(){
+      let data = {}
+      let count = 0
+      if (this.accountDataLocale.name !== this.currentUser.name) {
+        data.name = this.accountDataLocale.name
+        count++
+      }
+      if (this.accountDataLocale.email !== this.currentUser.email) {
+        data.email = this.accountDataLocale.email
+        count++
+      }
+      if (this.currentUser.scope === 'Client') {
+        if (this.accountDataLocale.contact !== this.currentUser.contact) {
+          data.contact = this.accountDataLocale.contact
+          count++
+        }
+        if (this.accountDataLocale.birthday !== this.currentUser.birthday) {
+          count++
+          data.birthday = this.accountDataLocale.birthday
+        }
+      }
+      if (count === 0)
+        return
+      this.$axios
+        .$put("/api/auth/update", data)
+        .then(({data}) => {
+          this.$toast.success('Account updated').goAway(3000)
+          this.$auth.setUser(data)
+          console.log(this.$auth.user)
+        })
+        .catch(() => {
+          this.$toast.error("Error updating account").goAway(3000)
+        })
+    }
+  }
 }
 </script>

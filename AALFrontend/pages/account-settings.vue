@@ -65,12 +65,11 @@ export default {
     const accountSettingData = {
       account: {
         avatarImg: require('@/assets/images/avatars/1.png'),
-        username: 'johnDoe',
         name: 'john Doe',
         email: 'johnDoe@example.com',
         role: 'Admin',
-        status: 'Active',
-        company: 'Google.inc',
+        contact: '9XXXXXXXX',
+        birthday: Date.now(),
       },
       information: {
         bio: 'The name’s John Deo. I am a tireless seeker of knowledge, occasional purveyor of wisdom and also, coincidentally, a graphic designer. Algolia helps businesses across industries quickly create relevant 😎, scaLabel 😀, and lightning 😍 fast search and discovery experiences.',
@@ -92,6 +91,19 @@ export default {
         mdiLockOpenOutline,
         mdiInformationOutline,
       },
+    }
+  },
+  created() {
+    this.accountSettingData.account.role = this.currentUser.scope
+    this.accountSettingData.account.name = this.currentUser.name
+    this.accountSettingData.account.email = this.currentUser.email
+    if (this.currentUser.scope === 'Client'){
+
+    }
+  },
+  computed: {
+    currentUser(){
+      return this.$auth.user
     }
   },
 }

@@ -1,8 +1,12 @@
 <?php
 namespace App\Http\Controllers\api;
+use App\Http\Resources\Administrator\AdministratorResource;
 use App\Http\Resources\Auth\AuthResource;
+use App\Http\Resources\Client\ClientResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Validator;
 
 class AuthController extends Controller
@@ -60,6 +64,78 @@ class AuthController extends Controller
             return response()->json(['success' => 'Client activated!'], 200);
         }
         return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    /***
+     * Update current logged user
+     * @param Request $request
+     * @return AdministratorResource|ClientResource|\Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'email|unique:App\Models\User,email',
+            'name' => 'string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+        try {
+            DB::beginTransaction();
+
+            $user = Auth::user();
+            if ($request->has("name"))
+                $user->name = $request["name"];
+            if ($request->has("email"))
+                $user->email = $request["email"];
+            $user->save();
+
+            DB::commit();
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+
+        if (str_contains(Auth::user()->userable_type, 'Client')){
+            $validatorClient = Validator::make($request->all(), [
+                'contact' => [function ($attribute, $value, $fail) {
+                    if (!preg_match("/^([9][1236])[0-9]*?$/", $value)) {
+                        $fail('The phone number need to follow the portuguese number.');
+                    }
+                }],
+                'birthdate' => ['bail', 'date', 'before:today'],
+            ]);
+            if ($validatorClient->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            try {
+                DB::beginTransaction();
+
+                $client = Auth::user()->userable;
+                if ($request->has("contact"))
+                    $client->contact = $request["contact"];
+                if ($request->has("birthdate"))
+                    $client->birthdate = $request["birthdate"];
+
+                $client->save();
+
+                DB::commit();
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                return response()->json(array(
+                    'code'      =>  400,
+                    'message'   =>  $th->getMessage()
+                ), 400);
+            }
+
+            return new ClientResource($client);
+        }
+
+        return new AdministratorResource($user->userable);
     }
 
     /**

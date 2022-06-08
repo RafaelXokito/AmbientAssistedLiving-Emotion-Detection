@@ -236,12 +236,12 @@ export default {
         // TODO - Edit administrator request
         Object.assign(this.administrators[this.editedIndex], this.editedItem)
       } else {
-      this.$axios
+        this.$axios
         .$post("/api/administrators", this.editedItem)
-        .then(administrator => {
+        .then(({data}) => {
           this.$toast.success('Administrator '+this.editedItem.name+' created').goAway(3000)
 
-          this.administrators.push(administrator)
+          this.administrators.push(data)
 
           this.close()
         })
@@ -253,8 +253,8 @@ export default {
     getAdministrators() {
       this.$axios
         .$get("/api/administrators")
-        .then( administrators => {
-          this.administrators = administrators
+        .then( ({data}) => {
+          this.administrators = data
         })
         .catch(() => {
           this.$toast.info("No administrators found").goAway(3000)
