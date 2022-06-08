@@ -154,3 +154,4 @@ cython_debug/
 .DS_Store
 AALFrontend/.env.production
 AALHome/token.txt
+Websockets/node_modules/
