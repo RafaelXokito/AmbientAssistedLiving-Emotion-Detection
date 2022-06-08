@@ -155,3 +155,7 @@ cython_debug/
 AALFrontend/.env.production
 AALHome/token.txt
 Websockets/node_modules/
+
+AALHome/pre_dataset/
+Websockets/package-lock.json
+Websockets/package-lock.json
