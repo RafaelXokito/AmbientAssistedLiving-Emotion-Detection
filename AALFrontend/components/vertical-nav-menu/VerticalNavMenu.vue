@@ -45,6 +45,7 @@
       ></nav-menu-link>
       <nav-menu-link
         title="Account Settings"
+        to="/account-settings"
         :icon="icons.mdiAccountCogOutline"
       ></nav-menu-link>
       <nav-menu-link

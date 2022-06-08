@@ -60,7 +60,7 @@ export default {
     sockets: [{
       default: true,
       name: 'main',
-      url: 'http://localhost:8081' //process.env.WEBSOCKET_URL
+      url: process.env.WEBSOCKET_URL
     }]
   },
   auth: {
@@ -113,7 +113,7 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    proxy: true, //TODO se estiveres a dar deploy e der erro mete esta opção a false :)
+    proxy: false, //TODO se estiveres a dar deploy e der erro mete esta opção a false :)
     credentials: true,
   },
 

@@ -2,7 +2,7 @@ const httpServer = require('http').createServer()
 const io = require("socket.io")(httpServer, {
     allowEIO3: true,
     cors: {
-        origin: "http://localhost:3000",
+        origin: "*",
         methods: ["GET", "POST"],
         credentials: true
     }
