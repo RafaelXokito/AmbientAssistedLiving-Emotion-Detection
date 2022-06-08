@@ -110,30 +110,27 @@ export default {
     }
   },
   created(){
-    this.socket = new WebSocket(
-      process.env.NOTIFICATION_WEBSOCKET_URL + this.$auth.user.id
-    )
-    this.socket.addEventListener('message', event => {
-      if (event.data) {
-        const notification = JSON.parse(event.data)
-        const aux = notification.content.split(';')
-        this.notifications.unshift({
-          id: aux[aux.length-5],
-          title: aux[aux.length-4],
-          content: aux[aux.length-3],
-          notificationSeen: aux[aux.length-2] === 'true',
-          created_at: new Date(aux[aux.length-1])
-        })
-      }
-    })
     this.getNotifications()
+    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+    this.socket.on('newNotificationMessage', data=> {
+      console.log(data)
+      const aux = data.data.split(';')
+      this.notifications.unshift({
+        id: aux[aux.length-5],
+        title: aux[aux.length-4],
+        content: aux[aux.length-3],
+        notificationSeen: aux[aux.length-2] === 'true',
+        created_at: aux[aux.length-1]
+      })
+
+    })
   },
   methods: {
     getNotifications() {
       this.$axios
         .$get("/api/notifications?is-short=yes")
         .then( notifications => {
-          this.notifications = notifications
+          this.notifications = notifications.data
         })
         .catch(() => {
           this.$toast.info("No notifications found").goAway(3000)
@@ -156,8 +153,7 @@ export default {
       this.notification = this.deafultNotification
     },
     timeSince(date) {
-      const seconds = Math.floor((new Date() - date) / 1000)
-
+      const seconds = Math.floor((new Date().getTime() - new Date(date*1000).getTime()) / 1000)
       let interval = seconds / 31536000
 
       if (interval > 1) {

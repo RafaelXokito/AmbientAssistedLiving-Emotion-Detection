@@ -53,8 +53,16 @@ export default {
     "@nuxtjs/toast",
     "@nuxtjs/auth",
     'nuxt-highcharts',
+    'nuxt-socket-io',
   ],
-
+  io: {
+    // module options
+    sockets: [{
+      default: true,
+      name: 'main',
+      url: 'http://localhost:8081' //process.env.WEBSOCKET_URL
+    }]
+  },
   auth: {
     redirect: {
       login: "/login",

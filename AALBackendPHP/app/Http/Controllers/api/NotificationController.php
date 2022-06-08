@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Models\Emotion;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Resources\Notification\NotificationResource;
 use App\Http\Resources\Notification\NotificationCollection;
+use App\Http\Requests\Notification\CreateNotificationRequest;
+use App\Mail\NewNotification;
 
 class NotificationController extends Controller
 {
@@ -17,7 +22,7 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        return new NotificationCollection(Notification::all());
+        return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->get());
     }
 
     /**
@@ -36,9 +41,40 @@ class NotificationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateNotificationRequest $createNotificationRequest)
     {
-        abort(404);
+        $notification = new Notification();
+        $validated_data = $createNotificationRequest->validated();
+
+        try{
+            DB::beginTransaction();
+            $notification->emotion()->associate(Emotion::find($validated_data["emotion_name"]));
+            $notification->client()->associate(Auth::user()->userable);
+            $notification->title = "Emotion '".$validated_data["emotion_name"]."' was detected continuosly!";
+            $notification->content = "The elder in your care has been showing ".$validated_data["emotion_name"]." emotions continuously.\n\nThe '".$validated_data["emotion_name"]."' values were higher than the defined limit of '".$validated_data["accuracy"]."' and these feelings have lasted over the specified duration of ".$validated_data["duration"]." seconds.\n\nPlease make sure to contact your elder and check on his/her health!";
+            $notification->accuracy = $validated_data["accuracy"];
+            $notification->duration = $validated_data["duration"];
+            $notification->notificationseen = false;
+            $notification->save();
+
+            DB::commit();
+            $newNotification = new NotificationResource($notification);
+
+             Mail::raw($notification->content, function($message) use($notification)
+            {
+                    $message->from("hello@example.com",'Smart Emotion - AAL');
+                    $message->to(Auth::user()->email);
+                    $message->subject($notification->title);
+            });
+
+            return $newNotification;
+        }catch(\Throwable $th){
+            DB::rollback();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
     }
 
     /**

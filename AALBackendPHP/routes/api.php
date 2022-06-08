@@ -13,6 +13,7 @@ use App\Http\Controllers\api\IterationController;
 use App\Http\Controllers\api\NotificationController;
 use App\Http\Controllers\api\AdministratorController;
 use App\Http\Controllers\api\EmotionsNotificationController;
+use App\Http\Controllers\api\LogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,7 @@ Route::group(['middleware' =>  'auth:api', 'admin'], function() {
         'administrators' => AdministratorController::class,
         'clients' => ClientController::class,
         'emotions' => EmotionController::class,
+        'logs' => LogController::class
     ]);
 });
 

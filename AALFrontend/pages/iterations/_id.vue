@@ -125,9 +125,7 @@ export default {
       })
   },
   mounted() {
-    this.socket = new WebSocket(
-      process.env.FRAMES_WEBSOCKET_URL + this.$auth.user.id
-    )
+    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
   },
   methods: {
     firstCapitalLetter(str=""){
@@ -151,7 +149,8 @@ export default {
             '", "image": "' +
             base64 +
             '"}'
-          if (this.socket.readyState === 1) this.socket.send(jsonData)
+
+          this.socket.emit('newFrameMessage',jsonData)
         })
     },
   }

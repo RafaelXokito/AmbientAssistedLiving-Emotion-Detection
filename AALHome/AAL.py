@@ -226,7 +226,7 @@ def processTopFrames(predictionEmotion, arrayTopDominantAccuracies, arrayTopPred
                     os.remove(filenameFrameLowerValue)
 
                 # adds the new frame to the top 10 array and folder
-                arrayTopDominantAccuracies.append(predictionEmotion)
+                arrayTopDominantAccuracies.append(round(predictionEmotion,2))
 
                 aux = ""
                 keys = list(emotionPredictions.keys())
@@ -263,7 +263,7 @@ def processTopFrames(predictionEmotion, arrayTopDominantAccuracies, arrayTopPred
                 count = count - 1
 
             if now != previous or now == previous and previousPrediction < predictionEmotion:
-                arrayTopDominantAccuracies.append(predictionEmotion)
+                arrayTopDominantAccuracies.append(round(predictionEmotion,2))
                 arrayTopPredictions.append(aux)
 
                 filePath = 'top10Frames/' + emotion + '/frame_' + str(count) + '.jpg'
@@ -309,7 +309,8 @@ import cv2
 from EmotionDetection import analyze
 import numpy as np
 
-import websocket
+#import websocket
+import socketio
 
 TOP_FRAMES_PATH = os.getenv('TOP_FRAMES_PATH')
 
@@ -326,12 +327,15 @@ json = {
     "password": CLIENT_PASSWORD
 }
 
+# standard Python
+sio = socketio.Client()
+
 # sending post request and saving response as response object
 r = requests.post(url=API_ENDPOINT, json=json)
 
 if r.status_code == 200:
     # extracting response text
-    token = r.json()["token"]
+    token = r.json()["access_token"]
 
     with open('token.txt', 'w') as f:
         f.write(token)
@@ -339,20 +343,15 @@ if r.status_code == 200:
     API_URL = os.getenv('API_URL')
 
     r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
-    userId = r.json()["id"]
-
+    userId = r.json()["data"]["id"]
     r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
-    emotionsNotification = r.json()
-    websocket.enableTrace(True)
-    ws = websocket.WebSocket()
-    ws.connect(os.getenv('LOG_WEBSOCKET_URL') + str(userId))
-
-    ws.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL)
+    emotionsNotification = r.json()["data"]
     
-    wsNotification = websocket.WebSocket()
-    wsNotification.connect(os.getenv('NOTIFICATION_WEBSOCKET_URL') + str(userId))
-
-    wsNotification.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL)
+    sio.connect(os.getenv('WEBSOCKET_URL'))
+    sio.emit('logged_in', {"username":str(userId), "userType":"C"})
+    r = requests.request("POST", API_URL+"/logs", headers={"Authorization": "Bearer " + token}, data={"macAddress":MAC_ADDRESS, "content": "Cliente Ligado", "process": sys.argv[0]})
+    sio.emit('newLogMessage',{"userId":str(userId), "data": MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
+    sio.emit('newNotificationMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
 
     # Run websocket client
     # p = subprocess.Popen([sys.executable, 'Websocket.py'],
@@ -406,7 +405,7 @@ if r.status_code == 200:
         for emotion in emotionsNotification:
             predictionWhereAboveAccuracyLimit.append(False)
             emotionNames.append(emotion['emotion_name'])
-            predictionAboveAccuracyLimitTimers.append(emotion['durationSeconds'])
+            predictionAboveAccuracyLimitTimers.append(emotion['duration'])
             start_durationsEmotions.append(int(time.time()))
     emotions = []
     while True:
@@ -465,16 +464,25 @@ if r.status_code == 200:
                                                                      previous[i], previousPrediction[i],
                                                                      result["emotion"], times[i], arrayTopFramePaths[i])
 
-                        try:                         
+                        try:    
                             index = emotionNames.index(emotion)
-                            limitEmotion = emotionsNotification[index]['accuracyLimit']      
+                            limitEmotion = emotionsNotification[index]['accuracylimit']  
                             # if the emotion has high values - bigger than the limit
                             if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
                                 predictionWhereAboveAccuracyLimit[index] = True
                             
                             if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
                                 #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
-                                wsNotification.send(MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL)
+                                data = {
+                                    "duration": predictionAboveAccuracyLimitTimers[index],
+                                    "emotion_name": emotion,
+                                    "accuracy": limitEmotion
+                                }
+                                #POST API
+                                r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data)
+                                newNotification = r.json()["data"]
+                                #SOCKET                        
+                                sio.emit('newNotificationMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
                                 print("Notification was sent")
                                 #Resets counters
                                 predictionWhereAboveAccuracyLimit[index] = False
@@ -484,8 +492,8 @@ if r.status_code == 200:
                             continue                       
                         i = i + 1
             except Exception as e:
-                ws.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL)
-
+                r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
+                sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL})
             # this is the part where we display the output to the user
             # cv2.imshow('video', frame)
             # cv2.imshow('board', board)
@@ -505,7 +513,7 @@ if r.status_code == 200:
             emotionsPath.append(TOP_FRAMES_PATH + "/" + emotion)
 
         # defining the api-endpoint
-        API_ENDPOINT = API_URL + "/frames/upload"
+        API_ENDPOINT = API_URL + "/frames"
 
         requestOk = 0
         requestTotal = 0
@@ -523,11 +531,11 @@ if r.status_code == 200:
             data = {
                 "macAddress": MAC_ADDRESS,
                 "emotion": emotion,
-                "datesFrames": [],
-                "accuraciesFrames": framesDominantAccuraciesTop10Emotions[i],
-                "preditionsFrames": framesPredictionsTop10Emotions[i]
+                "datesFrames[]": [],
+                "accuraciesFrames[]": framesDominantAccuraciesTop10Emotions[i],
+                "preditionsFrames[]":framesPredictionsTop10Emotions[i],
+                #"file[]":[]
             }
-
             files = []
 
             # All the images/frames paths are mapped in arrayTopFramePaths. Where each index is an emotion and each
@@ -538,22 +546,22 @@ if r.status_code == 200:
             # This for ... in aims to add the date in correct format and files in the request body
             for imagePath in imagesPath:
                 date = datetime.fromtimestamp(times[i][k]).strftime("%Y-%m-%d %H:%M:%S")
-                data["datesFrames"].append(date)
+                data["datesFrames[]"].append(date)
 
                 fileFrame = open(imagePath, 'rb')
 
-                files.append(('file', (imagePath.split('/')[-1], fileFrame, 'application/octet-stream')))
-
+                files.append(('file[]', (imagePath.split('/')[-1], fileFrame, 'application/octet-stream')))
+                #data["file[]"].append(fileFrame)
                 k = k + 1
 
             i = i + 1
 
-            headers = {"Authorization": "Bearer " + token}
+            headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
 
             # sending post request and saving response as response object
-            r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
 
-            if r.status_code == 200:
+            r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
+            if r.status_code == 201: # previous 200
                 requestOk = requestOk + 1
             # extracting response text
             # responseIteration = r.json()
@@ -565,8 +573,9 @@ if r.status_code == 200:
         if requestOk == requestTotal:
             print(str(requestOk) + " iterations were performed successfully")
         else:
-            ws.send(MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " +
-                    str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL)
+            r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
+            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
+            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})        
         time.sleep(1)
 
         # POPable Variables
@@ -579,12 +588,11 @@ if r.status_code == 200:
         resetFolderFrames()
         # Checks for new emotions notifications
         r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
-        emotionsNotification = r.json()
+        emotionsNotification = r.json()["data"]
         # updates the variables
         predictionWhereAboveAccuracyLimit = []
         emotionNames = []
         predictionAboveAccuracyLimitTimers = []
-      
         if len(emotionsNotification) != 0:
             for emotion in emotionsNotification:
                 try:
@@ -592,7 +600,7 @@ if r.status_code == 200:
                 except Exception as e:
                     predictionWhereAboveAccuracyLimit.append(False)
                     emotionNames.append(emotion['emotion_name'])
-                    predictionAboveAccuracyLimitTimers.append(emotion['durationSeconds'])
+                    predictionAboveAccuracyLimitTimers.append(emotion['duration'])
                     start_durationsEmotions.append(int(time.time()))
 # video.release()
 else:
