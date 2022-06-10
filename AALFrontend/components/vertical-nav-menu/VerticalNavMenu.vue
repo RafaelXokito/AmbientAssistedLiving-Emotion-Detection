@@ -63,6 +63,12 @@
       ></nav-menu-link>
       <nav-menu-link
         v-if="currentUser.scope === 'Administrator'"
+        title="Logs"
+        to="/logs"
+        :icon="icons.mdiFileOutline"
+      ></nav-menu-link>
+      <nav-menu-link
+        v-if="currentUser.scope === 'Administrator'"
         title="Administrators"
         to="/administrators"
         :icon="icons.mdiAccountTieOutline"
