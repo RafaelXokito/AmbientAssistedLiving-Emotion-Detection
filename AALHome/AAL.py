@@ -560,7 +560,6 @@ if r.status_code == 200:
             if r.status_code == 201: # previous 200
                 requestOk = requestOk + 1
             # extracting response text
-            responseIteration = r.json()
             # The frame files need to be closed
             for file in files:
                 file[1][1].close()
