@@ -32,7 +32,7 @@ services:
         restart:
             always
         ports:
-            - '${DB_PORT}:3306'
+            - '${DB_PORT}:${DB_PORT}'
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ROOT_HOST: "%"

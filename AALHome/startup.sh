@@ -61,5 +61,6 @@ pip install deepface
 pip install matplotlib
 pip install getmac
 pip install SciPy
+pip install "python-socketio[client]"
 
 done

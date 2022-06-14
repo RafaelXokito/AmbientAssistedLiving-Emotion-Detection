@@ -113,7 +113,7 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    proxy: false, //TODO se estiveres a dar deploy e der erro mete esta opção a false :)
+    proxy: true, //TODO se estiveres a dar deploy e der erro mete esta opção a false :)
     credentials: true,
   },
 
