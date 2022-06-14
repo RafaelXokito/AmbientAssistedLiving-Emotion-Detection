@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 from getmac import get_mac_address as gma
-
 import platform
 
 default_model = {
@@ -528,16 +527,16 @@ if r.status_code == 200:
             requestTotal = requestTotal + 1
 
             # Json body for request
-            data = {
-                "macAddress": MAC_ADDRESS,
-                "emotion": emotion,
-                "datesFrames[]": [],
-                "accuraciesFrames[]": framesDominantAccuraciesTop10Emotions[i],
-                "preditionsFrames[]":framesPredictionsTop10Emotions[i],
-                #"file[]":[]
-            }
-            files = []
+            data = {}
 
+            data["macAddress"] = MAC_ADDRESS
+            data["emotion"] = emotion
+            for x, value in enumerate(framesDominantAccuraciesTop10Emotions[i]):
+                data["accuraciesFrames["+str(x)+"]"] = value
+            for x, value in enumerate(framesPredictionsTop10Emotions[i]):
+                data["preditionsFrames["+str(x)+"]"] = value   
+
+            files = []
             # All the images/frames paths are mapped in arrayTopFramePaths. Where each index is an emotion and each
             # sub-index is an image/frame path of that emotion
             imagesPath = arrayTopFramePaths[i]
@@ -546,12 +545,9 @@ if r.status_code == 200:
             # This for ... in aims to add the date in correct format and files in the request body
             for imagePath in imagesPath:
                 date = datetime.fromtimestamp(times[i][k]).strftime("%Y-%m-%d %H:%M:%S")
-                data["datesFrames[]"].append(date)
-
+                data["datesFrames["+str(k)+"]"] = date 
                 fileFrame = open(imagePath, 'rb')
-
-                files.append(('file[]', (imagePath.split('/')[-1], fileFrame, 'application/octet-stream')))
-                #data["file[]"].append(fileFrame)
+                files.append(('file['+str(k)+']', (imagePath.split('/')[-1], fileFrame,'image/jpeg')))
                 k = k + 1
 
             i = i + 1
@@ -564,15 +560,13 @@ if r.status_code == 200:
             if r.status_code == 201: # previous 200
                 requestOk = requestOk + 1
             # extracting response text
-            # responseIteration = r.json()
-
             # The frame files need to be closed
             for file in files:
                 file[1][1].close()
-
         if requestOk == requestTotal:
             print(str(requestOk) + " iterations were performed successfully")
         else:
+            print(str(requestTotal-requestOk) + " iterations were unsucessfull")
             r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
             sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
             sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})        
