@@ -509,10 +509,10 @@ if r.status_code == 200:
             # cv2.imshow('video', frame)
             # cv2.imshow('board', board)
 
-            key = cv2.waitKey(1)
+            #key = cv2.waitKey(1)
             # here we are specifying the key which will stop the loop and stop all the processes going
-            if key == ord('q'):
-                break
+            #if key == ord('q'):
+            #    break
 
         """Start logging iterations for the API"""
 
