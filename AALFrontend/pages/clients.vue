@@ -3,7 +3,7 @@
     <v-container>
       <v-card>
         <v-data-table
-          :loading="tableLength !== 0"
+          :loading="finishedRequest == false"
           :headers="fields"
           :items="clients"
           :search="search"
@@ -12,15 +12,9 @@
           :items-per-page="perPage"
         >
           <template v-slot:top>
-            <v-toolbar
-              flat
-            >
-                <v-toolbar-title>Clients</v-toolbar-title>
-              <v-divider
-                class="mx-4"
-                inset
-                vertical
-              ></v-divider>
+            <v-toolbar flat>
+              <v-toolbar-title>Clients</v-toolbar-title>
+              <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-text-field
                 v-model="search"
@@ -30,10 +24,7 @@
                 hide-details
               ></v-text-field>
               <v-spacer></v-spacer>
-              <v-dialog
-                v-model="dialog"
-                max-width="500px"
-              >
+              <v-dialog v-model="dialog" max-width="500px">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     color="primary"
@@ -53,51 +44,41 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col
-                          cols="12"
-                          md="12"
-                        >
+                        <v-col cols="12" md="12">
                           <v-text-field
                             v-model="editedItem.name"
                             label="Name"
                           ></v-text-field>
                         </v-col>
-                        <v-col
-                          cols="12"
-                          md="12"
-                        >
+                        <v-col cols="12" md="12">
                           <v-text-field
                             v-model="editedItem.email"
                             label="Email"
                             type="email"
                           ></v-text-field>
                         </v-col>
-                        <v-col
-                          cols="12"
-                          md="12"
-                        >
+                        <v-col cols="12" md="12">
                           <vue-tel-input-vuetify
                             defaultCountry="PT"
                             v-model="editedItem.contact"
                             :validate-on-blur="true"
                             @validate="validatePhoneNumber"
-                            :error-messages="editedItem.contact.length > 0 && !editedItem.contactValid ? 'Enter a valid phone number' : ''"
+                            :error-messages="
+                              editedItem.contact.length > 0 &&
+                              !editedItem.contactValid
+                                ? 'Enter a valid phone number'
+                                : ''
+                            "
                           ></vue-tel-input-vuetify>
                         </v-col>
-                        <v-col
-                          cols="12"
-                          md="12"
-                        >
+                        <v-col cols="12" md="12">
                           <v-text-field
                             v-model="editedItem.password"
                             label="Password"
                             type="password"
                           ></v-text-field>
                         </v-col>
-                        <v-col
-                          cols="12"
-                          md="12"
-                        >
+                        <v-col cols="12" md="12">
                           <v-menu
                             v-model="menu"
                             :close-on-content-click="false"
@@ -119,7 +100,14 @@
                             <v-date-picker
                               v-model="editedItem.birthdate"
                               color="red lighten-1"
-                              :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                              :max="
+                                new Date(
+                                  Date.now() -
+                                    new Date().getTimezoneOffset() * 60000
+                                )
+                                  .toISOString()
+                                  .substr(0, 10)
+                              "
                               min="1950-01-01"
                               @input="menu = false"
                               required
@@ -132,18 +120,10 @@
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="close"
-                    >
+                    <v-btn color="blue darken-1" text @click="close">
                       Cancel
                     </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="save"
-                    >
+                    <v-btn color="blue darken-1" text @click="save">
                       Save
                     </v-btn>
                   </v-card-actions>
@@ -151,11 +131,17 @@
               </v-dialog>
               <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
-                  <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+                  <v-card-title class="text-h5"
+                    >Are you sure you want to delete this item?</v-card-title
+                  >
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                    <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                    <v-btn color="blue darken-1" text @click="closeDelete"
+                      >Cancel</v-btn
+                    >
+                    <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                      >OK</v-btn
+                    >
                     <v-spacer></v-spacer>
                   </v-card-actions>
                 </v-card>
@@ -163,28 +149,12 @@
             </v-toolbar>
           </template>
           <template v-slot:item.actions="{ item }">
-            <v-icon
-              small
-              class="mr-2"
-              @click="editItem(item)"
-            >
+            <v-icon small class="mr-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
-            <v-icon
-              small
-              @click="deleteItem(item)"
-            >
-              mdi-delete
-            </v-icon>
+            <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
           </template>
-          <template v-slot:no-data>
-            <v-btn
-              color="primary"
-              @click="getClients"
-            >
-              Reset
-            </v-btn>
-          </template>
+          <template v-slot:no-data> No clients created yet </template>
         </v-data-table>
       </v-card>
     </v-container>
@@ -192,17 +162,20 @@
 </template>
 
 <script>
-import VueTelInputVuetify from "vue-tel-input-vuetify/lib/vue-tel-input-vuetify.vue"
+import VueTelInputVuetify from 'vue-tel-input-vuetify/lib/vue-tel-input-vuetify.vue'
 
 export default {
   components: {
-    VueTelInputVuetify
+    VueTelInputVuetify,
   },
   middleware: ('auth', 'admin'),
   data() {
     return {
       activePicker: null,
-      date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      finishedRequest: false,
+      date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+        .toISOString()
+        .substr(0, 10),
       menu: false,
       dialog: false,
       dialogDelete: false,
@@ -226,104 +199,98 @@ export default {
       },
       fields: [
         {
-          value: "name",
-          text: "Name",
-          sortDirection: "desc",
+          value: 'name',
+          text: 'Name',
+          sortDirection: 'desc',
         },
         {
-          value: "email",
-          text: "Email",
-          sortDirection: "desc",
+          value: 'email',
+          text: 'Email',
+          sortDirection: 'desc',
         },
         {
-          value: "actions",
-          text: "Actions",
+          value: 'actions',
+          text: 'Actions',
           sortable: false,
         },
       ],
       clients: [],
       perPage: 10,
-      currentPage: 1
+      currentPage: 1,
     }
   },
   computed: {
-    currentUser(){
+    currentUser() {
       return this.$auth.user
     },
     tableLength() {
       return this.clients.length
     },
-    formTitle () {
-      return this.editedIndex === -1  ? 'New Client' : 'Edit Client'
+    formTitle() {
+      return this.editedIndex === -1 ? 'New Client' : 'Edit Client'
     },
   },
   created() {
     this.getClients()
   },
   methods: {
-    validatePhoneNumber({ number, isValid, country }){
+    validatePhoneNumber({ number, isValid, country }) {
       this.editedItem.contactValid = isValid
     },
-    editItem(item){
-
-    },
-    deleteItem(item){
-
-    },
-    deleteItemConfirm () {
+    editItem(item) {},
+    deleteItem(item) {},
+    deleteItemConfirm() {
       this.clients.splice(this.editedIndex, 1)
       this.closeDelete()
     },
-    close () {
+    close() {
       this.dialog = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
-    closeDelete () {
+    closeDelete() {
       this.dialogDelete = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
-    save () {
+    save() {
       if (this.editedIndex > -1) {
         // TODO - Update Client request
 
         Object.assign(this.clients[this.editedIndex], this.editedItem)
-
       } else {
         this.editedItem.contact = this.editedItem.contact.replace(/\s/g, '')
 
         this.$axios
-          .$post("/api/clients", this.editedItem)
-          .then(({data}) => {
-            this.$toast.success('Client '+data.name+' created').goAway(3000)
+          .$post('/api/clients', this.editedItem)
+          .then(({ data }) => {
+            this.$toast.success('Client ' + data.name + ' created').goAway(3000)
             this.clients.push(data)
             this.close()
           })
           .catch(() => {
-            this.$toast.error("Error creating client").goAway(3000)
+            this.$toast.error('Error creating client').goAway(3000)
           })
       }
-
     },
     getClients() {
       this.$axios
-        .$get("/api/clients")
-        .then( ({data}) => {
+        .$get('/api/clients')
+        .then(({ data }) => {
           this.clients = data
+          this.finishedRequest = true
         })
         .catch(() => {
-          this.$toast.info("No clients found").goAway(3000)
+          this.$toast.info('No clients found').goAway(3000)
         })
-    }
+    },
   },
 }
 </script>
 
 <style>
-
 </style>
