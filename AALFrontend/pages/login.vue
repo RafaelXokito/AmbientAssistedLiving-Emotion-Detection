@@ -216,16 +216,18 @@ export default {
           password: this.form.password
         }
       }).then(e => {
-        this.$router.push({name: 'index'})
         this.$axios.defaults.headers.common = {Authorization: `${e.data.token_type} ${e.data.access_token}`}
         this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-        if(this.$auth.user.scope == "Client"){
-          this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "C"});
+        if(this.$auth.user.scope === "Client"){
+          this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "C"})
         }else{
-          this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "A"});
+          this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "A"})
         }
+        this.$router.go(-1)
       }).catch(e => {
-        if (e.response && e.response.data && e.response.data.error.includes("not activated")) {
+        if (e.response && e.response.data)
+          this.$toast.error('Sorry, you cant login. '+e.response.data[Object.keys(e.response.data)[0]][0]).goAway(3000)
+        else if (e.response && e.response.data && e.response.data.error.includes("not activated")) {
           this.$toast.error('Sorry, you cant login. You should activate your account first').goAway(3000)
           this.dialog = true
         } else {
@@ -253,14 +255,14 @@ export default {
               password: this.form.password
             }
           }).then(e => {
-            this.$router.push({name: 'index'})
             this.$axios.defaults.headers.common = {Authorization: `${e.data.type} ${e.data.token}`}
             this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-            if(this.$auth.user.scope == "Client"){
-              this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "C"});
+            if(this.$auth.user.scope === "Client"){
+              this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "C"})
             }else{
-              this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "A"});
+              this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "A"})
             }
+            this.$router.go(-1)
           })
         })
       }

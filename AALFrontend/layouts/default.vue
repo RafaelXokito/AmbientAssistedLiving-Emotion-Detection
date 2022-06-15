@@ -39,15 +39,28 @@
             </v-icon>
           </a>
           <theme-switcher></theme-switcher>
-          <v-btn
-            icon
-            small
-            class="ms-3"
-          >
-            <v-icon>
-              {{ icons.mdiBellOutline }}
-            </v-icon>
-          </v-btn>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                class="ms-3"
+                v-bind="attrs"
+                v-on="on"
+                @click="notifiable"
+              >
+                <v-icon v-if="!currentUser.notifiable">
+                  {{ icons.mdiBellOutline }}
+                </v-icon>
+                <v-icon v-else>
+                  {{ icons.mdiBellRingOutline }}
+                </v-icon>
+              </v-btn>
+            </template>
+            <span v-if="!currentUser.notifiable">Activate notifications</span>
+            <span v-else>Deactivate notifications</span>
+          </v-tooltip>
+
           <app-bar-user-menu></app-bar-user-menu>
         </div>
       </div>
@@ -100,7 +113,7 @@
 
 <script>
 import { ref } from '@vue/composition-api'
-import { mdiMagnify, mdiBellOutline, mdiGithub } from '@mdi/js'
+import { mdiMagnify, mdiBellOutline, mdiBellRingOutline, mdiGithub } from '@mdi/js'
 import VerticalNavMenu from '@/components/vertical-nav-menu/VerticalNavMenu.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import AppBarUserMenu from '@/components/AppBarUserMenu.vue'
@@ -127,9 +140,17 @@ export default {
         mdiMagnify,
         mdiBellOutline,
         mdiGithub,
+        mdiBellRingOutline
       },
     }
   },
+  methods: {
+    notifiable(){
+      this.$axios.$patch("/api/auth/notifiable").then(({data}) => {
+        this.$auth.setUser(data)
+      })
+    }
+  }
 }
 </script>
 

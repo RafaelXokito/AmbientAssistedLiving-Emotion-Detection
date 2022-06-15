@@ -35,7 +35,7 @@ class Notification extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'content', 'created_at', 'duration', 'emotion_name', 'notificationseen', 'client_id', 'accuracy'
+        'title', 'content', 'created_at', 'duration', 'emotion_name', 'notificationseen', 'client_id', 'accuracy', 'path'
     ];
 
     /**
@@ -53,7 +53,7 @@ class Notification extends Model
      * @var array
      */
     protected $casts = [
-        'title' => 'string', 'content' => 'string', 'created_at' => 'timestamp', 'duration' => 'float', 'emotion_name' => 'string', 'notificationseen' => 'boolean', 'accuracy' => 'float'
+        'title' => 'string', 'content' => 'string', 'created_at' => 'timestamp', 'duration' => 'float', 'emotion_name' => 'string', 'notificationseen' => 'boolean', 'accuracy' => 'float', 'path' => 'string'
     ];
 
     /**

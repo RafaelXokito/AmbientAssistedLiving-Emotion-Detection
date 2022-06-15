@@ -108,7 +108,7 @@
                           >
                             <template v-slot:activator="{ on, attrs }">
                               <v-text-field
-                                v-model="date"
+                                v-model="editedItem.birthdate"
                                 label="Picker without buttons"
                                 prepend-icon="mdi-calendar"
                                 readonly
@@ -117,11 +117,12 @@
                               ></v-text-field>
                             </template>
                             <v-date-picker
-                              v-model="date"
+                              v-model="editedItem.birthdate"
                               color="red lighten-1"
                               :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
                               min="1950-01-01"
                               @input="menu = false"
+                              required
                             ></v-date-picker>
                           </v-menu>
                         </v-col>
@@ -206,11 +207,12 @@ export default {
       dialog: false,
       dialogDelete: false,
       search: '',
+      editedIndex: -1,
       editedItem: {
         email: null,
         password: null,
         name: null,
-        birthDate: null,
+        birthdate: null,
         contact: '',
         contactValid: null,
       },
@@ -218,7 +220,7 @@ export default {
         email: null,
         password: null,
         name: null,
-        birthDate: null,
+        birthdate: null,
         contact: '',
         contactValid: null,
       },
@@ -252,7 +254,7 @@ export default {
       return this.clients.length
     },
     formTitle () {
-      return this.editedIndex === -1 ? 'New Client' : 'Edit Client'
+      return this.editedIndex === -1  ? 'New Client' : 'Edit Client'
     },
   },
   created() {
@@ -294,19 +296,18 @@ export default {
 
       } else {
         this.editedItem.contact = this.editedItem.contact.replace(/\s/g, '')
-        this.editedItem.birthDate = new Date(this.editedItem.birthDate)
 
         this.$axios
           .$post("/api/clients", this.editedItem)
           .then(({data}) => {
             this.$toast.success('Client '+data.name+' created').goAway(3000)
             this.clients.push(data)
+            this.close()
           })
           .catch(() => {
             this.$toast.error("Error creating client").goAway(3000)
           })
       }
-      this.close()
 
     },
     getClients() {

@@ -22,7 +22,7 @@ class IterationController extends Controller
      */
     public function index()
     {
-        return new IterationCollection(Auth::user()->userable->iterations);
+        return new IterationCollection(Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get());
     }
 
     /**

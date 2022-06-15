@@ -9,7 +9,7 @@ export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     titleTemplate: '%s - Politécnico de Leiria',
-    title: 'AALFrontend',
+    title: 'SmartEmotion',
     htmlAttrs: {
       lang: 'en',
     },

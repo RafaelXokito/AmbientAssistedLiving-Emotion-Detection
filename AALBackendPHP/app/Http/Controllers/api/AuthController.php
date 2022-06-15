@@ -41,6 +41,12 @@ class AuthController extends Controller
         return $this->createNewToken($token);
     }
 
+    public function toggleNotifiable(){
+        Auth::user()->notifiable = !Auth::user()->notifiable;
+        Auth::user()->save();
+        return new AuthResource(Auth::user());
+    }
+
     /***
      * Activate the client
      * @param Request $request

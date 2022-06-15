@@ -45,7 +45,7 @@
           <template v-slot:item.created_at="{item}">
             {{
               item.created_at != null
-                ? new Date(item.created_at).toLocaleString("pt-PT")
+                ? new Date(item.created_at * 1000).toLocaleString("pt-PT")
                 : "Not Shown"
             }}
           </template>
@@ -422,6 +422,7 @@ export default {
       // console.log(point.x, point.y, point.id, point)
 
       await this.$axios.$get("/api/frames/" + point.id).then(async ({data}) => {
+        data.createDate = data.createDate  * 1000
         this.frameOpened.createDate = data.createDate
         this.frameOpened.emotion = data.emotion
         this.frameOpened.emotionIteration = data.emotionIteration
@@ -499,7 +500,8 @@ export default {
                 text: this.firstCapitalLetter(e.name),
               })
             })
-            this.frameOpened.humanLabelEmotions.push(this.invalidEmotion)
+            if (this.invalidEmotion.name !== undefined)
+              this.frameOpened.humanLabelEmotions.push(this.invalidEmotion)
           })
       })
       this.showFrameModal = true
@@ -538,6 +540,7 @@ export default {
         .$get("/api/frames/clients/" + this.currentUser.id + "/graphData")
         .then(({data}) => {
           data.forEach(r => {
+            r.createDate = r.createDate  * 1000
             pointGraph.push(r.createDate)
             pointGraph.push(r.accuracy)
             pointGraph.push(r.id)

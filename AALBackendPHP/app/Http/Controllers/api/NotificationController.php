@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Models\Emotion;
 use App\Models\Notification;
+use http\Exception\InvalidArgumentException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -12,16 +13,19 @@ use App\Http\Resources\Notification\NotificationResource;
 use App\Http\Resources\Notification\NotificationCollection;
 use App\Http\Requests\Notification\CreateNotificationRequest;
 use App\Mail\NewNotification;
+use Illuminate\Support\Facades\Storage;
 
 class NotificationController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return NotificationCollection|\Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->has("is-short") && $request["is-short"] == "yes")
+            return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->take(5)->get());
         return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->get());
     }
 
@@ -51,21 +55,43 @@ class NotificationController extends Controller
             $notification->emotion()->associate(Emotion::find($validated_data["emotion_name"]));
             $notification->client()->associate(Auth::user()->userable);
             $notification->title = "Emotion '".$validated_data["emotion_name"]."' was detected continuosly!";
-            $notification->content = "The elder in your care has been showing ".$validated_data["emotion_name"]." emotions continuously.\n\nThe '".$validated_data["emotion_name"]."' values were higher than the defined limit of '".$validated_data["accuracy"]."' and these feelings have lasted over the specified duration of ".$validated_data["duration"]." seconds.\n\nPlease make sure to contact your elder and check on his/her health!";
+            $notification->content = "The elder in your care has been showing ".$validated_data["emotion_name"]." emotions continuously.\n\nThe '".$validated_data["emotion_name"]."' values were higher than the defined limit of '".$validated_data["accuracy"]."' and these feelings have lasted over the specified duration of ".$validated_data["duration"]." seconds.\n\nPlease make sure to contact your elder and check on his/her health!\n\nYou can access more details in http://aalemotion.dei.estg.ipleiria.pt/inbox";
             $notification->accuracy = $validated_data["accuracy"];
             $notification->duration = $validated_data["duration"];
             $notification->notificationseen = false;
+
+            $notification->save();
+
+            $file = $createNotificationRequest->file('file');
+            $notification->path = basename(Storage::disk('local')->putFileAs('\\notifications\\'.Auth::user()->userable_id, $file, $notification->id . '.jpg'));
+
             $notification->save();
 
             DB::commit();
+
             $newNotification = new NotificationResource($notification);
 
-             Mail::raw($notification->content, function($message) use($notification)
-            {
-                    $message->from("hello@example.com",'Smart Emotion - AAL');
-                    $message->to(Auth::user()->email);
-                    $message->subject($notification->title);
-            });
+            if (Auth::user()->notifiable) {
+                 Mail::raw($notification->content, function($message) use($notification)
+                {
+                        $message->from("hello@example.com",'Smart Emotion - AAL');
+                        $message->to(Auth::user()->email);
+                        $message->subject($notification->title);
+                });
+
+                $basic  = new \Vonage\Client\Credentials\Basic(getenv("VONAGE_KEY"), getenv("VONAGE_SECRET"));
+                $client = new \Vonage\Client($basic);
+
+                $response = $client->sms()->send(
+                    new \Vonage\SMS\Message\SMS("+351".Auth::user()->userable->contact, "AALEmotion", $notification->content)
+                );
+
+                $message = $response->current();
+
+                if ($message->getStatus() != 0) {
+                    throw new InvalidArgumentException(getenv("VONAGE_KEY"));
+                }
+            }
 
             return $newNotification;
         }catch(\Throwable $th){
@@ -77,6 +103,16 @@ class NotificationController extends Controller
         }
     }
 
+    public function showFoto(Notification $notification)
+    {
+        $path = storage_path('app/notifications/'.Auth::user()->userable_id.'/'.$notification->path);
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+
+        return $base64;
+    }
+
     /**
      * Display the specified resource.
      *
@@ -86,6 +122,10 @@ class NotificationController extends Controller
     public function show($notification)
     {
         $notification = Notification::findOrFail($notification);
+
+        $notification->notificationseen = true;
+        $notification->save();
+
         return new NotificationResource($notification);
     }
 

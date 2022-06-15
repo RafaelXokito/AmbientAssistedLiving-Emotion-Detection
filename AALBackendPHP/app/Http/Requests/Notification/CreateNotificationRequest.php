@@ -26,7 +26,8 @@ class CreateNotificationRequest extends FormRequest
         return [
             "duration" => ['required','integer','min:1'],
             "accuracy" => ['required','numeric','between:0.00,100.00'],
-            "emotion_name" => ['required','string','exists:emotions,name']
+            "emotion_name" => ['required','string','exists:emotions,name'],
+            'file' => ['required', 'image', 'mimes:jpg,bmp,png', 'max:512'],
         ];
     }
 

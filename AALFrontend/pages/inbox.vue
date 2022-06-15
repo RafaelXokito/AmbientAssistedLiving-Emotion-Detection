@@ -20,9 +20,9 @@
       <v-container>
         <v-row>
           <v-col
-            cols="12"
             v-for="notification in notifications"
             :key="notification.id"
+            cols="12"
             style="cursor: pointer">
             <v-hover
               v-slot="{ hover }"
@@ -32,6 +32,7 @@
                       :elevation="hover ? 16 : 2"
                       :class="{ 'on-hover': hover }"
                       @click="openNotification(notification)">
+
                 <v-card-title class="text-h5">
                   <v-row>
                     <v-col cols="9" class="text-h5">
@@ -49,7 +50,7 @@
                     </v-col>
                     <v-col cols="1" class="text-right">
                       <v-icon
-                        v-if="notification.notificationSeen"
+                        v-if="notification.notificationseen"
                         color="blue lighten-1">
                         mdi-check-all
                       </v-icon>
@@ -74,9 +75,9 @@
     >
       <v-card>
         <v-card-title class="text-h5">
-          {{ this.notification.title }}
+          {{ notification.title }}
         </v-card-title>
-        <v-card-text>{{ this.notification.content }}</v-card-text>
+        <v-card-text>{{ notification.content }}</v-card-text>
         <v-card-actions>
           <v-btn
             color="primary"
@@ -92,8 +93,10 @@
 </template>
 
 <script>
+import VueAuthImage from 'vue-auth-image'
+
 export default {
-  components: {},
+  components: {VueAuthImage},
   middleware: ('auth'),
   data(){
     return {
@@ -113,35 +116,45 @@ export default {
     this.getNotifications()
     this.socket = this.$nuxtSocket({ persist: 'mySocket'})
     this.socket.on('newNotificationMessage', data=> {
-      console.log(data)
       const aux = data.data.split(';')
       this.notifications.unshift({
         id: aux[aux.length-5],
         title: aux[aux.length-4],
         content: aux[aux.length-3],
-        notificationSeen: aux[aux.length-2] === 'true',
+        notificationseen: aux[aux.length-2] === 'true',
         created_at: aux[aux.length-1]
       })
-
     })
   },
   methods: {
+    async getImage(id){
+      let aux = ""
+      await this.$axios
+        .$get("/api/notifications/download/" + id)
+        .then(imageBase64 => {
+          aux = imageBase64
+        })
+
+return aux
+    },
     getNotifications() {
       this.$axios
         .$get("/api/notifications?is-short=yes")
         .then( notifications => {
           this.notifications = notifications.data
+
         })
         .catch(() => {
           this.$toast.info("No notifications found").goAway(3000)
         })
+
     },
     openNotification(notification){
       this.notification = notification
       this.$axios
         .$patch("/api/notifications/"+notification.id)
         .then( () => {
-          notification.notificationSeen = true
+          notification.notificationseen = true
         })
         .catch(() => {
           this.$toast.info("Notification not found").goAway(3000)

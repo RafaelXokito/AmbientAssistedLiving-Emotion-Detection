@@ -38,8 +38,8 @@ class StatisticController extends Controller
             if ($listPair != null)
                 $statistics[] = (object)[
                     "name" => "Emotion with the most notifications",
-                    "value" => $listPair["value"],
-                    "subValue" => $listPair["subValue"]];
+                    "value" => $listPair->value,
+                    "subValue" => $listPair->subValue];
             else
                 $statistics[] = (object)[
                     "name" => "Emotion with the most notifications",
@@ -65,8 +65,8 @@ class StatisticController extends Controller
             if ($listPair2 != null)
                 $statistics[] = (object)[
                     "name" => "Emotion with the least notifications configured",
-                    "value" => $listPair2["value"],
-                    "subValue" => $listPair2["subValue"]];
+                    "value" => $listPair2->value,
+                    "subValue" => $listPair2->subValue];
             else
                 $statistics[] = (object)[
                     "name" => "Emotion with the least notifications configured",
@@ -93,8 +93,8 @@ class StatisticController extends Controller
         if ($listPair != null)
             $statistics[] = (object)[
                 "name" => "Emotion with the most notifications",
-                "value" => $listPair["value"],
-                "subValue" => $listPair["subValue"]];
+                "value" => $listPair->value,
+                "subValue" => $listPair->subValue];
         else
             $statistics[] = (object)[
                 "name" => "Emotion with the most notifications",
@@ -119,8 +119,8 @@ class StatisticController extends Controller
         if ($listPair2 != null)
             $statistics[] = (object)[
                 "name" => "Emotion with the least notifications configured",
-                "value" => $listPair2["value"],
-                "subValue" => $listPair2["subValue"]];
+                "value" => $listPair2->value,
+                "subValue" => $listPair2->subValue];
         else
             $statistics[] = (object)[
                 "name" => "Emotion with the least notifications configured",

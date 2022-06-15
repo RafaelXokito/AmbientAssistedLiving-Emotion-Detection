@@ -1,3 +1,4 @@
+import tempfile
 from asyncio import subprocess
 import warnings
 
@@ -345,7 +346,7 @@ if r.status_code == 200:
     userId = r.json()["data"]["id"]
     r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
     emotionsNotification = r.json()["data"]
-    
+
     sio.connect(os.getenv('WEBSOCKET_URL'))
     sio.emit('logged_in', {"username":str(userId), "userType":"C"})
     r = requests.request("POST", API_URL+"/logs", headers={"Authorization": "Bearer " + token}, data={"macAddress":MAC_ADDRESS, "content": "Cliente Ligado", "process": sys.argv[0]})
@@ -416,7 +417,7 @@ if r.status_code == 200:
                                 activationFunction, lossFunction, metrics)
 
         # It will capture video until reaching the parameterized time (seconds) and proceed to the human labeling phase
-        while int(time.time() - start_time) < time_HLIteration:            
+        while int(time.time() - start_time) < time_HLIteration:
             _, frame = video.read()
 
             try:
@@ -463,32 +464,39 @@ if r.status_code == 200:
                                                                      previous[i], previousPrediction[i],
                                                                      result["emotion"], times[i], arrayTopFramePaths[i])
 
-                        try:    
+                        try:
                             index = emotionNames.index(emotion)
-                            limitEmotion = emotionsNotification[index]['accuracylimit']  
+                            limitEmotion = emotionsNotification[index]['accuracylimit']
                             # if the emotion has high values - bigger than the limit
                             if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
                                 predictionWhereAboveAccuracyLimit[index] = True
-                            
                             if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
                                 #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
-                                data = {
+                                cv2.imwrite('temp.jpg', roi)
+                                payload = {
                                     "duration": predictionAboveAccuracyLimitTimers[index],
                                     "emotion_name": emotion,
-                                    "accuracy": limitEmotion
+                                    "accuracy": limitEmotion,
                                 }
                                 #POST API
-                                r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data)
+                                headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                                files = [
+                                    ('file', ('temp.jpg', open(
+                                        'temp.jpg',
+                                        'rb'), 'image/jpeg'))
+                                ]
+                                r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
+                                #r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data, files=[('file', (jpg.name.split('/')[-1], jpg, 'image/jpeg'))])
                                 newNotification = r.json()["data"]
-                                #SOCKET                        
-                                sio.emit('newNotificationMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
+                                #SOCKET
+                                sio.emit('newNotificationMessage', {"userId": str(userId), "data": MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
                                 print("Notification was sent")
                                 #Resets counters
                                 predictionWhereAboveAccuracyLimit[index] = False
                                 start_durationsEmotions[index] = int(time.time())
                         except Exception as e:
                             i = i + 1
-                            continue                       
+                            continue
                         i = i + 1
             except Exception as e:
                 r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
@@ -534,7 +542,7 @@ if r.status_code == 200:
             for x, value in enumerate(framesDominantAccuraciesTop10Emotions[i]):
                 data["accuraciesFrames["+str(x)+"]"] = value
             for x, value in enumerate(framesPredictionsTop10Emotions[i]):
-                data["preditionsFrames["+str(x)+"]"] = value   
+                data["preditionsFrames["+str(x)+"]"] = value
 
             files = []
             # All the images/frames paths are mapped in arrayTopFramePaths. Where each index is an emotion and each
@@ -545,7 +553,7 @@ if r.status_code == 200:
             # This for ... in aims to add the date in correct format and files in the request body
             for imagePath in imagesPath:
                 date = datetime.fromtimestamp(times[i][k]).strftime("%Y-%m-%d %H:%M:%S")
-                data["datesFrames["+str(k)+"]"] = date 
+                data["datesFrames["+str(k)+"]"] = date
                 fileFrame = open(imagePath, 'rb')
                 files.append(('file['+str(k)+']', (imagePath.split('/')[-1], fileFrame,'image/jpeg')))
                 k = k + 1
@@ -569,7 +577,7 @@ if r.status_code == 200:
             print(str(requestTotal-requestOk) + " iterations were unsucessfull")
             r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
             sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
-            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})        
+            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
         time.sleep(1)
 
         # POPable Variables

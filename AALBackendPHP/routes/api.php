@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\api\StatisticController;
+use App\Http\Controllers\api\UserController;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,8 @@ Route::group(['middleware' =>  'auth:api'], function() {
 
     Route::get('/statistics', [StatisticController::class, 'index']);
 
+    Route::get('/notifications/download/{notification}', [NotificationController::class, 'showFoto']);
+
     Route::resources([
         'notifications' => NotificationController::class
     ]);
@@ -78,6 +81,7 @@ Route::group([
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user', [AuthController::class, 'userProfile']);
+    Route::patch('/notifiable', [AuthController::class, 'toggleNotifiable']);
     Route::put('/update', [AuthController::class, 'update']);
 });
 

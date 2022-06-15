@@ -18,6 +18,7 @@ class AuthResource extends JsonResource
             'id' => $this->userable_id,
             'name' => $this->name,
             'email' => $this->email,
+            'notifiable' => $this->notifiable,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'scope' => str_contains(strtolower($this->userable_type), 'client') ? 'Client' : 'Administrator'

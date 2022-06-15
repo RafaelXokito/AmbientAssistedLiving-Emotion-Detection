@@ -178,7 +178,7 @@ export default {
   methods: {
     async logout() {
       this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-      if(this.$auth.user.scope == "Client"){
+      if(this.$auth.user.scope === "Client"){
         this.socket.emit("logged_out", {"username": this.$auth.user.id, "userType": "C"});
       }else{
         this.socket.emit("logged_out", {"username": this.$auth.user.id, "userType": "A"});
@@ -197,7 +197,7 @@ export default {
         })
     },
     timeSince(date) {
-    const seconds = Math.floor((new Date().getTime() - new Date(date*1000).getTime()) / 1000)
+      const seconds = Math.floor((new Date().getTime() - new Date(date*1000).getTime()) / 1000)
       let interval = seconds / 31536000
 
       if (interval > 1) {
