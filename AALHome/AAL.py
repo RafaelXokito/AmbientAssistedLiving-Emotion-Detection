@@ -5,10 +5,11 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import sys
+import platform
+import os
 
 import EmotionDeepFace
 
-import os
 import time
 from datetime import datetime
 import requests
@@ -601,10 +602,16 @@ if r.status_code == 200:
                 file[1][1].close()
         if requestOk == requestTotal:
             print(str(requestOk) + " iterations were performed successfully")
+            if (platform.system() == "Linux"):
+                ostemp = os.popen('vcgencmd measure_temp').readline()
+                temp = (ostemp.replace("temp=", "").replace("'C\n", ""))
+                r = requests.request("POST", API_URL + "/logs", headers=headers, data={"macAddress": MAC_ADDRESS,
+                                                                                       "content": "Raspberry Pi temperature: " + temp,
+                                                                                       "process": sys.argv[0]})
+                sio.emit('newLogMessage', {"macAddress": MAC_ADDRESS, "content": "Raspberry Pi temperature: " + temp + "ºC", "process": sys.argv[0]})
         else:
             print(str(requestTotal-requestOk) + " iterations were unsucessfull")
             r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
-            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
             sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
         time.sleep(1)
 
