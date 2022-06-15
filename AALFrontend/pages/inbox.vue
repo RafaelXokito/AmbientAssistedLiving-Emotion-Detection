@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card
-      v-if="notifications.length"
+      v-if="notifications.length !== 0"
       class="mx-auto"
       max-width="1000"
     >

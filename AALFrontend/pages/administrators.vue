@@ -3,7 +3,7 @@
     <v-container>
       <v-card>
         <v-data-table
-          :loading="tableLength === 0"
+          :loading="tableLength !== 0"
           :headers="fields"
           :items="administrators"
           :search="search"
