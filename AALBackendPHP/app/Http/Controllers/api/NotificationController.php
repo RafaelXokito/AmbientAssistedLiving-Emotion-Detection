@@ -25,8 +25,8 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         if ($request->has("is-short") && $request["is-short"] == "yes")
-            return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->take(5)->get());
-        return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->get());
+            return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->where('client_id', '=', Auth::user()->userable->id)->take(5)->get());
+        return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->where('client_id', '=', Auth::user()->userable->id)->get());
     }
 
     /**

@@ -29,7 +29,7 @@
           :items="iterations"
           :items-per-page="perPage"
           class="elevation-1"
-          :loading="iterations.length === 0"
+          :loading="tableLength !== 0"
           :search="search"
         >
           <template v-slot:item.emotion="{item}">

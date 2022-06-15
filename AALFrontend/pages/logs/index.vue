@@ -19,7 +19,7 @@
           :items="logs"
           :items-per-page="perPage"
           class="elevation-1"
-          :loading="logs.length === 0"
+          :loading="logs.length !== 0"
           :search="search"
         >
          <!-- <template v-slot:item.="{item}">
