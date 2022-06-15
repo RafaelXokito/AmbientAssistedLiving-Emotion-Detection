@@ -73,10 +73,19 @@
       v-model="showNotification"
       max-width="600px"
     >
-      <v-card>
+      <v-card shaped>
         <v-card-title class="text-h5">
           {{ notification.title }}
         </v-card-title>
+        <div class="text-center">
+          <v-avatar
+            class="ma-3"
+            size="125"
+            tile
+          >
+            <v-img :src="notification.base64"></v-img>
+          </v-avatar>
+        </div>
         <v-card-text>{{ notification.content }}</v-card-text>
         <v-card-actions>
           <v-btn
@@ -105,10 +114,12 @@ export default {
       notification: {
         title: '',
         content: '',
+        base64: ''
       },
       deafultNotification: {
         title: '',
         content: '',
+        base64: ''
       }
     }
   },
@@ -150,11 +161,18 @@ return aux
 
     },
     openNotification(notification){
-      this.notification = notification
+
       this.$axios
         .$patch("/api/notifications/"+notification.id)
-        .then( () => {
+        .then( async () => {
           notification.notificationseen = true
+          await this.$axios
+            .$get('/api/notifications/download/' + notification.id)
+            .then(imageBase64 => {
+              this.notification = notification
+              this.notification.base64 = imageBase64
+              console.log(this.notification)
+            })
         })
         .catch(() => {
           this.$toast.info("Notification not found").goAway(3000)
