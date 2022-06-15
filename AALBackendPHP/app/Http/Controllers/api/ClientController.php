@@ -22,7 +22,7 @@ class ClientController extends Controller
      */
     public function index()
     {
-        return new ClientCollection(Client::all());
+        return new ClientCollection(Client::orderBy('created_at', 'DESC')->get());
     }
 
     /**

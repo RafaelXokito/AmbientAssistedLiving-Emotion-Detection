@@ -20,7 +20,7 @@ class AdministratorController extends Controller
      */
     public function index()
     {
-        return new AdministratorCollection(Administrator::all());
+        return new AdministratorCollection(Administrator::orderBy('created_at', 'DESC')->get());
     }
 
     /**
