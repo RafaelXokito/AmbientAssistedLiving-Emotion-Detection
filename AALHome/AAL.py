@@ -317,6 +317,7 @@ TOP_FRAMES_PATH = os.getenv('TOP_FRAMES_PATH')
 API_URL = os.getenv('API_URL')
 CLIENT_EMAIL = os.getenv('CLIENT_EMAIL')
 CLIENT_PASSWORD = os.getenv('CLIENT_PASSWORD')
+NOTIFICATION_INTERVAL = int(os.getenv('NOTIFICATION_INTERVAL'))
 
 MAC_ADDRESS = gma()
 # defining the api-endpoint 
@@ -408,6 +409,9 @@ if r.status_code == 200:
             predictionAboveAccuracyLimitTimers.append(emotion['duration'])
             start_durationsEmotions.append(int(time.time()))
     emotions = []
+    lastNotificationTime = -1
+    headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
+
     while True:
 
         start_time = time.time()
@@ -444,7 +448,6 @@ if r.status_code == 200:
                             previousPrediction.append(0)
                     i = 0
                     for emotion in emotions:
-
                         # Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
                         percentageEmotion = round(np.double(result["emotion"][emotion]), 4)
                         if len(framesDominantAccuraciesTop10Emotions) != len(emotions):
@@ -463,40 +466,41 @@ if r.status_code == 200:
                                                                      orderedPredictionsTop10Emotions[i], emotion, roi,
                                                                      previous[i], previousPrediction[i],
                                                                      result["emotion"], times[i], arrayTopFramePaths[i])
-
-                        try:
-                            index = emotionNames.index(emotion)
-                            limitEmotion = emotionsNotification[index]['accuracylimit']
-                            # if the emotion has high values - bigger than the limit
-                            if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
-                                predictionWhereAboveAccuracyLimit[index] = True
-                            if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
-                                #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
-                                cv2.imwrite('temp.jpg', roi)
-                                payload = {
-                                    "duration": predictionAboveAccuracyLimitTimers[index],
-                                    "emotion_name": emotion,
-                                    "accuracy": limitEmotion,
-                                }
-                                #POST API
-                                headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
-                                files = [
-                                    ('file', ('temp.jpg', open(
-                                        'temp.jpg',
-                                        'rb'), 'image/jpeg'))
-                                ]
-                                r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
-                                #r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data, files=[('file', (jpg.name.split('/')[-1], jpg, 'image/jpeg'))])
-                                newNotification = r.json()["data"]
-                                #SOCKET
-                                sio.emit('newNotificationMessage', {"userId": str(userId), "data": MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
-                                print("Notification was sent")
-                                #Resets counters
-                                predictionWhereAboveAccuracyLimit[index] = False
-                                start_durationsEmotions[index] = int(time.time())
-                        except Exception as e:
-                            i = i + 1
-                            continue
+                        if lastNotificationTime == -1 or  int(time.time()) >= lastNotificationTime + NOTIFICATION_INTERVAL: 
+                            try:
+                                index = emotionNames.index(emotion)
+                                limitEmotion = emotionsNotification[index]['accuracylimit']
+                                # if the emotion has high values - bigger than the limit
+                                if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
+                                    predictionWhereAboveAccuracyLimit[index] = True
+                                if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
+                                    #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
+                                    cv2.imwrite('temp.jpg', roi)
+                                    payload = {
+                                        "duration": predictionAboveAccuracyLimitTimers[index],
+                                        "emotion_name": emotion,
+                                        "accuracy": limitEmotion,
+                                    }
+                                    #POST API
+                                    headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                                    files = [
+                                        ('file', ('temp.jpg', open(
+                                            'temp.jpg',
+                                            'rb'), 'image/jpeg'))
+                                    ]
+                                    r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
+                                    #r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data, files=[('file', (jpg.name.split('/')[-1], jpg, 'image/jpeg'))])
+                                    newNotification = r.json()["data"]
+                                    #SOCKET
+                                    sio.emit('newNotificationMessage', {"userId": str(userId), "data": MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
+                                    print("Notification was sent")
+                                    #Resets counters
+                                    predictionWhereAboveAccuracyLimit[index] = False
+                                    start_durationsEmotions[index] = int(time.time())
+                                    lastNotificationTime = int(time.time())
+                            except Exception as e:
+                                i = i + 1
+                                continue
                         i = i + 1
             except Exception as e:
                 r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
@@ -563,10 +567,34 @@ if r.status_code == 200:
             headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
 
             # sending post request and saving response as response object
-
-            r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
-            if r.status_code == 201: # previous 200
-                requestOk = requestOk + 1
+            attempt = 0
+            sucessfullRequest = False
+            while sucessfullRequest==False and attempt < 3:
+                try:
+                    r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
+                    if r.status_code == 201:
+                        sucessfullRequest = True
+                        requestOk = requestOk + 1
+                        print("Request succeded after "+ str(attempt) +" attempts")  
+                    else:
+                        attempt = attempt + 1  
+                        print("Request failed - Attempts: " + str(attempt))
+                        if attempt == 3:
+                            print("Request " + emotion+ " failed - Attempts: " + str(attempt))
+                            r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
+                            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})        
+                
+                except Exception as e:
+                    attempt = attempt + 1  
+                    print("Request failed - Attempts: " + str(attempt))
+                    if attempt == 3:
+                        print("Request " + emotion+ " failed - Attempts: " + str(attempt))
+                        r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
+                        sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                        sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})        
+            #if r.status_code == 201:
+            #    requestOk = requestOk + 1
             # extracting response text
             # The frame files need to be closed
             for file in files:
