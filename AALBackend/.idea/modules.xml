@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AALBackend.iml" filepath="$PROJECT_DIR$/AALBackend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/AALBackendPHP.iml" filepath="$PROJECT_DIR$/.idea/AALBackendPHP.iml" />
     </modules>
   </component>
 </project>
