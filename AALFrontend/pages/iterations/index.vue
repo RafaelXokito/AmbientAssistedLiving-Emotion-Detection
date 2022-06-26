@@ -1,7 +1,10 @@
 <template>
   <div>
     <v-row>
-      <v-col cols="12" class="mb-6">
+      <v-col
+        cols="12"
+        class="mb-6"
+      >
         <highchart
           v-if="showIterationChart == true"
           :options="iterationsChartOptions"
@@ -21,37 +24,44 @@
             ></v-text-field>
           </v-card-title>
           <v-data-table
-            id="iterationsTable"
-            :headers="fields"
-            :items="iterations"
-            :items-per-page="perPage"
-            class="elevation-1"
-            :loading="finishedRequest == false"
-            :search="search"
-          >
-            <template v-slot:item.emotion="{ item }">
-              {{ firstCapitalLetter(item.emotion.name) }}
-            </template>
-            <template v-slot:item.frames="{ item }">
-              <v-btn :to="`/iterations/${item.id}`" icon>
-                <v-icon dense> mdi-expand-all </v-icon>
-              </v-btn>
-            </template>
-            <template v-slot:item.created_at="{ item }">
-              {{
-                item.created_at != null
-                  ? new Date(item.created_at * 1000).toLocaleString('pt-PT')
-                  : 'Not Shown'
-              }}
-            </template>
-            <template v-slot:no-data> No iterations created yet </template>
-          </v-data-table>
+          id="iterationsTable"
+          :headers="fields"
+          :items="iterations"
+          :items-per-page="perPage"
+          class="elevation-1"
+          :loading="iterations.length === 0"
+          :search="search"
+        >
+          <template v-slot:item.emotion="{item}">
+            {{ firstCapitalLetter(item.emotion.name) }}
+          </template>
+          <template v-slot:item.frames="{item}">
+            <v-btn :to="`/iterations/${item.id}`" icon>
+              <v-icon dense>
+                mdi-expand-all
+              </v-icon>
+            </v-btn>
+          </template>
+          <template v-slot:item.created_at="{item}">
+            {{
+              item.created_at != null
+                ? new Date(item.created_at * 1000).toLocaleString("pt-PT")
+                : "Not Shown"
+            }}
+          </template>
+
+        </v-data-table>
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog v-model="showFrameModal" max-width="500px">
+    <v-dialog
+      v-model="showFrameModal"
+      max-width="500px"
+    >
       <v-card>
-        <v-card-title> Frame Selected </v-card-title>
+        <v-card-title>
+          Frame Selected
+        </v-card-title>
         <v-card-text>
           <div class="text-center font-mono">
             <h3>
@@ -72,7 +82,7 @@
               color="primary"
               class="mt-lg-3"
               @click="frameOpened.showHLForm = !frameOpened.showHLForm"
-              >Classify {{ frameOpened.showHLForm ? '-' : '+' }}
+            >Classify {{ frameOpened.showHLForm ? "-" : "+" }}
             </v-btn>
           </div>
           <div v-if="frameOpened.showHLForm" class="mt-lg-2">
@@ -80,43 +90,43 @@
               ref="form"
               @submit.prevent="classify(frameOpened.id, frameOpened.base64)"
             >
-              <v-select
-                v-model="frameOpened.emotionClassified"
-                label="Emotions"
-                :items="frameOpened.humanLabelEmotions"
-                clearable
-                required
-              >
-                <template #append-outer>
-                  <v-btn
-                    icon
-                    color="green"
-                    :disabled="frameOpened.emotionClassified === null"
-                    type="submit"
-                  >
-                    <v-icon> mdi-send </v-icon>
-                  </v-btn>
-                </template>
-              </v-select>
+                <v-select
+                  v-model="frameOpened.emotionClassified"
+                  label="Emotions"
+                  :items="frameOpened.humanLabelEmotions"
+                  clearable
+                  required
+                >
+                  <template #append-outer>
+                    <v-btn
+                      icon
+                      color="green"
+                      :disabled="frameOpened.emotionClassified === null"
+                      type="submit"
+                    >
+                      <v-icon>
+                        mdi-send
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                </v-select>
             </v-form>
           </div>
           <div class="text-center font-mono pt-lg-4">
             <hr class="mb-lg-3" />
-            <v-tabs v-model="frameTab" content-class="mt-3">
+            <v-tabs v-model="frameTab" content-class="mt-3" >
               <v-tab
                 :disabled="
-                  frameOpenedAllPredictionsChartOptions.xAxis.categories
-                    .length <= 3
-                "
+              frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
+            "
               >
                 All Predictions
               </v-tab>
               <v-tab
                 title="By group"
                 :active="
-                  frameOpenedAllPredictionsChartOptions.xAxis.categories
-                    .length <= 3
-                "
+              frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
+            "
               >
                 By group
               </v-tab>
@@ -138,7 +148,11 @@
           </div>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" text @click="showFrameModal = false">
+          <v-btn
+            color="primary"
+            text
+            @click="showFrameModal = false"
+          >
             Close
           </v-btn>
         </v-card-actions>
@@ -148,39 +162,40 @@
 </template>
 
 <script>
-import Highcharts from 'highcharts'
+
+import Highcharts from "highcharts"
 
 export default {
-  components: {},
-  middleware: ('auth', 'client'),
+  components: {
+  },
+  middleware: ("auth", "client"),
   data() {
     return {
       search: '',
-      finishedRequest: false,
       fields: [
         {
-          value: 'emotion',
-          text: 'Emotion',
-          sortDirection: 'desc',
+          value: "emotion",
+          text: "Emotion",
+          sortDirection: "desc",
         },
         {
-          value: 'created_at',
-          text: 'Data',
-          sortDirection: 'desc',
+          value: "created_at",
+          text: "Data",
+          sortDirection: "desc",
         },
         {
-          value: 'classifiedFrames',
-          text: 'Classified Frames',
-          sortDirection: 'desc',
+          value: "classifiedFrames",
+          text: "Classified Frames",
+          sortDirection: "desc",
         },
         {
-          value: 'totalFrames',
-          text: 'Total Frames',
-          sortDirection: 'desc',
+          value: "totalFrames",
+          text: "Total Frames",
+          sortDirection: "desc",
         },
         {
-          value: 'frames',
-          text: 'Frames',
+          value: "frames",
+          text: "Frames",
           sortable: false,
         },
       ],
@@ -194,16 +209,16 @@ export default {
       showFrameOpenedAllPredictionsChart: false,
       frameOpenedAllPredictionsChartOptions: {
         chart: {
-          type: 'column',
+          type: "column",
           height: 200,
-          backgroundColor: 'rgba(0,0,0,0)',
+          backgroundColor: "rgba(0,0,0,0)",
         },
         title: {
-          text: 'Predictions',
+          text: "Predictions",
         },
         yAxis: {
           title: {
-            text: 'Accuracy',
+            text: "Accuracy",
           },
           categories: [],
           min: 0,
@@ -211,7 +226,7 @@ export default {
         },
         xAxis: {
           title: {
-            text: 'Emotions',
+            text: "Emotions",
           },
           categories: [],
         },
@@ -230,16 +245,17 @@ export default {
       showFrameOpenedByGroupChart: false,
       frameOpenedByGroupChartOptions: {
         chart: {
-          type: 'column',
+          type: "column",
           height: 250,
-          backgroundColor: 'rgba(0,0,0,0)',
+          backgroundColor: "rgba(0,0,0,0)",
+
         },
         title: {
-          text: 'Predictions',
+          text: "Predictions",
         },
         yAxis: {
           title: {
-            text: 'Accuracy',
+            text: "Accuracy",
           },
           categories: [],
           min: 0,
@@ -247,7 +263,7 @@ export default {
         },
         xAxis: {
           title: {
-            text: 'Emotions',
+            text: "Emotions",
           },
           categories: [],
         },
@@ -265,13 +281,13 @@ export default {
       },
       iterationsChartOptions: {
         chart: {
-          type: 'line',
-          backgroundColor: 'rgba(0,0,0,0)',
-          zoomType: 'x',
+          type: "line",
+          backgroundColor: "rgba(0,0,0,0)",
+          zoomType: "x",
         },
         plotOptions: {
           series: {
-            cursor: 'pointer',
+            cursor: "pointer",
             point: {
               events: {
                 //
@@ -280,21 +296,21 @@ export default {
           },
         },
         title: {
-          text: 'Emotions over time',
+          text: "Emotions over time",
         },
         yAxis: {
           title: {
-            text: 'Emotions',
+            text: "Emotions",
           },
           categories: [],
         },
         xAxis: {
-          type: 'datetime',
+          type: "datetime",
           title: {
-            text: 'Datetime',
+            text: "Datetime",
           },
           labels: {
-            format: '{value:%Y-%m-%d %H:%M:%S}',
+            format: "{value:%Y-%m-%d %H:%M:%S}",
           },
         },
         series: [
@@ -311,19 +327,19 @@ export default {
       },
       iterationsBarChartOptions: {
         chart: {
-          type: 'column',
+          type: "column",
         },
         title: {
-          text: 'Iterations over time',
+          text: "Iterations over time",
         },
         yAxis: {
           title: {
-            text: 'Nº Iterations',
+            text: "Nº Iterations",
           },
         },
         xAxis: {
           title: {
-            text: 'Time',
+            text: "Time",
           },
           categories: [],
         },
@@ -341,17 +357,17 @@ export default {
       },
       frameOpened: {
         showHLForm: false,
-        createDate: '',
+        createDate: "",
         emotion: {},
         emotionIteration: {},
         id: -1,
-        base64: '',
+        base64: "",
         emotionClassified: null,
         humanLabelEmotions: [],
       },
       invalidEmotion: {},
       showFrameModal: false,
-      frameTab: null,
+      frameTab: null
     }
   },
   computed: {
@@ -371,7 +387,7 @@ export default {
     },
   },
   mounted() {
-    this.socket = this.$nuxtSocket({ persist: 'mySocket' })
+    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
   },
   async created() {
     await this.getEmotions()
@@ -380,25 +396,24 @@ export default {
   methods: {
     classify(id, base64) {
       this.$axios
-        .$patch('/api/frames/' + id + '/classify', {
+        .$patch("/api/frames/" + id + "/classify", {
           name: this.frameOpened.emotionClassified,
         })
         .then(() => {
           this.$toast
-            .success('Frame nº ' + id + ' classified successfully')
+            .success("Frame nº " + id + " classified successfully")
             .goAway(3000)
 
           // Connection opened
           // console.log(this.socket)
           const jsonData =
-            '{ "userId": ' +
-            this.$auth.user.id +
+            '{ "userId": ' + this.$auth.user.id +
             '"emotion" : "' +
             this.frameOpened.emotionClassified +
             '", "image": "' +
             base64 +
             '"}'
-          this.socket.emit('newFrameMessage', jsonData)
+          this.socket.emit('newFrameMessage',jsonData)
           this.collectGraphData()
           this.hideModal()
         })
@@ -406,106 +421,102 @@ export default {
     async showModal(point) {
       // console.log(point.x, point.y, point.id, point)
 
-      await this.$axios
-        .$get('/api/frames/' + point.id)
-        .then(async ({ data }) => {
-          data.createDate = data.createDate * 1000
-          this.frameOpened.createDate = data.createDate
-          this.frameOpened.emotion = data.emotion
-          this.frameOpened.emotionIteration = data.emotionIteration
-          this.frameOpened.id = data.id
+      await this.$axios.$get("/api/frames/" + point.id).then(async ({data}) => {
+        data.createDate = data.createDate  * 1000
+        this.frameOpened.createDate = data.createDate
+        this.frameOpened.emotion = data.emotion
+        this.frameOpened.emotionIteration = data.emotionIteration
+        this.frameOpened.id = data.id
 
-          this.frameOpened.emotionClassified =
-            this.frameOpened.emotion.name !== ''
-              ? this.frameOpened.emotion.name
-              : null
+        this.frameOpened.emotionClassified =
+          this.frameOpened.emotion.name !== ""
+            ? this.frameOpened.emotion.name
+            : null
 
-          this.frameOpenedAllPredictionsChartOptions.xAxis.categories = []
-          this.frameOpenedAllPredictionsChartOptions.series = [
-            {
-              showInLegend: false,
-              data: [],
-            },
-          ]
+        this.frameOpenedAllPredictionsChartOptions.xAxis.categories = []
+        this.frameOpenedAllPredictionsChartOptions.series = [
+          {
+            showInLegend: false,
+            data: [],
+          },
+        ]
 
-          this.frameOpenedByGroupChartOptions.xAxis.categories = []
-          this.frameOpenedByGroupChartOptions.series = [
-            {
-              showInLegend: false,
-              data: [],
-            },
-          ]
+        this.frameOpenedByGroupChartOptions.xAxis.categories = []
+        this.frameOpenedByGroupChartOptions.series = [
+          {
+            showInLegend: false,
+            data: [],
+          },
+        ]
 
-          data.predictions.forEach((p) => {
-            this.frameOpenedAllPredictionsChartOptions.xAxis.categories.push(
-              this.firstCapitalLetter(p.emotion.name)
+        data.predictions.forEach(p => {
+          this.frameOpenedAllPredictionsChartOptions.xAxis.categories.push(
+            this.firstCapitalLetter(p.emotion.name)
+          )
+          this.frameOpenedAllPredictionsChartOptions.series[0].data.push(
+            p.accuracy
+          )
+
+          if (
+            !this.frameOpenedByGroupChartOptions.xAxis.categories.includes(
+              p.emotion.group
             )
-            this.frameOpenedAllPredictionsChartOptions.series[0].data.push(
-              p.accuracy
+          ) {
+            this.frameOpenedByGroupChartOptions.xAxis.categories.push(
+              this.firstCapitalLetter(p.emotion.group)
             )
-
-            if (
-              !this.frameOpenedByGroupChartOptions.xAxis.categories.includes(
-                p.emotion.group
-              )
-            ) {
-              this.frameOpenedByGroupChartOptions.xAxis.categories.push(
+            this.frameOpenedByGroupChartOptions.series[0].data.push(p.accuracy)
+          } else {
+            const index =
+              this.frameOpenedByGroupChartOptions.xAxis.categories.indexOf(
                 this.firstCapitalLetter(p.emotion.group)
               )
-              this.frameOpenedByGroupChartOptions.series[0].data.push(
-                p.accuracy
-              )
-            } else {
-              const index =
-                this.frameOpenedByGroupChartOptions.xAxis.categories.indexOf(
-                  this.firstCapitalLetter(p.emotion.group)
-                )
-              this.frameOpenedByGroupChartOptions.series[0].data[index] +=
-                p.accuracy
-            }
-          })
-
-          this.showFrameOpenedAllPredictionsChart = true
-          this.showFrameOpenedByGroupChart = true
-
-          await this.$axios
-            .$get('/api/frames/download/' + this.frameOpened.id)
-            .then((imageBase64) => {
-              this.frameOpened.base64 = imageBase64
-            })
-          this.$axios
-            .$get(
-              '/api/emotions/groups/' + this.frameOpened.emotionIteration.name
-            )
-            .then(({ data }) => {
-              this.frameOpened.humanLabelEmotions.push({
-                value: null,
-                text: 'Please select an emotion',
-                disabled: true,
-              })
-              data.forEach((e) => {
-                this.frameOpened.humanLabelEmotions.push({
-                  value: e.name,
-                  text: this.firstCapitalLetter(e.name),
-                })
-              })
-              if (this.invalidEmotion.name !== undefined)
-                this.frameOpened.humanLabelEmotions.push(this.invalidEmotion)
-            })
+            this.frameOpenedByGroupChartOptions.series[0].data[index] +=
+              p.accuracy
+          }
         })
+
+        this.showFrameOpenedAllPredictionsChart = true
+        this.showFrameOpenedByGroupChart = true
+
+        await this.$axios
+          .$get("/api/frames/download/" + this.frameOpened.id)
+          .then(imageBase64 => {
+            this.frameOpened.base64 = imageBase64
+          })
+        this.$axios
+          .$get(
+            "/api/emotions/groups/" + this.frameOpened.emotionIteration.name
+          )
+          .then(({data}) => {
+            this.frameOpened.humanLabelEmotions.push({
+              value: null,
+              text: "Please select an emotion",
+              disabled: true,
+            })
+            data.forEach(e => {
+              this.frameOpened.humanLabelEmotions.push({
+                value: e.name,
+                text: this.firstCapitalLetter(e.name),
+              })
+            })
+            if (this.invalidEmotion.name !== undefined)
+              this.frameOpened.humanLabelEmotions.push(this.invalidEmotion)
+          })
+      })
       this.showFrameModal = true
     },
     hideModal() {
       this.frameOpened.showHLForm = false
-      this.frameOpened.createDate = ''
+      this.frameOpened.createDate = ""
       this.frameOpened.emotion = {}
       this.frameOpened.emotionIteration = {}
       this.frameOpened.id = -1
-      this.frameOpened.base64 = ''
+      this.frameOpened.base64 = ""
       this.frameOpened.emotionClassified = null
       this.frameOpened.humanLabelEmotions = []
     },
-    firstCapitalLetter(str = '') {
+    firstCapitalLetter(str = "") {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)
     },
     async collectGraphData() {
@@ -526,26 +537,26 @@ export default {
 
       let pointGraph = []
       await this.$axios
-        .$get('/api/frames/clients/' + this.currentUser.id + '/graphData')
-        .then(({ data }) => {
-          data.forEach((r) => {
-            r.createDate = r.createDate * 1000
+        .$get("/api/frames/clients/" + this.currentUser.id + "/graphData")
+        .then(({data}) => {
+          data.forEach(r => {
+            r.createDate = r.createDate  * 1000
             pointGraph.push(r.createDate)
             pointGraph.push(r.accuracy)
             pointGraph.push(r.id)
 
-            if (r.emotion_classified === 'N/A') {
+            if (r.emotion_classified === "N/A") {
               graphData[
                 this.yLabels.indexOf(
                   this.firstCapitalLetter(r.emotion_predicted)
                 )
-              ].push({ id: r.id, x: r.createDate, y: r.accuracy })
-            } else if (r.emotion_classified !== 'invalid')
-              graphData[
-                this.yLabels.indexOf(
-                  this.firstCapitalLetter(r.emotion_classified)
-                )
-              ].push({ id: r.id, x: r.createDate, y: r.accuracy })
+                ].push({ id: r.id, x: r.createDate, y: r.accuracy })
+            } else if (r.emotion_classified !== "invalid")
+                graphData[
+                  this.yLabels.indexOf(
+                    this.firstCapitalLetter(r.emotion_classified)
+                  )
+                  ].push({ id: r.id, x: r.createDate, y: r.accuracy })
 
             pointGraph = []
           })
@@ -559,42 +570,39 @@ export default {
 
           this.showIterationChart = true
         })
-        .catch((error) => {
-          if (typeof variable !== 'undefined')
+        .catch(error => {
+          if (typeof variable !== "undefined")
             this.$toast.info(error.response.data).goAway(3000)
           else console.log(error)
           this.$toast.info(error).goAway(3000)
         })
 
-      return graphData
+return graphData
     },
     async getEmotions() {
-      await this.$axios
-        .get('/api/emotions')
-        .then((response) => {
-          const emotions = response.data.data
-          emotions.forEach((emotion) => {
-            if (emotion.group !== 'invalid')
-              this.yLabels.push(this.firstCapitalLetter(emotion.name))
-            else
-              this.invalidEmotion = {
-                value: emotion.name,
-                text: this.firstCapitalLetter(emotion.name),
-              }
-          })
-
-          this.iterationsChartOptions.yAxis.categories = this.yLabels
+      await this.$axios.get("/api/emotions").then(response => {
+        const emotions = response.data.data
+        emotions.forEach(emotion => {
+          if (emotion.group !== "invalid")
+            this.yLabels.push(this.firstCapitalLetter(emotion.name))
+          else
+            this.invalidEmotion = {
+              value: emotion.name,
+              text: this.firstCapitalLetter(emotion.name),
+            }
         })
-        .catch(() => {
-          this.$toast.info('No emotions found').goAway(3000)
+
+        this.iterationsChartOptions.yAxis.categories = this.yLabels
+      })
+      .catch(() => {
+          this.$toast.info("No emotions found").goAway(3000)
         })
     },
     getIterations() {
       this.$axios
-        .$get('/api/iterations')
-        .then((iterations) => {
+        .$get("/api/iterations")
+        .then(iterations => {
           this.iterations = iterations.data
-          this.finishedRequest = true
           if (this.iterations !== []) {
             this.collectGraphData()
 
@@ -602,11 +610,11 @@ export default {
           }
         })
         .catch(() => {
-          this.$toast.info('No iterations found').goAway(3000)
+          this.$toast.info("No iterations found").goAway(3000)
         })
     },
     render() {
-      this.chart = Highcharts.chart('container', {
+      this.chart = Highcharts.chart("container", {
         ...this.config,
       })
     },

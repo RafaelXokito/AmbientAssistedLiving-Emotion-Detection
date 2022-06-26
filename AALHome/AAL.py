@@ -332,313 +332,336 @@ json = {
 # standard Python
 sio = socketio.Client()
 
-# sending post request and saving response as response object
-r = requests.post(url=API_ENDPOINT, json=json)
+while True:
+    try:
+        # sending post request and saving response as response object
+        r = requests.post(url=API_ENDPOINT, json=json)
 
-if r.status_code == 200:
-    # extracting response text
-    token = r.json()["access_token"]
+        if r.status_code == 200:
+            # extracting response text
+            token = r.json()["access_token"]
 
-    with open('token.txt', 'w') as f:
-        f.write(token)
+            with open('token.txt', 'w') as f:
+                f.write(token)
 
-    API_URL = os.getenv('API_URL')
+            API_URL = os.getenv('API_URL')
 
-    r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
-    userId = r.json()["data"]["id"]
-    r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
-    emotionsNotification = r.json()["data"]
+            r = requests.get(url=API_URL + '/auth/user', headers={"Authorization": "Bearer " + token})
+            userId = r.json()["data"]["id"]
+            r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
+            emotionsNotification = r.json()["data"]
 
-    sio.connect(os.getenv('WEBSOCKET_URL'))
-    sio.emit('logged_in', {"username":str(userId), "userType":"C"})
-    r = requests.request("POST", API_URL+"/logs", headers={"Authorization": "Bearer " + token}, data={"macAddress":MAC_ADDRESS, "content": "Cliente Ligado", "process": sys.argv[0]})
-    sio.emit('newLogMessage',{"userId":str(userId), "data": MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
-    sio.emit('newNotificationMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
+            sio.connect(os.getenv('WEBSOCKET_URL'))
+            sio.emit('logged_in', {"username":str(userId), "userType":"C"})
+            r = requests.request("POST", API_URL+"/logs", headers={"Authorization": "Bearer " + token}, data={"macAddress":MAC_ADDRESS, "content": "Cliente Ligado", "process": sys.argv[0]})
+            sio.emit('newLogMessage',{"userId":str(userId), "data": MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
+            sio.emit('newNotificationMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
 
-    # Run websocket client
-    # p = subprocess.Popen([sys.executable, 'Websocket.py'],
-    #                                   stdout=subprocess.PIPE,
-    #                                   stderr=subprocess.STDOUT)
+            # Run websocket client
+            # p = subprocess.Popen([sys.executable, 'Websocket.py'],
+            #                                   stdout=subprocess.PIPE,
+            #                                   stderr=subprocess.STDOUT)
 
-    video = cv2.VideoCapture(0)  # requisting the input from the webcam or camera
+            video = cv2.VideoCapture(0)  # requisting the input from the webcam or camera
 
-    model = params[0]
-    epochs = params[1]
-    batches = params[2]
-    forceRetrain = params[3]
-    activationFunction = params[4]
-    lossFunction = params[5]
-    metrics = params[6]
-    time_HLIteration = params[7]
+            model = params[0]
+            epochs = params[1]
+            batches = params[2]
+            forceRetrain = params[3]
+            activationFunction = params[4]
+            lossFunction = params[5]
+            metrics = params[6]
+            time_HLIteration = params[7]
 
-    datasetPath = 'FER-2013'
+            datasetPath = 'FER-2013'
 
-    if metrics == 'binary_accuracy':
-        mode = 'binary'
-    else:
-        mode = 'categorical'
+            if metrics == 'binary_accuracy':
+                mode = 'binary'
+            else:
+                mode = 'categorical'
 
-    modelPath = 'weights/' + str(model) + '_' + mode + '_' + str(epochs) + '_' + str(batches) + '.h5'
-    classIndicesPath = 'analysis/class_indices.json'
-    model = build_model('EmotionDeepFace', datasetPath, modelPath, classIndicesPath, forceRetrain, epochs, batches,
-                        activationFunction, lossFunction, metrics)
-
-    # POPable variables
-    framesDominantAccuraciesTop10Emotions = []
-    framesPredictionsTop10Emotions = []
-    times = []
-    arrayTopFramePaths = []
-
-    orderedPredictionsTop10Emotions = []
-
-    resetFolderFrames()
-
-    previous = []
-    previousPrediction = []
-
-    auxModelCreationDate = update_date(modelPath)
-
-    #Notifications Variables
-    predictionWhereAboveAccuracyLimit = []
-    predictionAboveAccuracyLimitTimers = []
-    emotionNames = []
-    start_durationsEmotions = []
-    if len(emotionsNotification) != 0:
-        for emotion in emotionsNotification:
-            predictionWhereAboveAccuracyLimit.append(False)
-            emotionNames.append(emotion['emotion_name'])
-            predictionAboveAccuracyLimitTimers.append(emotion['duration'])
-            start_durationsEmotions.append(int(time.time()))
-    emotions = []
-    lastNotificationTime = -1
-    headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
-
-    while True:
-
-        start_time = time.time()
-        modelCreationDate = update_date(modelPath)
-        if auxModelCreationDate != modelCreationDate:
-            model = build_model('EmotionDeepFace', datasetPath, modelPath, classIndicesPath, False, epochs, batches,
+            modelPath = 'weights/' + str(model) + '_' + mode + '_' + str(epochs) + '_' + str(batches) + '.h5'
+            classIndicesPath = 'analysis/class_indices.json'
+            model = build_model('EmotionDeepFace', datasetPath, modelPath, classIndicesPath, forceRetrain, epochs, batches,
                                 activationFunction, lossFunction, metrics)
 
-        # It will capture video until reaching the parameterized time (seconds) and proceed to the human labeling phase
-        while int(time.time() - start_time) < time_HLIteration:
-            _, frame = video.read()
+            # POPable variables
+            framesDominantAccuraciesTop10Emotions = []
+            framesPredictionsTop10Emotions = []
+            times = []
+            arrayTopFramePaths = []
 
-            try:
-                result = analyze(
-                    frame,
-                    model=model,
-                )
+            orderedPredictionsTop10Emotions = []
 
-                if result["dominant_emotion"] != "Not Found":
-                    img = cv2.rectangle(frame, (result["region"]["x"], result["region"]["y"]), (
-                        result["region"]["x"] + result["region"]["w"], result["region"]["y"] + result["region"]["h"]),
-                                        (0, 0, 255), 1)
-                    roi = img[result["region"]["y"]:result["region"]["y"] + result["region"]["h"],
-                          result["region"]["x"]:result["region"]["x"] + result["region"]["w"]]
-                    roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+            resetFolderFrames()
 
-                    roi = cv2.resize(roi, (48, 48))
+            previous = []
+            previousPrediction = []
 
-                    if len(previous) == 0:
-                        emotions = result["emotion"].keys()
-                        previous = []
-                        for i in range(len(emotions)):
-                            previous.append(int(time.time()))
-                            previousPrediction.append(0)
-                    i = 0
-                    for emotion in emotions:
-                        # Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
-                        percentageEmotion = round(np.double(result["emotion"][emotion]), 4)
-                        if len(framesDominantAccuraciesTop10Emotions) != len(emotions):
-                            framesDominantAccuraciesTop10Emotions.append([])
-                            framesPredictionsTop10Emotions.append([])
-                            orderedPredictionsTop10Emotions.append([])
-                            times.append([])
-                            arrayTopFramePaths.append([])
+            auxModelCreationDate = update_date(modelPath)
 
-                        if emotion == "neutral" or result["dominant_emotion"] == emotion:
-                            framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], \
-                            orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i], times[i], \
-                            arrayTopFramePaths[i] = processTopFrames(percentageEmotion,
-                                                                     framesDominantAccuraciesTop10Emotions[i],
-                                                                     framesPredictionsTop10Emotions[i],
-                                                                     orderedPredictionsTop10Emotions[i], emotion, roi,
-                                                                     previous[i], previousPrediction[i],
-                                                                     result["emotion"], times[i], arrayTopFramePaths[i])
-                        if lastNotificationTime == -1 or  int(time.time()) >= lastNotificationTime + NOTIFICATION_INTERVAL: 
-                            try:
-                                index = emotionNames.index(emotion)
-                                limitEmotion = emotionsNotification[index]['accuracylimit']
-                                # if the emotion has high values - bigger than the limit
-                                if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
-                                    predictionWhereAboveAccuracyLimit[index] = True
-                                if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
-                                    #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
-                                    cv2.imwrite('temp.jpg', roi)
-                                    payload = {
-                                        "duration": predictionAboveAccuracyLimitTimers[index],
-                                        "emotion_name": emotion,
-                                        "accuracy": limitEmotion,
-                                    }
-                                    #POST API
-                                    headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
-                                    files = [
-                                        ('file', ('temp.jpg', open(
-                                            'temp.jpg',
-                                            'rb'), 'image/jpeg'))
-                                    ]
-                                    r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
-                                    #r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data, files=[('file', (jpg.name.split('/')[-1], jpg, 'image/jpeg'))])
-                                    newNotification = r.json()["data"]
-                                    #SOCKET
-                                    sio.emit('newNotificationMessage', {"userId": str(userId), "data": MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
-                                    print("Notification was sent")
-                                    #Resets counters
-                                    predictionWhereAboveAccuracyLimit[index] = False
-                                    start_durationsEmotions[index] = int(time.time())
-                                    lastNotificationTime = int(time.time())
-                            except Exception as e:
-                                i = i + 1
-                                continue
-                        i = i + 1
-            except Exception as e:
-                r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
-                sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL})
-            # this is the part where we display the output to the user
-            # cv2.imshow('video', frame)
-            # cv2.imshow('board', board)
-
-            #key = cv2.waitKey(1)
-            # here we are specifying the key which will stop the loop and stop all the processes going
-            #if key == ord('q'):
-            #    break
-
-        """Start logging iterations for the API"""
-
-        # Windows slash bars wrong way => w.replace(os.sep, '/')
-        # emotionsPath = [w.replace(os.sep, '/') for w in glob(TOP_FRAMES_PATH+'/*')]
-
-        emotionsPath = []
-        for emotion in emotions:
-            emotionsPath.append(TOP_FRAMES_PATH + "/" + emotion)
-
-        # defining the api-endpoint
-        API_ENDPOINT = API_URL + "/frames"
-
-        requestOk = 0
-        requestTotal = 0
-        i = 0
-
-        for emotionPath in emotionsPath:
-            emotion = emotionPath.split('/')[-1]
-            if len(glob(TOP_FRAMES_PATH + '/' + emotion + '/*')) == 0:
-                continue
-
-            # This variable is important to know how much potential requests we have
-            requestTotal = requestTotal + 1
-
-            # Json body for request
-            data = {}
-
-            data["macAddress"] = MAC_ADDRESS
-            data["emotion"] = emotion
-            for x, value in enumerate(framesDominantAccuraciesTop10Emotions[i]):
-                data["accuraciesFrames["+str(x)+"]"] = value
-            for x, value in enumerate(framesPredictionsTop10Emotions[i]):
-                data["preditionsFrames["+str(x)+"]"] = value
-
-            files = []
-            # All the images/frames paths are mapped in arrayTopFramePaths. Where each index is an emotion and each
-            # sub-index is an image/frame path of that emotion
-            imagesPath = arrayTopFramePaths[i]
-
-            k = 0
-            # This for ... in aims to add the date in correct format and files in the request body
-            for imagePath in imagesPath:
-                date = datetime.fromtimestamp(times[i][k]).strftime("%Y-%m-%d %H:%M:%S")
-                data["datesFrames["+str(k)+"]"] = date
-                fileFrame = open(imagePath, 'rb')
-                files.append(('file['+str(k)+']', (imagePath.split('/')[-1], fileFrame,'image/jpeg')))
-                k = k + 1
-
-            i = i + 1
-
-            headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
-
-            # sending post request and saving response as response object
-            attempt = 0
-            sucessfullRequest = False
-            while sucessfullRequest==False and attempt < 3:
-                try:
-                    r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
-                    if r.status_code == 201:
-                        sucessfullRequest = True
-                        requestOk = requestOk + 1
-                        print("Request succeded after "+ str(attempt) +" attempts")  
-                    else:
-                        attempt = attempt + 1  
-                        print("Request failed - Attempts: " + str(attempt))
-                        if attempt == 3:
-                            print("Request " + emotion+ " failed - Attempts: " + str(attempt))
-                            r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
-                            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
-                            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})        
-                
-                except Exception as e:
-                    attempt = attempt + 1  
-                    print("Request failed - Attempts: " + str(attempt))
-                    if attempt == 3:
-                        print("Request " + emotion+ " failed - Attempts: " + str(attempt))
-                        r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
-                        sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
-                        sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})        
-            #if r.status_code == 201:
-            #    requestOk = requestOk + 1
-            # extracting response text
-            # The frame files need to be closed
-            for file in files:
-                file[1][1].close()
-        if requestOk == requestTotal:
-            print(str(requestOk) + " iterations were performed successfully")
-            if (platform.system() == "Linux"):
-                ostemp = os.popen('vcgencmd measure_temp').readline()
-                temp = (ostemp.replace("temp=", "").replace("'C\n", ""))
-                r = requests.request("POST", API_URL + "/logs", headers=headers, data={"macAddress": MAC_ADDRESS,
-                                                                                       "content": "Raspberry Pi temperature: " + temp,
-                                                                                       "process": sys.argv[0]})
-                sio.emit('newLogMessage', {"macAddress": MAC_ADDRESS, "content": "Raspberry Pi temperature: " + temp + "ºC", "process": sys.argv[0]})
-        else:
-            print(str(requestTotal-requestOk) + " iterations were unsucessfull")
-            r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
-            sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
-        time.sleep(1)
-
-        # POPable Variables
-        framesDominantAccuraciesTop10Emotions = []
-        framesPredictionsTop10Emotions = []
-        times = []
-        arrayTopFramePaths = []
-
-        orderedPredictionsTop10Emotions = []
-        resetFolderFrames()
-        # Checks for new emotions notifications
-        r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
-        emotionsNotification = r.json()["data"]
-        # updates the variables
-        predictionWhereAboveAccuracyLimit = []
-        emotionNames = []
-        predictionAboveAccuracyLimitTimers = []
-        if len(emotionsNotification) != 0:
-            for emotion in emotionsNotification:
-                try:
-                    index = emotionNames.index(emotion['emotion_name'])
-                except Exception as e:
+            #Notifications Variables
+            predictionWhereAboveAccuracyLimit = []
+            predictionAboveAccuracyLimitTimers = []
+            emotionNames = []
+            start_durationsEmotions = []
+            if len(emotionsNotification) != 0:
+                for emotion in emotionsNotification:
                     predictionWhereAboveAccuracyLimit.append(False)
                     emotionNames.append(emotion['emotion_name'])
                     predictionAboveAccuracyLimitTimers.append(emotion['duration'])
                     start_durationsEmotions.append(int(time.time()))
-# video.release()
-else:
-    print("Error when logging in with your account")
+            emotions = []
+            lastNotificationTime = -1
+            headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
+
+            while True:
+
+                start_time = time.time()
+                modelCreationDate = update_date(modelPath)
+                if auxModelCreationDate != modelCreationDate:
+                    model = build_model('EmotionDeepFace', datasetPath, modelPath, classIndicesPath, False, epochs, batches,
+                                        activationFunction, lossFunction, metrics)
+
+                # It will capture video until reaching the parameterized time (seconds) and proceed to the human labeling phase
+                while int(time.time() - start_time) < time_HLIteration:
+                    _, frame = video.read()
+
+                    try:
+                        result = analyze(
+                            frame,
+                            model=model,
+                        )
+
+                        if result["dominant_emotion"] != "Not Found":
+                            img = cv2.rectangle(frame, (result["region"]["x"], result["region"]["y"]), (
+                                result["region"]["x"] + result["region"]["w"], result["region"]["y"] + result["region"]["h"]),
+                                                (0, 0, 255), 1)
+                            roi = img[result["region"]["y"]:result["region"]["y"] + result["region"]["h"],
+                                  result["region"]["x"]:result["region"]["x"] + result["region"]["w"]]
+                            roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+                            roi = cv2.resize(roi, (48, 48))
+
+                            if len(previous) == 0:
+                                emotions = result["emotion"].keys()
+                                previous = []
+                                for i in range(len(emotions)):
+                                    previous.append(int(time.time()))
+                                    previousPrediction.append(0)
+                            i = 0
+                            for emotion in emotions:
+                                # Numa fase inicial temos de OBRIGAR o dataset de neutralidade aumentar
+                                percentageEmotion = round(np.double(result["emotion"][emotion]), 4)
+                                if len(framesDominantAccuraciesTop10Emotions) != len(emotions):
+                                    framesDominantAccuraciesTop10Emotions.append([])
+                                    framesPredictionsTop10Emotions.append([])
+                                    orderedPredictionsTop10Emotions.append([])
+                                    times.append([])
+                                    arrayTopFramePaths.append([])
+
+                                if emotion == "neutral" or result["dominant_emotion"] == emotion:
+                                    framesDominantAccuraciesTop10Emotions[i], framesPredictionsTop10Emotions[i], \
+                                    orderedPredictionsTop10Emotions[i], previous[i], previousPrediction[i], times[i], \
+                                    arrayTopFramePaths[i] = processTopFrames(percentageEmotion,
+                                                                             framesDominantAccuraciesTop10Emotions[i],
+                                                                             framesPredictionsTop10Emotions[i],
+                                                                             orderedPredictionsTop10Emotions[i], emotion, roi,
+                                                                             previous[i], previousPrediction[i],
+                                                                             result["emotion"], times[i], arrayTopFramePaths[i])
+                                if lastNotificationTime == -1 or  int(time.time()) >= lastNotificationTime + NOTIFICATION_INTERVAL:
+                                    try:
+                                        index = emotionNames.index(emotion)
+                                        limitEmotion = emotionsNotification[index]['accuracylimit']
+                                        # if the emotion has high values - bigger than the limit
+                                        if result["dominant_emotion"] == emotion and percentageEmotion > limitEmotion:
+                                            predictionWhereAboveAccuracyLimit[index] = True
+                                        if int(time.time()) >= (predictionAboveAccuracyLimitTimers[index] + start_durationsEmotions[index]) and predictionWhereAboveAccuracyLimit[index] == True:
+                                            #envia para web socket do email -> macAddress;emotionName;accuracy;duration;clientEmail
+                                            cv2.imwrite('temp.jpg', roi)
+                                            payload = {
+                                                "duration": predictionAboveAccuracyLimitTimers[index],
+                                                "emotion_name": emotion,
+                                                "accuracy": limitEmotion,
+                                            }
+                                            #POST API
+                                            headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                                            files = [
+                                                ('file', ('temp.jpg', open(
+                                                    'temp.jpg',
+                                                    'rb'), 'image/jpeg'))
+                                            ]
+                                            r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
+                                            #r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data, files=[('file', (jpg.name.split('/')[-1], jpg, 'image/jpeg'))])
+                                            newNotification = r.json()["data"]
+                                            #SOCKET
+                                            sio.emit('newNotificationMessage', {"userId": str(userId), "data": MAC_ADDRESS + ";" + emotion + ";" + str(limitEmotion) + ";" + str(predictionAboveAccuracyLimitTimers[index]) + ";" + CLIENT_EMAIL+";"+str(newNotification["id"])+";"+newNotification["title"]+";"+newNotification["content"]+";false;"+str(newNotification["created_at"])})
+                                            print("Notification was sent")
+                                            #Resets counters
+                                            predictionWhereAboveAccuracyLimit[index] = False
+                                            start_durationsEmotions[index] = int(time.time())
+                                            lastNotificationTime = int(time.time())
+                                    except Exception as e:
+                                        i = i + 1
+                                        continue
+                                i = i + 1
+                    except Exception as e:
+                        r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
+                        sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL})
+                    # this is the part where we display the output to the user
+                    # cv2.imshow('video', frame)
+                    # cv2.imshow('board', board)
+
+                    #key = cv2.waitKey(1)
+                    # here we are specifying the key which will stop the loop and stop all the processes going
+                    #if key == ord('q'):
+                    #    break
+
+                """Start logging iterations for the API"""
+
+                # Windows slash bars wrong way => w.replace(os.sep, '/')
+                # emotionsPath = [w.replace(os.sep, '/') for w in glob(TOP_FRAMES_PATH+'/*')]
+
+                emotionsPath = []
+                for emotion in emotions:
+                    emotionsPath.append(TOP_FRAMES_PATH + "/" + emotion)
+
+                # defining the api-endpoint
+                API_ENDPOINT = API_URL + "/frames"
+
+                requestOk = 0
+                requestTotal = 0
+                i = 0
+
+                for emotionPath in emotionsPath:
+                    emotion = emotionPath.split('/')[-1]
+                    if len(glob(TOP_FRAMES_PATH + '/' + emotion + '/*')) == 0:
+                        continue
+
+                    # This variable is important to know how much potential requests we have
+                    requestTotal = requestTotal + 1
+
+                    # Json body for request
+                    data = {}
+
+                    data["macAddress"] = MAC_ADDRESS
+                    data["emotion"] = emotion
+                    for x, value in enumerate(framesDominantAccuraciesTop10Emotions[i]):
+                        data["accuraciesFrames["+str(x)+"]"] = value
+                    for x, value in enumerate(framesPredictionsTop10Emotions[i]):
+                        data["preditionsFrames["+str(x)+"]"] = value
+
+                    files = []
+                    # All the images/frames paths are mapped in arrayTopFramePaths. Where each index is an emotion and each
+                    # sub-index is an image/frame path of that emotion
+                    imagesPath = arrayTopFramePaths[i]
+
+                    k = 0
+                    # This for ... in aims to add the date in correct format and files in the request body
+                    for imagePath in imagesPath:
+                        date = datetime.fromtimestamp(times[i][k]).strftime("%Y-%m-%d %H:%M:%S")
+                        data["datesFrames["+str(k)+"]"] = date
+                        fileFrame = open(imagePath, 'rb')
+                        files.append(('file['+str(k)+']', (imagePath.split('/')[-1], fileFrame,'image/jpeg')))
+                        k = k + 1
+
+                    i = i + 1
+
+                    headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
+
+                    # sending post request and saving response as response object
+                    attempt = 0
+                    sucessfullRequest = False
+                    while sucessfullRequest==False and attempt < 3:
+                        try:
+                            r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
+                            if r.status_code == 201:
+                                sucessfullRequest = True
+                                requestOk = requestOk + 1
+                                print("Request succeded after "+ str(attempt) +" attempts")
+                            else:
+                                attempt = attempt + 1
+                                print("Request failed - Attempts: " + str(attempt))
+                                if attempt == 3:
+                                    print("Request " + emotion+ " failed - Attempts: " + str(attempt))
+                                    r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
+                                    sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                                    sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+
+                        except Exception as e:
+                            attempt = attempt + 1
+                            print("Request failed - Attempts: " + str(attempt))
+                            f = open("local.logs.txt", "a")
+                            f.write(datetime.now().strftime(
+                                "%d/%m/%Y %H:%M:%S") + " Request failed - Attempts: " + str(attempt) + "\n")
+                            f.close()
+                            if attempt == 3:
+                                print("Request " + emotion+ " failed - Attempts: " + str(attempt))
+                                r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
+                                sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                                sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                    #if r.status_code == 201:
+                    #    requestOk = requestOk + 1
+                    # extracting response text
+                    # The frame files need to be closed
+                    for file in files:
+                        file[1][1].close()
+                if requestOk == requestTotal:
+                    print(str(requestOk) + " iterations were performed successfully")
+                    if (platform.system() == "Linux"):
+                        ostemp = os.popen('vcgencmd measure_temp').readline()
+                        temp = (ostemp.replace("temp=", "").replace("'C\n", ""))
+                        f = open("local.logs.txt", "a")
+                        f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + " Raspberry Pi temperature: " + temp + "ºC\n")
+                        f.close()
+                        r = requests.request("POST", API_URL + "/logs", headers=headers, data={"macAddress": MAC_ADDRESS,
+                                                                                               "content": "Raspberry Pi temperature: " + temp,
+                                                                                               "process": sys.argv[0]})
+                        sio.emit('newLogMessage', {"macAddress": MAC_ADDRESS, "content": "Raspberry Pi temperature: " + temp + "ºC", "process": sys.argv[0]})
+                else:
+                    print(str(requestTotal-requestOk) + " iterations were unsucessfull")
+                    f = open("local.logs.txt", "a")
+                    f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + " " + str(requestTotal-requestOk) + " iterations were unsucessfull\n")
+                    f.close()
+                    r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
+                    sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
+                time.sleep(1)
+
+                # POPable Variables
+                framesDominantAccuraciesTop10Emotions = []
+                framesPredictionsTop10Emotions = []
+                times = []
+                arrayTopFramePaths = []
+
+                orderedPredictionsTop10Emotions = []
+                resetFolderFrames()
+                # Checks for new emotions notifications
+                r = requests.get(url=API_URL + '/emotionsNotification', headers={"Authorization": "Bearer " + token})
+                emotionsNotification = r.json()["data"]
+                # updates the variables
+                predictionWhereAboveAccuracyLimit = []
+                emotionNames = []
+                predictionAboveAccuracyLimitTimers = []
+                if len(emotionsNotification) != 0:
+                    for emotion in emotionsNotification:
+                        try:
+                            index = emotionNames.index(emotion['emotion_name'])
+                        except Exception as e:
+                            predictionWhereAboveAccuracyLimit.append(False)
+                            emotionNames.append(emotion['emotion_name'])
+                            predictionAboveAccuracyLimitTimers.append(emotion['duration'])
+                            start_durationsEmotions.append(int(time.time()))
+
+            video.release()
+        else:
+            print("Error when logging in with your account")
+            f = open("local.logs.txt", "a")
+            f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"Error when logging in with your account\n")
+            f.close()
+            time.sleep(10)
+    except Exception as e:
+        f = open("local.logs.txt", "a")
+        f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "Error: "+str(e)+"\n")
+        f.close()
+        video.release()
+        time.sleep(10)
