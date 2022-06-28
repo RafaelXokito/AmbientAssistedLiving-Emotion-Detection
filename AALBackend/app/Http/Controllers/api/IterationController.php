@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Http\Requests\Frame\CreateFrameRequest;
 use App\Http\Resources\Frame\FrameCollection;
 use App\Http\Resources\Frame\FrameResource;
 use App\Http\Resources\Iteration\IterationCollection;
 use App\Http\Resources\Iteration\IterationResource;
 use App\Models\Client;
+use App\Models\Emotion;
 use App\Models\Frame;
 use App\Models\Iteration;
 use Illuminate\Http\Request;
@@ -39,11 +41,31 @@ class IterationController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return IterationResource|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreateFrameRequest $request)
     {
-        abort(404);
+
+        $iteration = new Iteration();
+        $validated_data = $request->validated();
+        try {
+            DB::beginTransaction();
+            $iteration->emotion()->associate(Emotion::find(strtolower($validated_data["emotion"])));
+            $iteration->macaddress = $validated_data["macAddress"];
+            $iteration->client()->associate(Auth::user()->userable);
+
+            $iteration->save();
+            DB::commit();
+
+            return new IterationResource($iteration);
+
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                return response()->json(array(
+                    'code'      =>  400,
+                    'message'   =>  $th->getMessage()
+                ), 400);
+            }
     }
 
     /**

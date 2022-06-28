@@ -7,9 +7,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Validator;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     /**
      * Create a new AuthController instance.
@@ -29,16 +31,28 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+
+        request()->request->add([
+            'grant_type' => 'password',
+            'client_id' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_ID_PI') : env('PASSPORT_CLIENT_ID_WEB'),
+            'client_secret' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_SECRET_PI') : env('PASSPORT_CLIENT_SECRET_WEB'),
+            'username' => $request->email,
+            'password' => $request->password,
+            'scope'         => '',
+        ]);
+
+        $request = Request::create(env('PASSPORT_SERVER_URL') . '/oauth/token', 'POST');
+        $response = Route::dispatch($request);
+        $errorCode = $response->getStatusCode();
+
+        if ($errorCode == '200') {
+            $user = User::where('email',$validator->validated()["email"])->first();
+            if (str_contains($user->userable_type, "Client") && ! $user->userable->is_active)
+                return response()->json(['error' => 'Client not activated!'], 403);
+            return json_decode((string) $response->content(), true);
+        } else {
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'], 403);
         }
-        if (! $token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-        $user = User::where('email',$validator->validated()["email"])->first();
-        if (str_contains($user->userable_type, "Client") && ! $user->userable->is_active)
-            return response()->json(['error' => 'Client not activated!'], 403);
-        return $this->createNewToken($token);
     }
 
     public function toggleNotifiable(){
@@ -174,8 +188,11 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout() {
-        auth()->logout();
+    public function logout(Request $request) {
+        $accessToken = $request->user()->token();
+        $token = $request->user()->tokens->find($accessToken);
+        $token->revoke();
+        $token->delete();
         return response()->json(['message' => 'User successfully signed out']);
     }
     /**
@@ -183,8 +200,26 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refresh() {
-        return $this->createNewToken(auth()->refresh());
+    public function refresh(Request $request) {
+        request()->request->add([
+            'refresh_token' => $request->refresh_token,
+            'grant_type' => 'refresh_token',
+            'client_id' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_ID_PI') : env('PASSPORT_CLIENT_ID_WEB'),
+            'client_secret' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_SECRET_PI') : env('PASSPORT_CLIENT_SECRET_WEB'),
+            'scope'         => '',
+        ]);
+
+        $request = Request::create(env('PASSPORT_SERVER_URL') . '/oauth/token', 'POST');
+
+        $response = Route::dispatch($request);
+
+        $errorCode = $response->getStatusCode();
+
+        if ($errorCode == '200') {
+            return json_decode((string) $response->content(), true);
+        } else {
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'], 403);
+        }
     }
     /**
      * Get the authenticated User.

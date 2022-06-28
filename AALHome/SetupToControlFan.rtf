@@ -1,0 +1,81 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2636
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-LightOblique;\f2\fmodern\fcharset0 CourierNewPSMT;
+\f3\fmodern\fcharset0 CourierNewPS-BoldMT;\f4\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0\c0;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 sudo nano /boot/config.txt\
+\
+
+\f1\i dtparam=i2c1=on\
+dtparam=i2c=on\
+dtparam=i2c_arm=on\
+dtparam=i2c_vc\
+device_tree_param=i2c=on1=on\
+dtparam=spi=on
+\f0\i0 \
+\
+\
+sudo reboot\
+\cb2 \
+\pard\pardeftab720\sa256\partightenfactor0
+
+\f2\fs27\fsmilli13600 \cf0 \expnd0\expndtw0\kerning0
+sudo apt-get install -y i2c-tools\
+i2cdetect -y 10\
+
+\f3\b #Se der erro
+\f2\b0 \
+lsmod|grep i2c\
+sudo modprobe i2c-dev\
+\pard\pardeftab720\sa256\partightenfactor0
+\cf0 \cb2 i2cdetect -y 10\cb2 \
+\pard\pardeftab720\sa256\partightenfactor0
+
+\f3\b \cf0 \cb2 #J\'e1 n\'e3o deve dar erro\
+#Fan Desligada: 
+\f2\b0 i2cset -y 10 0x2f 0x30 0x00\
+
+\f3\b #Fan Ligada Full: 
+\f2\b0 i2cset -y 10 0x2f 0x30 0xff\
+
+\f3\b #Fan Ligada 100/255:
+\f2\b0  i2cset -y 10 0x2f 0x30 0x64\
+\pard\pardeftab720\partightenfactor0
+\cf0 \cb2 \
+
+\f3\b #Instala\'e7\'e3o dos Drivers para controlo autom\'e1tico
+\f2\b0 \
+\
+# Install the Raspberry Pi kernel headers, so the source build works.\
+sudo apt install raspberrypi-kernel-headers\
+\
+# Install DKMS, to make updating the driver easier.\
+sudo apt install dkms\
+\
+# Get the URL (tar.gz) of the latest release: https://github.com/neg2led/cm4io-fan/releases\
+wget https://github.com/neg2led/cm4io-fan/archive/refs/tags/0.1.1.tar.gz\
+\
+# Expand the contents of the download into your /usr/src directory.\
+sudo tar -xzvf 0.1.1.tar.gz -C /usr/src/\
+\
+# Build/install the driver with DKMS.\
+sudo dkms install cm4io-fan/0.1.1\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \kerning1\expnd0\expndtw0 \
+
+\f4\b sudo nano /boot/config.txt
+\f2\b0\fs27\fsmilli13600 \expnd0\expndtw0\kerning0
+\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 # Control fan speeds.\
+dtoverlay=cm4io-fan,minrpm=1000,maxrpm=3000\
+\
+
+\f3\b sudo reboot
+\f0\b0\fs24 \kerning1\expnd0\expndtw0 \
+}

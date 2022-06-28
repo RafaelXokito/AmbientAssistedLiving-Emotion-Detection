@@ -323,10 +323,13 @@ NOTIFICATION_INTERVAL = int(os.getenv('NOTIFICATION_INTERVAL'))
 MAC_ADDRESS = gma()
 # defining the api-endpoint 
 API_ENDPOINT = API_URL + "/auth/login"
+API_ENDPOINT_REFRESH = API_URL + "/auth/refresh"
+
 
 json = {
     "email": CLIENT_EMAIL,
-    "password": CLIENT_PASSWORD
+    "password": CLIENT_PASSWORD,
+    "type": "RaspberryPi"
 }
 
 # standard Python
@@ -354,6 +357,21 @@ while True:
             sio.connect(os.getenv('WEBSOCKET_URL'))
             sio.emit('logged_in', {"username":str(userId), "userType":"C"})
             r = requests.request("POST", API_URL+"/logs", headers={"Authorization": "Bearer " + token}, data={"macAddress":MAC_ADDRESS, "content": "Cliente Ligado", "process": sys.argv[0]})
+            if r.status_code == 403:
+                # sending post request and saving response as response object
+                r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                if r.status_code == 200:
+                    # extracting response text
+                    token = r.json()["access_token"]
+
+                    with open('token.txt', 'w') as f:
+                        f.write(token)
+                    headers = {"Authorization": "Bearer " + token,
+                               "Accept": "application/json"}
+                    r = requests.request("POST", API_URL + "/logs", headers={"Authorization": "Bearer " + token},
+                                         data={"macAddress": MAC_ADDRESS, "content": "Cliente Ligado",
+                                               "process": sys.argv[0]})
             sio.emit('newLogMessage',{"userId":str(userId), "data": MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
             sio.emit('newNotificationMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Cliente Ligado" + ";" + CLIENT_EMAIL})
 
@@ -492,6 +510,20 @@ while True:
                                                     'rb'), 'image/jpeg'))
                                             ]
                                             r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
+                                            if r.status_code == 403:
+                                                # sending post request and saving response as response object
+                                                r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                                                if r.status_code == 200:
+                                                    # extracting response text
+                                                    token = r.json()["access_token"]
+
+                                                    with open('token.txt', 'w') as f:
+                                                        f.write(token)
+                                                    headers = {"Authorization": "Bearer " + token,
+                                                               "Accept": "application/json"}
+                                                    r = requests.request("POST", API_URL + "/notifications",
+                                                                         headers=headers, data=payload, files=files)
                                             #r = requests.request("POST", API_URL+"/notifications", headers=headers, data=data, files=[('file', (jpg.name.split('/')[-1], jpg, 'image/jpeg'))])
                                             newNotification = r.json()["data"]
                                             #SOCKET
@@ -507,6 +539,20 @@ while True:
                                 i = i + 1
                     except Exception as e:
                         r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
+                        if r.status_code == 403:
+                            # sending post request and saving response as response object
+                            r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                            if r.status_code == 200:
+                                # extracting response text
+                                token = r.json()["access_token"]
+
+                                with open('token.txt', 'w') as f:
+                                    f.write(token)
+                                headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                                r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                     data={"macAddress": MAC_ADDRESS, "content": "Error: " + str(e),
+                                                           "process": sys.argv[0]})
                         sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Error: " + str(e) + ";" + CLIENT_EMAIL})
                     # this is the part where we display the output to the user
                     # cv2.imshow('video', frame)
@@ -579,12 +625,70 @@ while True:
                                 sucessfullRequest = True
                                 requestOk = requestOk + 1
                                 print("Request succeded after "+ str(attempt) +" attempts")
+                            elif r.status_code == 403:
+                                # sending post request and saving response as response object
+                                r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                                if r.status_code == 200:
+                                    # extracting response text
+                                    token = r.json()["access_token"]
+
+                                    with open('token.txt', 'w') as f:
+                                        f.write(token)
+                                    headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                                else:
+                                    attempt = attempt + 1
+                                    print("Login Request failed - Attempts: " + str(attempt))
+                                    if attempt == 3:
+                                        print("Request " + emotion + " failed - Attempts: " + str(attempt))
+                                        r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                             data={"macAddress": MAC_ADDRESS,
+                                                                   "content": "Failed to send iteration data to API ",
+                                                                   "process": sys.argv[0]})
+                                        if r.status_code == 403:
+                                            # sending post request and saving response as response object
+                                            r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                                            if r.status_code == 200:
+                                                # extracting response text
+                                                token = r.json()["access_token"]
+
+                                                with open('token.txt', 'w') as f:
+                                                    f.write(token)
+                                                headers = {"Authorization": "Bearer " + token,
+                                                           "Accept": "application/json"}
+                                                r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                                     data={"macAddress": MAC_ADDRESS,
+                                                                           "content": "Failed to send iteration data to API ",
+                                                                           "process": sys.argv[0]})
+                                        sio.emit('newLogMessage', {"userId": str(userId),
+                                                                   "data": MAC_ADDRESS + ";" + sys.argv[
+                                                                       0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                                        sio.emit('newLogMessage', {"userId": str(userId),
+                                                                   "data": MAC_ADDRESS + ";" + sys.argv[
+                                                                       0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
                             else:
                                 attempt = attempt + 1
                                 print("Request failed - Attempts: " + str(attempt))
                                 if attempt == 3:
                                     print("Request " + emotion+ " failed - Attempts: " + str(attempt))
                                     r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
+                                    if r.status_code == 403:
+                                        # sending post request and saving response as response object
+                                        r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                                        if r.status_code == 200:
+                                            # extracting response text
+                                            token = r.json()["access_token"]
+
+                                            with open('token.txt', 'w') as f:
+                                                f.write(token)
+                                            headers = {"Authorization": "Bearer " + token,
+                                                       "Accept": "application/json"}
+                                            r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                                 data={"macAddress": MAC_ADDRESS,
+                                                                       "content": "Failed to send iteration data to API ",
+                                                                       "process": sys.argv[0]})
                                     sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
                                     sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
 
@@ -598,6 +702,22 @@ while True:
                             if attempt == 3:
                                 print("Request " + emotion+ " failed - Attempts: " + str(attempt))
                                 r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
+                                if r.status_code == 403:
+                                    # sending post request and saving response as response object
+                                    r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                                    if r.status_code == 200:
+                                        # extracting response text
+                                        token = r.json()["access_token"]
+
+                                        with open('token.txt', 'w') as f:
+                                            f.write(token)
+                                        headers = {"Authorization": "Bearer " + token,
+                                                   "Accept": "application/json"}
+                                        r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                             data={"macAddress": MAC_ADDRESS,
+                                                                   "content": "Failed to send iteration data to API ",
+                                                                   "process": sys.argv[0]})
                                 sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
                                 sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
                     #if r.status_code == 201:
@@ -617,6 +737,22 @@ while True:
                         r = requests.request("POST", API_URL + "/logs", headers=headers, data={"macAddress": MAC_ADDRESS,
                                                                                                "content": "Raspberry Pi temperature: " + temp,
                                                                                                "process": sys.argv[0]})
+                        if r.status_code == 403:
+                            # sending post request and saving response as response object
+                            r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                            if r.status_code == 200:
+                                # extracting response text
+                                token = r.json()["access_token"]
+
+                                with open('token.txt', 'w') as f:
+                                    f.write(token)
+                                headers = {"Authorization": "Bearer " + token,
+                                           "Accept": "application/json"}
+                                r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                     data={"macAddress": MAC_ADDRESS,
+                                                           "content": "Raspberry Pi temperature: " + temp,
+                                                           "process": sys.argv[0]})
                         sio.emit('newLogMessage', {"macAddress": MAC_ADDRESS, "content": "Raspberry Pi temperature: " + temp + "ºC", "process": sys.argv[0]})
                 else:
                     print(str(requestTotal-requestOk) + " iterations were unsucessfull")
@@ -624,6 +760,23 @@ while True:
                     f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + " " + str(requestTotal-requestOk) + " iterations were unsucessfull\n")
                     f.close()
                     r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
+                    if r.status_code == 403:
+                        # sending post request and saving response as response object
+                        r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                        if r.status_code == 200:
+                            # extracting response text
+                            token = r.json()["access_token"]
+
+                            with open('token.txt', 'w') as f:
+                                f.write(token)
+                            headers = {"Authorization": "Bearer " + token,
+                                       "Accept": "application/json"}
+                            r = requests.request("POST", API_URL + "/logs", headers=headers,
+                                                 data={"macAddress": MAC_ADDRESS,
+                                                       "content": "An error occurred in the iteration log " + str(
+                                                           requestOk) + " of " + str(requestTotal),
+                                                       "process": sys.argv[0]})
                     sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal) + ";" + CLIENT_EMAIL})
                 time.sleep(1)
 
@@ -654,14 +807,15 @@ while True:
 
             video.release()
         else:
+            print(r.text)
             print("Error when logging in with your account")
             f = open("local.logs.txt", "a")
-            f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S")+"Error when logging in with your account\n")
+            f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S")+" Error when logging in with your account\n")
             f.close()
             time.sleep(10)
     except Exception as e:
         f = open("local.logs.txt", "a")
-        f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + "Error: "+str(e)+"\n")
+        f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + " Error: "+str(e)+"\n")
         f.close()
         video.release()
         time.sleep(10)

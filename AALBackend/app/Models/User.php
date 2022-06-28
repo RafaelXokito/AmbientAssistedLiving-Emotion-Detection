@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
@@ -15,9 +16,9 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property string $name
  * @property string $password
  */
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable
 {
-    use HasFactory, Notifiable, MustVerifyEmail, SoftDeletes;
+    use HasFactory, Notifiable, MustVerifyEmail, SoftDeletes, HasApiTokens;
     /**
      * The database table used by the model.
      *
@@ -94,4 +95,5 @@ class User extends Authenticatable implements JWTSubject
     public function userable() {
         return $this->morphTo();
     }
+
 }
