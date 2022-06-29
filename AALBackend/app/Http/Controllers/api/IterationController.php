@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Requests\Frame\CreateFrameRequest;
+use App\Http\Requests\Iteration\CreateIterationRequest;
 use App\Http\Resources\Frame\FrameCollection;
 use App\Http\Resources\Frame\FrameResource;
 use App\Http\Resources\Iteration\IterationCollection;
@@ -12,8 +13,10 @@ use App\Models\Emotion;
 use App\Models\Frame;
 use App\Models\Iteration;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class IterationController extends Controller
 {
@@ -43,29 +46,31 @@ class IterationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return IterationResource|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
-    public function store(CreateFrameRequest $request)
+    public function store(CreateIterationRequest $request)
     {
-
         $iteration = new Iteration();
         $validated_data = $request->validated();
         try {
             DB::beginTransaction();
-            $iteration->emotion()->associate(Emotion::find(strtolower($validated_data["emotion"])));
+            $iteration->emotion()->associate(Emotion::findOrFail(strtolower($validated_data["emotion"])));
             $iteration->macaddress = $validated_data["macAddress"];
             $iteration->client()->associate(Auth::user()->userable);
+
+            $iteration->usage_id = Str::uuid();
 
             $iteration->save();
             DB::commit();
 
+            IterationResource::$format = "show_usage_id";
             return new IterationResource($iteration);
 
-            } catch (\Throwable $th) {
-                DB::rollBack();
-                return response()->json(array(
-                    'code'      =>  400,
-                    'message'   =>  $th->getMessage()
-                ), 400);
-            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
     }
 
     /**
@@ -146,7 +151,10 @@ class IterationController extends Controller
                 break;
         }
 
-        $query = Iteration::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(iterations.created_at,'.$pattern.') as d'))->groupBy(DB::raw('DATE_FORMAT(iterations.created_at,'.$pattern.')'));
+        $date = Carbon::now()->subDays(7);
+
+        $query = Iteration::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(iterations.created_at,'.$pattern.') as d'))
+            ->groupBy(DB::raw('DATE_FORMAT(iterations.created_at,'.$pattern.')'));
         if(str_contains(strtolower(Auth::user()->userable_type), "client")) {
             $query = $query->where('iterations.client_id', '=', Auth::user()->userable_id)->get();
         }else

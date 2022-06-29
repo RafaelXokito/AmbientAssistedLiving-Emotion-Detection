@@ -1,6 +1,7 @@
 import tempfile
 from asyncio import subprocess
 import warnings
+from builtins import len
 
 warnings.filterwarnings("ignore")
 
@@ -339,7 +340,6 @@ while True:
     try:
         # sending post request and saving response as response object
         r = requests.post(url=API_ENDPOINT, json=json)
-
         if r.status_code == 200:
             # extracting response text
             token = r.json()["access_token"]
@@ -572,9 +572,6 @@ while True:
                 for emotion in emotions:
                     emotionsPath.append(TOP_FRAMES_PATH + "/" + emotion)
 
-                # defining the api-endpoint
-                API_ENDPOINT = API_URL + "/frames"
-
                 requestOk = 0
                 requestTotal = 0
                 i = 0
@@ -587,44 +584,70 @@ while True:
                     # This variable is important to know how much potential requests we have
                     requestTotal = requestTotal + 1
 
-                    # Json body for request
-                    data = {}
-
-                    data["macAddress"] = MAC_ADDRESS
-                    data["emotion"] = emotion
-                    for x, value in enumerate(framesDominantAccuraciesTop10Emotions[i]):
-                        data["accuraciesFrames["+str(x)+"]"] = value
-                    for x, value in enumerate(framesPredictionsTop10Emotions[i]):
-                        data["preditionsFrames["+str(x)+"]"] = value
-
-                    files = []
-                    # All the images/frames paths are mapped in arrayTopFramePaths. Where each index is an emotion and each
-                    # sub-index is an image/frame path of that emotion
-                    imagesPath = arrayTopFramePaths[i]
-
-                    k = 0
-                    # This for ... in aims to add the date in correct format and files in the request body
-                    for imagePath in imagesPath:
-                        date = datetime.fromtimestamp(times[i][k]).strftime("%Y-%m-%d %H:%M:%S")
-                        data["datesFrames["+str(k)+"]"] = date
-                        fileFrame = open(imagePath, 'rb')
-                        files.append(('file['+str(k)+']', (imagePath.split('/')[-1], fileFrame,'image/jpeg')))
-                        k = k + 1
-
-                    i = i + 1
-
                     headers = {"Authorization": "Bearer " + token, "Accept":"application/json"}
 
                     # sending post request and saving response as response object
-                    attempt = 0
-                    sucessfullRequest = False
-                    while sucessfullRequest==False and attempt < 3:
-                        try:
-                            r = requests.request("POST", API_ENDPOINT, headers=headers, data=data, files=files)
-                            if r.status_code == 201:
-                                sucessfullRequest = True
-                                requestOk = requestOk + 1
-                                print("Request succeded after "+ str(attempt) +" attempts")
+
+                    #sucessfullRequest = False
+
+                    # Create Iteration
+                    payload = {
+                        "macAddress": MAC_ADDRESS,
+                        "emotion": emotion
+                    }
+                    # POST API
+                    headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                    r = requests.request("POST", API_URL + "/iterations", headers=headers, data=payload)
+                    iteration_id = r.json()["data"]["id"]
+                    iteration_usage_id = r.json()["data"]["usage_id"]
+
+                    if r.status_code == 403:
+                        # sending post request and saving response as response object
+                        r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+
+                        if r.status_code == 200:
+                            # extracting response text
+                            token = r.json()["access_token"]
+
+                            with open('token.txt', 'w') as f:
+                                f.write(token)
+                            headers = {"Authorization": "Bearer " + token,
+                                       "Accept": "application/json"}
+                            r = requests.request("POST", API_URL + "/iterations", headers=headers, data=payload)
+                            iteration_id = r.json()["id"]
+                            iteration_usage_id = r.json()["usage_id"]
+
+                    #while sucessfullRequest==False and attempt < 3:
+                    try:
+                        # Insert Frame by Frame in Iteration
+                        requestSubOk = 0
+                        print(arrayTopFramePaths)
+                        print(framesDominantAccuraciesTop10Emotions)
+                        print(framesPredictionsTop10Emotions)
+                        time.sleep(4)
+                        for b in range(len(arrayTopFramePaths[i])):
+                            date = datetime.fromtimestamp(times[i][b]).strftime("%Y-%m-%d %H:%M:%S")
+                            payload = {
+                                "iteration_id": iteration_id,
+                                "iteration_usage_id": iteration_usage_id,
+                                "datesFrames[0]": date,
+                                "accuraciesFrames[0]": framesDominantAccuraciesTop10Emotions[i][b],
+                                "preditionsFrames[0]": framesPredictionsTop10Emotions[i][b]
+                            }
+                            # POST API
+                            headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+
+                            file = []
+                            imagePath = arrayTopFramePaths[i][b]
+                            fileFrame = open(imagePath, 'rb')
+                            file.append(('file[0]', (imagePath.split('/')[-1], fileFrame,'image/jpeg')))
+                            r = requests.request("POST", API_URL + "/frames", headers=headers, data=payload,
+                                                 files=file)
+
+                            fileFrame.close()
+
+                            if r.status_code == 200:
+                                requestSubOk = requestSubOk + 1
                             elif r.status_code == 403:
                                 # sending post request and saving response as response object
                                 r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
@@ -667,65 +690,17 @@ while True:
                                         sio.emit('newLogMessage', {"userId": str(userId),
                                                                    "data": MAC_ADDRESS + ";" + sys.argv[
                                                                        0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
-                            else:
-                                attempt = attempt + 1
-                                print("Request failed - Attempts: " + str(attempt))
-                                if attempt == 3:
-                                    print("Request " + emotion+ " failed - Attempts: " + str(attempt))
-                                    r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
-                                    if r.status_code == 403:
-                                        # sending post request and saving response as response object
-                                        r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                        if requestSubOk == len(arrayTopFramePaths[i]):
+                            requestOk = requestOk + 1
 
-                                        if r.status_code == 200:
-                                            # extracting response text
-                                            token = r.json()["access_token"]
+                    except Exception as e:
+                        f = open("local.logs.txt", "a")
+                        f.write(datetime.now().strftime(
+                            "%d/%m/%Y %H:%M:%S") + " Request failed - " + str(e) + "\n")
+                        f.close()
 
-                                            with open('token.txt', 'w') as f:
-                                                f.write(token)
-                                            headers = {"Authorization": "Bearer " + token,
-                                                       "Accept": "application/json"}
-                                            r = requests.request("POST", API_URL + "/logs", headers=headers,
-                                                                 data={"macAddress": MAC_ADDRESS,
-                                                                       "content": "Failed to send iteration data to API ",
-                                                                       "process": sys.argv[0]})
-                                    sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
-                                    sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
+                    i = i + 1
 
-                        except Exception as e:
-                            attempt = attempt + 1
-                            print("Request failed - Attempts: " + str(attempt))
-                            f = open("local.logs.txt", "a")
-                            f.write(datetime.now().strftime(
-                                "%d/%m/%Y %H:%M:%S") + " Request failed - Attempts: " + str(attempt) + "\n")
-                            f.close()
-                            if attempt == 3:
-                                print("Request " + emotion+ " failed - Attempts: " + str(attempt))
-                                r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Failed to send iteration data to API ", "process": sys.argv[0]})
-                                if r.status_code == 403:
-                                    # sending post request and saving response as response object
-                                    r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
-
-                                    if r.status_code == 200:
-                                        # extracting response text
-                                        token = r.json()["access_token"]
-
-                                        with open('token.txt', 'w') as f:
-                                            f.write(token)
-                                        headers = {"Authorization": "Bearer " + token,
-                                                   "Accept": "application/json"}
-                                        r = requests.request("POST", API_URL + "/logs", headers=headers,
-                                                             data={"macAddress": MAC_ADDRESS,
-                                                                   "content": "Failed to send iteration data to API ",
-                                                                   "process": sys.argv[0]})
-                                sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
-                                sio.emit('newLogMessage',{"userId":str(userId), "data":MAC_ADDRESS + ";" + sys.argv[0] + ";" + "Failed to send iteration data to API " + ";" + CLIENT_EMAIL})
-                    #if r.status_code == 201:
-                    #    requestOk = requestOk + 1
-                    # extracting response text
-                    # The frame files need to be closed
-                    for file in files:
-                        file[1][1].close()
                 if requestOk == requestTotal:
                     print(str(requestOk) + " iterations were performed successfully")
                     if (platform.system() == "Linux"):
@@ -807,7 +782,6 @@ while True:
 
             video.release()
         else:
-            print(r.text)
             print("Error when logging in with your account")
             f = open("local.logs.txt", "a")
             f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S")+" Error when logging in with your account\n")

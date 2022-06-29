@@ -1,6 +1,5 @@
 <template>
   <div>
-    <navbar/>
     <b-container class="text-center pt-5">
         <div class="card">
           <div class="card-body">
@@ -11,7 +10,7 @@
                 <h4>{{currentUser.name}}</h4>
                   <p class="text-secondary mb-1">Email: {{currentUser.email}}</p>
                 </div>
-                <b-form @submit.prevent="onSubmit" v-else-if="showEdit" ref="profileForm">
+                <b-form v-else-if="showEdit" ref="profileForm" @submit.prevent="onSubmit">
                   <b-form-group
                     id="input-group-1"
                     label="Email address:"
@@ -35,8 +34,8 @@
                     ></b-form-input>
                   </b-form-group>
                 </b-form>
-                <b-button @click="onSubmit" type="submit" v-if="showEdit" variant="primary">Save</b-button>
-                <b-button @click="changeView" variant="outline-primary">{{showEdit ? 'Back' : 'Edit'}}</b-button>
+                <b-button v-if="showEdit" type="submit" variant="primary" @click="onSubmit">Save</b-button>
+                <b-button variant="outline-primary" @click="changeView">{{showEdit ? 'Back' : 'Edit'}}</b-button>
               </div>
             </div>
           </div>
@@ -46,12 +45,8 @@
 </template>
 
 <script>
-import navbar from '~/components/utils/NavBar.vue'
 export default {
   middleware: ('auth'),
-  components: {
-    navbar,
-  },
   data() {
     return {
       form: {
@@ -75,10 +70,10 @@ export default {
   methods: {
     showErrorMessage(err) {
       if (err.response) {
-        this.$toast.error('ERROR: ' + err.response.data).goAway(3000);
+        this.$toast.error('ERROR: ' + err.response.data).goAway(3000)
       }
       else {
-        this.$toast.error(err).goAway(3000);
+        this.$toast.error(err).goAway(3000)
       }
     },
     changeView(){
@@ -90,16 +85,16 @@ export default {
       this.$axios
         .$put('/api/auth/update', this.form)
         .then(() => {
-          this.$auth.fetchUser();
-          this.$toast.success('Profile updated').goAway(3000);
-          this.showEdit = false;
+          this.$auth.fetchUser()
+          this.$toast.success('Profile updated').goAway(3000)
+          this.showEdit = false
         })
-        .catch((err)=>{
-          this.$toast.error('Profile was not updated').goAway(3000);
-        });
+        .catch(err=>{
+          this.$toast.error('Profile was not updated').goAway(3000)
+        })
     },
     isNumber(event) {
-      if (!/\d/.test(event.key) && event.key !== '.') return event.preventDefault();
+      if (!/\d/.test(event.key) && event.key !== '.') return event.preventDefault()
     }
   }
 }

@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\Emotion;
 use App\Models\Frame;
 use App\Models\Iteration;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -48,19 +49,19 @@ class FrameController extends Controller
      */
     public function store(CreateFrameRequest $request)
     {
-
-        $iteration = new Iteration();
         $validated_data = $request->validated();
+        $iteration = Iteration::findOrFail($validated_data["iteration_id"]);
+        if ($iteration->usage_id != $validated_data["iteration_usage_id"] && !Carbon::createFromTimestamp($iteration->created_at)->addMinutes(30)->gt(Carbon::now()))
+            return response()->json(array(
+                'code'      =>  422,
+                'message'   =>  "Iteration Usage Id doesnt match or expired!"
+            ), 422);
+
 
         try {
             DB::beginTransaction();
 
             if ($request->has("file")) {
-                $iteration->emotion()->associate(Emotion::find(strtolower($validated_data["emotion"])));
-                $iteration->macaddress = $validated_data["macAddress"];
-                $iteration->client()->associate(Auth::user()->userable);
-
-                $iteration->save();
 
                 $files = $request->file('file');
 
@@ -74,7 +75,7 @@ class FrameController extends Controller
 
                     $frame->save();
 
-                    $classificationsAux = explode(";",$validated_data["preditionsFrames"][$i],count($files));
+                    $classificationsAux = explode(";",$validated_data["preditionsFrames"][$i]);
                     foreach ($classificationsAux as &$classificationAux) {
 
                         $classification = new Classification();
@@ -190,7 +191,10 @@ class FrameController extends Controller
      */
     public function showGraphData(Client $client)
     {
+        $date = Carbon::now()->subDays(7);
+
         $frames = Frame::select('frames.*')->join('iterations', 'frames.iteration_id','=', 'iterations.id')
+            ->where('iterations.created_at', '>=', $date)
             ->where('iterations.client_id', '=', $client->id)->get();
         FrameResource::$format = "graph";
         return new FrameCollection($frames);

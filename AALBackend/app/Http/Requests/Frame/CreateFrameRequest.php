@@ -24,8 +24,8 @@ class CreateFrameRequest extends FormRequest
     public function rules()
     {
         return [
-            'macAddress'              => ['required', 'string'],
-            'emotion'              => ['required', 'string'],
+            'iteration_id' => ['required','integer','exists:iterations,id'],
+            'iteration_usage_id' => ['required','string','exists:iterations,usage_id'],
             'file'              => ['required', 'array'],
             'file.*'              => ['required', 'image', 'mimes:jpg,bmp,png', 'max:512'],
             'datesFrames'              => ['required', 'array'],

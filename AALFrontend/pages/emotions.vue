@@ -1,14 +1,13 @@
 <template>
   <div>
-    <navbar/>
     <div align="right">
-      <b-button class="m-5" variant="outline-info" v-b-modal.modalCreate>+ Emotion</b-button>
+      <b-button v-b-modal.modalCreate class="m-5" variant="outline-info">+ Emotion</b-button>
     </div>
     <b-container>
-      <div class="mt-5" v-if="tableLength != 0">
+      <div v-if="tableLength != 0" class="mt-5">
         <b-table
-          small
           id="emotionsTable"
+          small
           :items="emotions"
           :fields="fields"
           :current-page="currentPage"
@@ -37,8 +36,8 @@
         >
           <b-form-input
             id="input-name"
-            aria-describedby="input-name-feedback"
             v-model="form.name"
+            aria-describedby="input-name-feedback"
             trim
           ></b-form-input>
         </b-form-group>
@@ -66,12 +65,8 @@
 </template>
 
 <script>
-import navbar from '~/components/utils/NavBar.vue'
 export default {
   middleware: ('auth'),
-  components: {
-    navbar,
-  },
   data() {
     return {
       form: {
@@ -103,33 +98,37 @@ export default {
       return this.$auth.user
     },
     tableLength() {
-      return this.emotions.length;
+      return this.emotions.length
     },
+  },
+  created() {
+    this.getEmotions()
+    this.getGroups()
   },
   methods: {
     onSubmit() {
       this.$axios
         .$post("/api/emotions", this.form)
-        .then((emotion) => {
-          this.$toast.success('Emotion '+this.form.name+' created').goAway(3000);
-          this.emotions.push(emotion);
+        .then(emotion => {
+          this.$toast.success('Emotion '+this.form.name+' created').goAway(3000)
+          this.emotions.push(emotion)
         })
         .catch(() => {
-          this.$toast.error("Error creating emotion").goAway(3000);
-        });
+          this.$toast.error("Error creating emotion").goAway(3000)
+        })
     },
     resetCreate() {
-      this.emotions = null;
+      this.emotions = null
     },
     getEmotions() {
       this.$axios
         .$get("/api/emotions")
-        .then((emotions) => {
-          this.emotions = emotions;
+        .then(emotions => {
+          this.emotions = emotions
         })
         .catch(() => {
-          this.$toast.info("No emotions found").goAway(3000);
-        });
+          this.$toast.info("No emotions found").goAway(3000)
+        })
     },
     getGroups(){
       this.groups = [{ value: null, text: 'Please select an option' },
@@ -137,10 +136,6 @@ export default {
                     { value: 'neutral', text: 'Neutral' },
                     { value: 'negative', text: 'Negative' }]
     }
-  },
-  created() {
-    this.getEmotions();
-    this.getGroups();
   },
 }
 </script>

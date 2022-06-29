@@ -20,13 +20,27 @@ class IterationResource extends JsonResource
     public function toArray($request)
     {
         FrameResource::$format = IterationResource::$format;
-        return [
-            'id' => $this->id,
-            'macaddress' => $this->macaddress,
-            'emotion' => new EmotionResource($this->emotion),
-            'created_at' => $this->created_at,
-            'client' => new ClientResource($this->client),
-            'frames' => new FrameCollection($this->frames),
-        ];
+        switch (FrameResource::$format) {
+            case "show_usage_id":
+                return [
+                    'id' => $this->id,
+                    'macaddress' => $this->macaddress,
+                    'emotion' => new EmotionResource($this->emotion),
+                    'created_at' => $this->created_at,
+                    'client' => new ClientResource($this->client),
+                    'frames' => new FrameCollection($this->frames),
+                    'usage_id' => $this->usage_id
+                ];
+                break;
+            default:
+                return [
+                    'id' => $this->id,
+                    'macaddress' => $this->macaddress,
+                    'emotion' => new EmotionResource($this->emotion),
+                    'created_at' => $this->created_at,
+                    'client' => new ClientResource($this->client),
+                    'frames' => new FrameCollection($this->frames),
+                ];
+        }
     }
 }

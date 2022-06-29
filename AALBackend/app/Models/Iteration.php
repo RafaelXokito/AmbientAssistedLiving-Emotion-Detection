@@ -31,7 +31,7 @@ class Iteration extends Model
      * @var array
      */
     protected $fillable = [
-        'macaddress', 'client_id', 'created_at', 'emotion_name'
+        'macaddress', 'client_id', 'created_at', 'emotion_name', 'usage_id'
     ];
 
     /**
@@ -49,7 +49,7 @@ class Iteration extends Model
      * @var array
      */
     protected $casts = [
-        'macaddress' => 'string', 'created_at' => 'timestamp', 'emotion_name' => 'string'
+        'macaddress' => 'string', 'created_at' => 'timestamp', 'emotion_name' => 'string', 'usage_id' => 'string'
     ];
 
     /**

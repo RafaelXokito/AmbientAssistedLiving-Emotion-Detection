@@ -459,17 +459,17 @@ export default {
 
           if (
             !this.frameOpenedByGroupChartOptions.xAxis.categories.includes(
-              p.emotion.group
+              p.emotion.category
             )
           ) {
             this.frameOpenedByGroupChartOptions.xAxis.categories.push(
-              this.firstCapitalLetter(p.emotion.group)
+              this.firstCapitalLetter(p.emotion.category)
             )
             this.frameOpenedByGroupChartOptions.series[0].data.push(p.accuracy)
           } else {
             const index =
               this.frameOpenedByGroupChartOptions.xAxis.categories.indexOf(
-                this.firstCapitalLetter(p.emotion.group)
+                this.firstCapitalLetter(p.emotion.category)
               )
             this.frameOpenedByGroupChartOptions.series[0].data[index] +=
               p.accuracy
@@ -500,7 +500,7 @@ export default {
                 text: this.firstCapitalLetter(e.name),
               })
             })
-            if (this.invalidEmotion.name !== undefined)
+            if (this.invalidEmotion.value !== undefined)
               this.frameOpened.humanLabelEmotions.push(this.invalidEmotion)
           })
       })
@@ -583,7 +583,7 @@ return graphData
       await this.$axios.get("/api/emotions").then(response => {
         const emotions = response.data.data
         emotions.forEach(emotion => {
-          if (emotion.group !== "invalid")
+          if (emotion.category !== "invalid")
             this.yLabels.push(this.firstCapitalLetter(emotion.name))
           else
             this.invalidEmotion = {

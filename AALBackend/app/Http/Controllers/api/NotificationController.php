@@ -72,11 +72,11 @@ class NotificationController extends Controller
             $newNotification = new NotificationResource($notification);
 
             if (Auth::user()->notifiable) {
-                 Mail::raw($notification->content, function($message) use($notification)
+                Mail::raw($notification->content, function($message) use($notification)
                 {
-                        $message->from("hello@example.com",'Smart Emotion - AAL');
-                        $message->to(Auth::user()->email);
-                        $message->subject($notification->title);
+                    $message->from(env("MAIL_USERNAME"),'Smart Emotion - AAL');
+                    $message->to(Auth::user()->email);
+                    $message->subject($notification->title);
                 });
 
                 $basic  = new \Vonage\Client\Credentials\Basic(getenv("VONAGE_KEY"), getenv("VONAGE_SECRET"));
