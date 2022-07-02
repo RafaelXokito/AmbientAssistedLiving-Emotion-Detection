@@ -621,9 +621,6 @@ while True:
                     try:
                         # Insert Frame by Frame in Iteration
                         requestSubOk = 0
-                        print(arrayTopFramePaths)
-                        print(framesDominantAccuraciesTop10Emotions)
-                        print(framesPredictionsTop10Emotions)
                         time.sleep(4)
                         for b in range(len(arrayTopFramePaths[i])):
                             date = datetime.fromtimestamp(times[i][b]).strftime("%Y-%m-%d %H:%M:%S")
