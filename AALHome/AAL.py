@@ -333,6 +333,8 @@ json = {
     "type": "RaspberryPi"
 }
 
+refresh_token = ""
+
 # standard Python
 sio = socketio.Client()
 
@@ -343,6 +345,7 @@ while True:
         if r.status_code == 200:
             # extracting response text
             token = r.json()["access_token"]
+            refresh_token = r.json()["refresh_token"]
 
             with open('token.txt', 'w') as f:
                 f.write(token)
@@ -359,11 +362,15 @@ while True:
             r = requests.request("POST", API_URL+"/logs", headers={"Authorization": "Bearer " + token}, data={"macAddress":MAC_ADDRESS, "content": "Cliente Ligado", "process": sys.argv[0]})
             if r.status_code == 403:
                 # sending post request and saving response as response object
-                r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                payload = {
+                           'refresh_token': refresh_token,
+                           'type': 'RaspberryPi'}
+                r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                 if r.status_code == 200:
                     # extracting response text
                     token = r.json()["access_token"]
+                    refresh_token = r.json()["refresh_token"]
 
                     with open('token.txt', 'w') as f:
                         f.write(token)
@@ -512,11 +519,15 @@ while True:
                                             r = requests.request("POST", API_URL+"/notifications", headers=headers, data=payload, files=files)
                                             if r.status_code == 403:
                                                 # sending post request and saving response as response object
-                                                r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                                                payload = {
+                                                    'refresh_token': refresh_token,
+                                                    'type': 'RaspberryPi'}
+                                                r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                                                 if r.status_code == 200:
                                                     # extracting response text
                                                     token = r.json()["access_token"]
+                                                    refresh_token = r.json()["refresh_token"]
 
                                                     with open('token.txt', 'w') as f:
                                                         f.write(token)
@@ -541,11 +552,15 @@ while True:
                         r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "Error: " + str(e), "process": sys.argv[0]})
                         if r.status_code == 403:
                             # sending post request and saving response as response object
-                            r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                            payload = {
+                                'refresh_token': refresh_token,
+                                'type': 'RaspberryPi'}
+                            r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                             if r.status_code == 200:
                                 # extracting response text
                                 token = r.json()["access_token"]
+                                refresh_token = r.json()["refresh_token"]
 
                                 with open('token.txt', 'w') as f:
                                     f.write(token)
@@ -603,11 +618,15 @@ while True:
 
                     if r.status_code == 403:
                         # sending post request and saving response as response object
-                        r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                        payload = {
+                            'refresh_token': refresh_token,
+                            'type': 'RaspberryPi'}
+                        r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                         if r.status_code == 200:
                             # extracting response text
                             token = r.json()["access_token"]
+                            refresh_token = r.json()["refresh_token"]
 
                             with open('token.txt', 'w') as f:
                                 f.write(token)
@@ -647,11 +666,15 @@ while True:
                                 requestSubOk = requestSubOk + 1
                             elif r.status_code == 403:
                                 # sending post request and saving response as response object
-                                r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                                payload = {
+                                    'refresh_token': refresh_token,
+                                    'type': 'RaspberryPi'}
+                                r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                                 if r.status_code == 200:
                                     # extracting response text
                                     token = r.json()["access_token"]
+                                    refresh_token = r.json()["refresh_token"]
 
                                     with open('token.txt', 'w') as f:
                                         f.write(token)
@@ -667,11 +690,15 @@ while True:
                                                                    "process": sys.argv[0]})
                                         if r.status_code == 403:
                                             # sending post request and saving response as response object
-                                            r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                                            payload = {
+                                                'refresh_token': refresh_token,
+                                                'type': 'RaspberryPi'}
+                                            r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                                             if r.status_code == 200:
                                                 # extracting response text
                                                 token = r.json()["access_token"]
+                                                refresh_token = r.json()["refresh_token"]
 
                                                 with open('token.txt', 'w') as f:
                                                     f.write(token)
@@ -711,11 +738,15 @@ while True:
                                                                                                "process": sys.argv[0]})
                         if r.status_code == 403:
                             # sending post request and saving response as response object
-                            r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                            payload = {
+                                'refresh_token': refresh_token,
+                                'type': 'RaspberryPi'}
+                            r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                             if r.status_code == 200:
                                 # extracting response text
                                 token = r.json()["access_token"]
+                                refresh_token = r.json()["refresh_token"]
 
                                 with open('token.txt', 'w') as f:
                                     f.write(token)
@@ -734,11 +765,15 @@ while True:
                     r = requests.request("POST", API_URL+"/logs", headers=headers, data={"macAddress":MAC_ADDRESS, "content": "An error occurred in the iteration log " + str(requestOk) + " of " + str(requestTotal), "process": sys.argv[0]})
                     if r.status_code == 403:
                         # sending post request and saving response as response object
-                        r = requests.post(url=API_ENDPOINT_REFRESH, json=json)
+                        payload = {
+                            'refresh_token': refresh_token,
+                            'type': 'RaspberryPi'}
+                        r = requests.post(url=API_ENDPOINT_REFRESH, json=payload)
 
                         if r.status_code == 200:
                             # extracting response text
                             token = r.json()["access_token"]
+                            refresh_token = r.json()["refresh_token"]
 
                             with open('token.txt', 'w') as f:
                                 f.write(token)
