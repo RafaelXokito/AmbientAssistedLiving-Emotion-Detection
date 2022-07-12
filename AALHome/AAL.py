@@ -679,6 +679,8 @@ while True:
                                     with open('token.txt', 'w') as f:
                                         f.write(token)
                                     headers = {"Authorization": "Bearer " + token, "Accept": "application/json"}
+                                    r = requests.request("POST", API_URL + "/frames", headers=headers, data=payload,
+                                                         files=file)
                                 else:
                                     attempt = attempt + 1
                                     print("Login Request failed - Attempts: " + str(attempt))
