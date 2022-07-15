@@ -420,7 +420,7 @@ export default {
     },
     async showModal(point) {
       // console.log(point.x, point.y, point.id, point)
-
+      while (this.frameOpened.humanLabelEmotions.length) { this.frameOpened.humanLabelEmotions.pop() }
       await this.$axios.$get("/api/frames/" + point.id).then(async ({data}) => {
         data.createDate = data.createDate  * 1000
         this.frameOpened.createDate = data.createDate
@@ -495,10 +495,11 @@ export default {
               disabled: true,
             })
             data.forEach(e => {
-              this.frameOpened.humanLabelEmotions.push({
-                value: e.name,
-                text: this.firstCapitalLetter(e.name),
-              })
+              if (e.name !== this.frameOpened.emotionIteration.name)
+                this.frameOpened.humanLabelEmotions.push({
+                  value: e.name,
+                  text: this.firstCapitalLetter(e.name),
+                })
             })
             if (this.invalidEmotion.value !== undefined)
               this.frameOpened.humanLabelEmotions.push(this.invalidEmotion)
@@ -516,6 +517,7 @@ export default {
       this.frameOpened.base64 = ""
       this.frameOpened.emotionClassified = null
       while (this.frameOpened.humanLabelEmotions.length) { this.frameOpened.humanLabelEmotions.pop() }
+      console.log(this.frameOpened.humanLabelEmotions.length)
     },
     firstCapitalLetter(str = "") {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)

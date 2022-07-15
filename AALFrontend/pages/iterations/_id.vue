@@ -74,7 +74,8 @@ export default {
         .then(({data}) => {
           this.humanLabelEmotions.push({ value: null, text: 'None', disabled: true, })
           data.forEach(e => {
-            this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
+            if (e.name !== e.category)
+              this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
           })
 
           this.$axios
@@ -92,9 +93,10 @@ export default {
               this.$axios
                 .$get("/api/emotions/groups/" + emotion.group)
                 .then(emotions => {
-                  this.humanLabelEmotions.push({ value: null, text: 'None' })
+                  this.humanLabelEmotions.push({ value: null, text: 'None',disabled: true, })
                   emotions.forEach(e => {
-                    this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
+                    if (e.name !== e.category)
+                      this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })
                   })
                 })
             })
@@ -110,7 +112,7 @@ export default {
       .$get("/api/frames/iteration/" + this.id)
       .then(({data}) => {
         data.forEach(frame => {
-          this.emotionsClassified.push(frame.emotion.name === '' ? null : frame.emotion.name)
+          this.emotionsClassified.push(frame.emotion.name !== undefined ? frame.emotion.name : null)
           this.$axios
             .$get("/api/frames/download/" + frame.id)
             .then(imageBase64 => {
