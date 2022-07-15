@@ -64,10 +64,10 @@
         </v-card-title>
         <v-card-text>
           <div class="text-center font-mono">
-            <h3>
+            <h3 v-if="frameOpened.emotion.name !== ''">
               {{ firstCapitalLetter(frameOpened.emotionIteration.name) }} - IA
             </h3>
-            <h3 v-if="frameOpened.emotion.name !== ''">
+            <h3  v-else>
               {{ firstCapitalLetter(frameOpened.emotion.name) }} - HL
             </h3>
             <hr />
@@ -408,14 +408,14 @@ export default {
           // console.log(this.socket)
           const jsonData =
             '{ "userId": ' + this.$auth.user.id +
-            '"emotion" : "' +
+            ',"emotion" : "' +
             this.frameOpened.emotionClassified +
             '", "image": "' +
             base64 +
             '"}'
           this.socket.emit('newFrameMessage',jsonData)
-          this.collectGraphData()
           this.hideModal()
+          this.collectGraphData()
         })
     },
     async showModal(point) {
@@ -507,6 +507,7 @@ export default {
       this.showFrameModal = true
     },
     hideModal() {
+      this.showFrameModal = false
       this.frameOpened.showHLForm = false
       this.frameOpened.createDate = ""
       this.frameOpened.emotion = {}
@@ -514,7 +515,7 @@ export default {
       this.frameOpened.id = -1
       this.frameOpened.base64 = ""
       this.frameOpened.emotionClassified = null
-      this.frameOpened.humanLabelEmotions = []
+      while (this.frameOpened.humanLabelEmotions.length) { this.frameOpened.humanLabelEmotions.pop() }
     },
     firstCapitalLetter(str = "") {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)
