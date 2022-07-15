@@ -16,8 +16,8 @@ PRE_DATASET_PATH = os.getenv('PRE_DATASET_PATH')
 sio = socketio.Client()
 
 
-@sio.on("newFrameMessage")
-def message(data):
+@sio.event
+def newFrameMessage(data):
     if len(data["image"]) > 70:
         print("New Frame Classified!")
         messageContent = data["image"]
@@ -51,9 +51,9 @@ def connect_error(data):
     print("The connection failed!")
 
 
-@sio.on('disconnect')
-def disconnect(sid):
-    print('disconnect ', sid)
+@sio.event
+def disconnect():
+    print('disconnect ')
 
 
 if __name__ == "__main__":
