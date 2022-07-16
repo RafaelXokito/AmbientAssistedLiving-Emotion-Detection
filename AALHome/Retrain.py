@@ -219,7 +219,7 @@ else:
 modelPath = 'weights/' + str(model) + '_' + mode + '_' + str(epochs) + '_' + str(batches) + '.h5'
 classIndicesPath = 'analysis/class_indices.json'
 
-start_time_retrain = time.time()
+start_time_retrain = 0#time.time()
 
 # Websocket Log
 API_URL = os.getenv('API_URL')
@@ -243,7 +243,7 @@ sio.emit('logged_in', {"username": str(userId), "userType": "C"})
 try:
     while True:
         # Check if each folder in pre-dataset has RETRAIN_NUMBER_FILES frames each, if it has the frames are moved to the dataset
-        while (int(start_time_retrain + RETRAIN_TIME) <= time.time()):
+        while start_time_retrain == 0 or (int(start_time_retrain + RETRAIN_TIME) <= time.time()):
             if os.path.exists(PRE_DATASET_PATH) == True:
                 emotionsPath = [w.replace(os.sep, '/') for w in glob(PRE_DATASET_PATH + '/*')]
                 for emotionPath in emotionsPath:

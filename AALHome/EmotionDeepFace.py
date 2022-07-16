@@ -86,17 +86,17 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     #----------------------------
 
-    home = functions.get_deepface_home()
+    #home = functions.get_deepface_home()
 
-    if os.path.isfile(home+'/.deepface/weights/facial_expression_model_weights.h5') != True:
-        print("facial_expression_model_weights.h5 will be downloaded...")
+    #if os.path.isfile(home+'/.deepface/weights/facial_expression_model_weights.h5') != True:
+    #    print("facial_expression_model_weights.h5 will be downloaded...")
 
-        output = home+'/.deepface/weights/facial_expression_model_weights.h5'
-        gdown.download(url, output, quiet=False)
-
+    #    output = home+'/.deepface/weights/facial_expression_model_weights.h5'
+    #    gdown.download(url, output, quiet=False)
+    #    print("Download finished")
     # Carregamento do pré-treino
-    ptm.load_weights(home+'/.deepface/weights/facial_expression_model_weights.h5')
-
+    ptm.load_weights('./weights/facial_expression_model_weights.h5')
+    print("Load Weights Complete")
     # ----------------------- 
     # Transfer Learning
 
@@ -145,7 +145,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
 
     # Get the time before train
     before = datetime.datetime.now()
-
+    print("Model Training - Begin")
     r = model.fit_generator(
         train_generator,
         validation_data=valid_generator,
@@ -154,7 +154,7 @@ def loadModel(url = 'https://github.com/serengil/deepface_models/releases/downlo
         validation_steps = int(np.ceil(len(valid_images_files)/ batch_size)),
         callbacks=[early_stopping],
     )
-
+    print("Model Training - End")
     # Get the time after train
     after = datetime.datetime.now()
     diffTime = after - before
