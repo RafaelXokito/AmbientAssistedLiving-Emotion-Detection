@@ -826,4 +826,4 @@ while True:
         f.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S") + " Error: "+str(e)+"\n")
         f.close()
         video.release()
-        time.sleep(10)
+        time.sleep(1000)
