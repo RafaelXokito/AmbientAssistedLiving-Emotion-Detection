@@ -29,6 +29,12 @@ class NotificationController extends Controller
         return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->where('client_id', '=', Auth::user()->userable->id)->get());
     }
 
+    public function top()
+    {
+        $topNotification = Auth::user()->userable->notifications()->orderBy('created_at', 'desc')->take(10)->get();
+        return new NotificationResource($topNotification);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

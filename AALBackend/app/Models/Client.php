@@ -99,6 +99,13 @@ class Client extends Model
         return $this->hasMany(Log::class, 'client_id', 'id');
     }
     /**
+     * Get the emotion expressions associated with the emotion.
+     */
+    public function emotionExpressions()
+    {
+        return $this->hasMany(EmotionExpression::class, 'client_id', 'id');
+    }
+    /**
      * Get the emotion notifications associated with the emotion.
      */
     public function emotionNotifications()

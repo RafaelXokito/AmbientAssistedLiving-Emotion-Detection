@@ -24,6 +24,7 @@ io.on('connection', function (socket) {
             socket.join("framesocket/"+data.username)
             socket.join("logsocket/"+data.username)
             socket.join("notificationsocket/"+data.username)
+            socket.join("prediction/"+data.username)
             console.log(`Room Users ${data.username} join`)
         }
     })
@@ -40,6 +41,7 @@ io.on('connection', function (socket) {
             socket.leave(data.username)
             socket.leave("framesocket/"+data.username)
             socket.leave("logsocket/"+data.username)
+            socket.leave("prediction/"+data.username)
             socket.leave("notificationsocket/"+data.username)
         }
     })
@@ -55,6 +57,12 @@ io.on('connection', function (socket) {
         data = JSON.parse(data)
         io.to('framesocket/'+data.userId).emit('newFrameMessage', data)
     })
+
+    socket.on('prediction', function (data) {
+        console.log('prediction',data)
+        io.to('prediction/'+data.userId).emit('prediction', data)
+    })
+
     socket.on('newNotificationMessage', function (data) {
         console.log('newNotificationMessage',data)
         io.to('notificationsocket/'+data.userId).emit('newNotificationMessage', data)

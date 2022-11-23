@@ -30,7 +30,7 @@ class AuthServiceProvider extends ServiceProvider
             Passport::routes();
 
             Passport::hashClientSecrets();
-            Passport::tokensExpireIn(now()->addDays(1));
+            Passport::tokensExpireIn(now()->addDays(120)); // Isto antes era 1 dia, mas por causa dos problemas que a APP iOS estava a ter metemos a 120 dias
             Passport::refreshTokensExpireIn(now()->addDays(30));
             Passport::personalAccessTokensExpireIn(now()->addMonths(6));
         }

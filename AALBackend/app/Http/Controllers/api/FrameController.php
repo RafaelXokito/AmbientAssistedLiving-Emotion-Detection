@@ -120,6 +120,18 @@ class FrameController extends Controller
         return new FrameResource($frame);
     }
 
+    /**
+     * Display the last resource.
+     *
+     * @return FrameResource
+     */
+    public function last()
+    {
+        $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
+        FrameResource::$format = "extended";
+        return new FrameResource($lastIteration->frames->last());
+    }
+
     public function showFoto(Frame $frame)
     {
         $path = storage_path('app/iterations/'.Auth::user()->userable_id.'/'.$frame->path);
