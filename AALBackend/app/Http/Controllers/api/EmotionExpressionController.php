@@ -50,7 +50,11 @@ class EmotionExpressionController extends Controller
         try {
             DB::beginTransaction();
 
-            $expression = new EmotionExpression();
+            $expression = EmotionExpression::where("emotion_name", $validated_data["emotion_name"])->where("client_id", Auth::user()->userable->id)->first();
+            
+            if ($expression == null) {
+                $expression = new EmotionExpression();
+            }
 
             $expression->client()->associate(Auth::user()->userable);
             $expression->emotion()->associate($emotion);
@@ -70,6 +74,19 @@ class EmotionExpressionController extends Controller
             ), 400);
         }
 
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showByEmotion($emotion)
+    {
+        $expression = EmotionExpression::where("emotion_name", $emotion)->where("client_id", Auth::user()->userable->id)->first();
+
+        return new EmotionExpressionResource($expression);
     }
 
     /**

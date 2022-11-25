@@ -71,7 +71,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'emotionsNotification' => EmotionsNotificationController::class,
         'emotionExpressions' => EmotionExpressionController::class,
     ]);
-
+    Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
     Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
     Route::get('/frames/download/{frame}', [FrameController::class, 'showFoto']);
