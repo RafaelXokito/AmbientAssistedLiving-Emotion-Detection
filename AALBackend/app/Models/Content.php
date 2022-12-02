@@ -27,7 +27,7 @@ class Content extends Model
      * @var array
      */
     protected $fillable = [
-        'accuracy', 'createdate','iteration_id', 'updated_at', 'emotion_name','contentChild_id','contentChild_type'
+        'accuracy', 'createdate','iteration_id', 'updated_at', 'emotion_name','childable_id','childable_type'
     ];
 
     /**
@@ -45,7 +45,7 @@ class Content extends Model
      * @var array
      */
     protected $casts = [
-        'accuracy' => 'float', 'createdate' => 'timestamp', 'emotion_name' => 'string', 'updated_at' => 'timestamp'
+        'userable_type' => 'string', 'accuracy' => 'float', 'createdate' => 'timestamp', 'emotion_name' => 'string', 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -88,9 +88,9 @@ class Content extends Model
     }
 
     /**
-     * Get the parent imageable model (user or post).
+     * Get the parent content model (user or post).
      */
-    public function contentChild()
+    public function childable()
     {
         return $this->morphTo();
     }

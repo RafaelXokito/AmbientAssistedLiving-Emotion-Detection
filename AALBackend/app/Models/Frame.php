@@ -80,6 +80,6 @@ class Frame extends Model
      */
     public function content()
     {
-        return $this->morphOne(Content::class, 'contentChild');
+        return $this->morphOne(Content::class, 'childable');
     }
 }

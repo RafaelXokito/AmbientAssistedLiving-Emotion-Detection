@@ -24,7 +24,7 @@ class FrameResource extends JsonResource
 
         switch (FrameResource::$format) {
             case 'extended':
-                $frame = Frame::find($this->contentChild_id);
+                $frame = Frame::find($this->childable_id);
                 return [
                     'id' => $this->id,
                     'filename' => $frame->name,

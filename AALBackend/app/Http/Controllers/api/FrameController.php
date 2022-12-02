@@ -19,6 +19,7 @@ use App\Http\Requests\Frame\CreateFrameRequest;
 use App\Http\Resources\Emotion\EmotionResource;
 use App\Http\Resources\Iteration\IterationResource;
 use App\Http\Requests\Content\ClassifyContentRequest;
+use App\Http\Resources\Content\ContentResource;
 
 class FrameController extends Controller
 {
@@ -129,7 +130,7 @@ class FrameController extends Controller
     {
         $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
         FrameResource::$format = "extendedFrame";
-        return new FrameResource($lastIteration->frames->last());
+        return new FrameResource($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->last()->childable);
     }
 
     public function showFoto(Frame $frame)
@@ -164,7 +165,7 @@ class FrameController extends Controller
 
         FrameResource::$format = "extended";
         $frames = $iteration->contents->filter(function ($content, $key) {
-            return $content->contentChild_type == "App\\Models\\Frame";
+            return $content->childable_type == "App\\Models\\Frame";
         });
 
         return new FrameCollection($frames);
@@ -209,9 +210,9 @@ class FrameController extends Controller
     {
         $date = Carbon::now()->subDays(7);
         $frames = Frame::select('frames.*')
-        ->join('contents', 'frames.id','=', 'contents.contentChild_id')
+        ->join('contents', 'frames.id','=', 'contents.childable_id')
         ->join('iterations', 'iterations.id','=', 'contents.iteration_id')
-          ->where('contents.contentChild_type', '=', "App\\Models\\Frame")
+          ->where('contents.childable_type', '=', "App\\Models\\Frame")
           ->where('iterations.created_at', '>=', $date)
           ->where('iterations.client_id', '=', $client->id)
           ->get();
@@ -271,7 +272,7 @@ class FrameController extends Controller
 
        // $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.') as d'))->whereNotNull('frames.emotion_name')->groupBy(DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.')'));
        $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(contents.updated_at,'.$pattern.') as d'))
-       ->join('contents', 'frames.id','=', 'contents.contentChild_id')
+       ->join('contents', 'frames.id','=', 'contents.childable_id')
        ->whereNotNull('contents.emotion_name')
        ->groupBy(DB::raw('DATE_FORMAT(contents.updated_at,'.$pattern.')'));
 

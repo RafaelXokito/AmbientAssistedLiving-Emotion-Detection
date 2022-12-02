@@ -48,7 +48,7 @@ class SpeechController extends Controller
     public function showSpeechesByIteration(Iteration $iteration)
     {
         $speeches = $iteration->contents->filter(function ($content, $key) {
-            return $content->contentChild_type == "App\\Models\\Speech";
+            return $content->childable_type == "App\\Models\\Speech";
         });
 
         return new SpeechCollection($speeches);
