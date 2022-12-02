@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Http\Requests\Frame\ClassifyFrameRequest;
+use Carbon\Carbon;
+use App\Models\Frame;
+use App\Models\Client;
+use App\Models\Content;
+use App\Models\Emotion;
+use App\Models\Iteration;
+use Illuminate\Http\Request;
+use App\Models\Classification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\Frame\FrameResource;
+use App\Http\Resources\Frame\FrameCollection;
 use App\Http\Requests\Frame\CreateFrameRequest;
 use App\Http\Resources\Emotion\EmotionResource;
-use App\Http\Resources\Frame\FrameCollection;
-use App\Http\Resources\Frame\FrameResource;
 use App\Http\Resources\Iteration\IterationResource;
-use App\Models\Classification;
-use App\Models\Client;
-use App\Models\Emotion;
-use App\Models\Frame;
-use App\Models\Iteration;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\Content\ClassifyContentRequest;
 
 class FrameController extends Controller
 {
@@ -56,8 +57,6 @@ class FrameController extends Controller
                 'code'      =>  422,
                 'message'   =>  "Iteration Usage Id doesnt match or expired!"
             ), 422);
-
-
         try {
             DB::beginTransaction();
 
@@ -68,11 +67,13 @@ class FrameController extends Controller
                 for ($i = 0; $i < count($files); $i++) {
                     $frame = new Frame();
                     $frame->name = $iteration->id . "_" . $i . '.jpg';
-                    $frame->accuracy = $validated_data["accuraciesFrames"][$i];
                     $frame->path = basename(Storage::disk('local')->putFileAs('\\iterations\\'.Auth::user()->userable_id, $files[$i], $iteration->id . "_" . $i . '.jpg'));
-                    $frame->iteration()->associate($iteration);
-                    $frame->createdate = $validated_data["datesFrames"][$i];
-
+                    $frame->save();
+                    $frame->content()->create([
+                        'accuracy' => $validated_data["accuraciesFrames"][$i],
+                        'createdate' => $validated_data["datesFrames"][$i],
+                        'iteration_id' => $iteration->id
+                    ]);
                     $frame->save();
 
                     $classificationsAux = explode(";",$validated_data["preditionsFrames"][$i]);
@@ -82,8 +83,7 @@ class FrameController extends Controller
                         $aux = explode("#", $classificationAux, 2);
                         $classification->emotion()->associate(Emotion::find(strtolower($aux[0])));
                         $classification->accuracy = $aux[1];
-                        $classification->frame()->associate($frame);
-
+                        $classification->content()->associate($frame->content->id);
                         $classification->save();
                     }
                 }
@@ -116,7 +116,7 @@ class FrameController extends Controller
      */
     public function show(Frame $frame)
     {
-        FrameResource::$format = "extended";
+        FrameResource::$format = "extendedFrame";
         return new FrameResource($frame);
     }
 
@@ -128,7 +128,7 @@ class FrameController extends Controller
     public function last()
     {
         $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
-        FrameResource::$format = "extended";
+        FrameResource::$format = "extendedFrame";
         return new FrameResource($lastIteration->frames->last());
     }
 
@@ -160,9 +160,14 @@ class FrameController extends Controller
      * @return FrameCollection
      */
     public function showFramesByIteration(Iteration $iteration)
-    {
+    {//fix
+
         FrameResource::$format = "extended";
-        return new FrameCollection($iteration->frames);
+        $frames = $iteration->contents->filter(function ($content, $key) {
+            return $content->contentChild_type == "App\\Models\\Frame";
+        });
+
+        return new FrameCollection($frames);
     }
 
     /**
@@ -184,14 +189,13 @@ class FrameController extends Controller
      * @param  Frame  $frame
      * @return FrameResource
      */
-    public function classifyFrame(ClassifyFrameRequest $request,Frame $frame)
+    public function classifyFrame(ClassifyContentRequest $request,Frame $frame)
     {
         $validated_data = $request->validated();
-
-        $frame->emotion()->associate(Emotion::find(strtolower($validated_data["name"])));
-        $frame->save();
-
-        FrameResource::$format = "extended";
+        $content = Content::findorFail($frame->content->id);
+        $content->emotion()->associate(Emotion::find(strtolower($validated_data["name"])));
+        $content->save();
+        FrameResource::$format = "extendedFrame";
         return new FrameResource($frame);
     }
 
@@ -204,10 +208,19 @@ class FrameController extends Controller
     public function showGraphData(Client $client)
     {
         $date = Carbon::now()->subDays(7);
+        $frames = Frame::select('frames.*')
+        ->join('contents', 'frames.id','=', 'contents.contentChild_id')
+        ->join('iterations', 'iterations.id','=', 'contents.iteration_id')
+          ->where('contents.contentChild_type', '=', "App\\Models\\Frame")
+          ->where('iterations.created_at', '>=', $date)
+          ->where('iterations.client_id', '=', $client->id)
+          ->get();
 
-        $frames = Frame::select('frames.*')->join('iterations', 'frames.iteration_id','=', 'iterations.id')
-            ->where('iterations.created_at', '>=', $date)
-            ->where('iterations.client_id', '=', $client->id)->get();
+        //$frames = Frame::select('frames.*')->join('iterations', 'frames.iteration_id','=', 'iterations.id')
+        //   ->where('iterations.created_at', '>=', $date)
+        //    ->where('iterations.client_id', '=', $client->id)->get();
+
+
         FrameResource::$format = "graph";
         return new FrameCollection($frames);
     }
@@ -256,9 +269,14 @@ class FrameController extends Controller
                 break;
         }
 
-        $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.') as d'))->whereNotNull('frames.emotion_name')->groupBy(DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.')'));
-        if(str_contains(strtolower(Auth::user()->userable_type), "client")) {
-            $query = $query->join('iterations', 'frames.iteration_id','=', 'iterations.id')
+       // $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.') as d'))->whereNotNull('frames.emotion_name')->groupBy(DB::raw('DATE_FORMAT(frames.updated_at,'.$pattern.')'));
+       $query = Frame::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(contents.updated_at,'.$pattern.') as d'))
+       ->join('contents', 'frames.id','=', 'contents.contentChild_id')
+       ->whereNotNull('contents.emotion_name')
+       ->groupBy(DB::raw('DATE_FORMAT(contents.updated_at,'.$pattern.')'));
+
+       if(str_contains(strtolower(Auth::user()->userable_type), "client")) {
+            $query = $query->join('iterations', 'contents.iteration_id','=', 'iterations.id')
                 ->where('iterations.client_id', '=', Auth::user()->userable_id)->get();
         }else
             $query = $query->get();

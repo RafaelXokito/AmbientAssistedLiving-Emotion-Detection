@@ -2,21 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Emotion;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property string $macaddress
- * @property string $emotion_name
- * @property int    $created_at
- */
-class Iteration extends Model
+class Content extends Model
 {
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'iterations';
+    protected $table = 'contents';
 
     /**
      * The primary key for the model.
@@ -31,7 +27,7 @@ class Iteration extends Model
      * @var array
      */
     protected $fillable = [
-        'macaddress', 'client_id', 'created_at', 'emotion_name', 'usage_id'
+        'accuracy', 'createdate','iteration_id', 'updated_at', 'emotion_name','contentChild_id','contentChild_type'
     ];
 
     /**
@@ -49,7 +45,7 @@ class Iteration extends Model
      * @var array
      */
     protected $casts = [
-        'macaddress' => 'string', 'created_at' => 'timestamp', 'emotion_name' => 'string', 'usage_id' => 'string'
+        'accuracy' => 'float', 'createdate' => 'timestamp', 'emotion_name' => 'string', 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -58,7 +54,7 @@ class Iteration extends Model
      * @var array
      */
     protected $dates = [
-        'created_at'
+        'createdate', 'updated_at'
     ];
 
     /**
@@ -68,32 +64,34 @@ class Iteration extends Model
      */
     public $timestamps = true;
 
-    // Scopes...
-
-    // Functions ...
-
-    // Relations ...
+    /**
+     * Get the iteration associated with the content.
+     */
+    public function iteration()
+    {
+        return $this->belongsTo(Iteration::class, 'iteration_id', 'id');
+    }
 
     /**
-     * Get the emotion associated with the iteration.
+     * Get the emotion associated with the content.
      */
     public function emotion()
     {
         return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
     }
     /**
-     * Get the client associated with the iteration.
+     * Get the classifications associated with the content.
      */
-    public function client()
+    public function classifications()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
+        return $this->hasMany(Classification::class, 'content_id', 'id');
     }
-    // Relations ...
+
     /**
-     * Get the frames associated with the emotion.
+     * Get the parent imageable model (user or post).
      */
-    public function contents()
+    public function contentChild()
     {
-        return $this->hasMany(Content::class, 'iteration_id', 'id');
+        return $this->morphTo();
     }
 }

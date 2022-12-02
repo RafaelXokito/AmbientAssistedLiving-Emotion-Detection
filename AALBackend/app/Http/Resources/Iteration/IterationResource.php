@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources\Iteration;
 
-use App\Http\Resources\Client\ClientResource;
-use App\Http\Resources\Emotion\EmotionResource;
-use App\Http\Resources\Frame\FrameCollection;
 use App\Http\Resources\Frame\FrameResource;
+use App\Http\Resources\Client\ClientResource;
+use App\Http\Resources\Frame\FrameCollection;
+use App\Http\Resources\Emotion\EmotionResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\Content\ContentCollection;
 
 class IterationResource extends JsonResource
 {
@@ -28,7 +29,7 @@ class IterationResource extends JsonResource
                     'emotion' => new EmotionResource($this->emotion),
                     'created_at' => $this->created_at,
                     'client' => new ClientResource($this->client),
-                    'frames' => new FrameCollection($this->frames),
+                    'contents' => new ContentCollection($this->contents),
                     'usage_id' => $this->usage_id
                 ];
                 break;
@@ -39,7 +40,7 @@ class IterationResource extends JsonResource
                     'emotion' => new EmotionResource($this->emotion),
                     'created_at' => $this->created_at,
                     'client' => new ClientResource($this->client),
-                    'frames' => new FrameCollection($this->frames),
+                    'contents' => new ContentCollection($this->contents),
                 ];
         }
     }
