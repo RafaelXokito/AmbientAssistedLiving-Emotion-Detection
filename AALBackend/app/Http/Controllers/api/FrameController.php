@@ -130,7 +130,13 @@ class FrameController extends Controller
     {
         $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
         FrameResource::$format = "extended";
-        return new FrameResource($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->last()->childable);
+        if ($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->count() > 0) {
+            return new FrameResource($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->last()->childable);
+        }
+        return response()->json(array(
+            'code'      =>  422,
+            'message'   =>  "No files were inserted"
+        ), 422);
     }
 
     public function showFoto(Frame $frame)
@@ -170,7 +176,7 @@ class FrameController extends Controller
         $frames = [];
         foreach ($contentsFrames as $content) {
             array_push($frames,$content->childable);
-        } 
+        }
         return new FrameCollection($frames);
     }
 
