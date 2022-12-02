@@ -49,6 +49,7 @@ Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/notifications/download/{notification}', [NotificationController::class, 'showFoto']);
     Route::get('/notifications/top', [NotificationController::class, 'top']);
 
+    Route::get('/speeches/last', [SpeechController::class, 'last']);
     Route::resources([
         'notifications' => NotificationController::class
     ]);

@@ -10,6 +10,7 @@ use App\Models\Iteration;
 use Illuminate\Http\Request;
 use App\Models\Classification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Speech\SpeechResource;
 use App\Http\Resources\Speech\SpeechCollection;
 use App\Http\Requests\Speech\CreateSpeechRequest;
@@ -161,6 +162,23 @@ class SpeechController extends Controller
         return new SpeechResource($speech);
     }
 
+    /**
+     * Display the last resource.
+     *
+     * @return FrameResource
+     */
+    public function last()
+    {
+        $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
+        if($lastIteration->contents->where("childable_type", "App\\Models\\Speech")->count()>0){
+            return new SpeechResource($lastIteration->contents->where("childable_type", "App\\Models\\Speech")->last()->childable);
+        }else{
+            return response()->json(array(
+                'code'      =>  422,
+                'message'   =>  "No speeches in the latest iteration"
+            ), 422);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
