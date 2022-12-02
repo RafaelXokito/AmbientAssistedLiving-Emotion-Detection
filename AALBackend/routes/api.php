@@ -1,21 +1,22 @@
 <?php
 
-use App\Http\Controllers\api\StatisticController;
-use App\Http\Controllers\api\UserController;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\api\LogController;
 use App\Http\Controllers\api\AuthController;
+use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\FrameController;
 use App\Http\Controllers\api\ClientController;
+use App\Http\Controllers\api\SpeechController;
 use App\Http\Controllers\api\EmotionController;
 use App\Http\Controllers\api\IterationController;
+use App\Http\Controllers\api\StatisticController;
 use App\Http\Controllers\api\NotificationController;
 use App\Http\Controllers\api\AdministratorController;
 use App\Http\Controllers\api\EmotionExpressionController;
 use App\Http\Controllers\api\EmotionsNotificationController;
-use App\Http\Controllers\api\LogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,11 +71,15 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'frames' => FrameController::class,
         'emotionsNotification' => EmotionsNotificationController::class,
         'emotionExpressions' => EmotionExpressionController::class,
+        'speeches' => SpeechController::class,
     ]);
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
     Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
     Route::get('/frames/download/{frame}', [FrameController::class, 'showFoto']);
+
+    Route::get('/speeches/iteration/{iteration}', [SpeechController::class, 'showSpeechesByIteration']);
+    Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);
 });
 
 Route::group([

@@ -75,11 +75,11 @@ class Emotion extends Model
 
     // Relations ...
     /**
-     * Get the frames associated with the emotion.
+     * Get the contents associated with the emotion.
      */
-    public function frames()
+    public function contents()
     {
-        return $this->hasMany(Frame::class, 'emotion_name', 'name');
+        return $this->hasMany(Content::class, 'emotion_name', 'name');
     }
     /**
      * Get the iterations associated with the emotion.

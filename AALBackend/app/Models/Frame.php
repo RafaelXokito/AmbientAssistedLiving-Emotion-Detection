@@ -34,7 +34,7 @@ class Frame extends Model
      * @var array
      */
     protected $fillable = [
-        'accuracy', 'createdate', 'emotion_name', 'iteration_id', 'name', 'path', 'updated_at'
+        'name', 'path'
     ];
 
     /**
@@ -52,16 +52,14 @@ class Frame extends Model
      * @var array
      */
     protected $casts = [
-        'accuracy' => 'float', 'createdate' => 'timestamp', 'emotion_name' => 'string', 'name' => 'string', 'path' => 'string', 'updated_at' => 'timestamp'
+       'name' => 'string', 'path' => 'string'
     ];
-
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
     protected $dates = [
-        'createdate', 'updated_at'
     ];
 
     /**
@@ -69,32 +67,19 @@ class Frame extends Model
      *
      * @var boolean
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     // Scopes...
 
     // Functions ...
 
     // Relations ...
+
     /**
-     * Get the iteration associated with the frame.
+     * Get the frame's content.
      */
-    public function iteration()
+    public function content()
     {
-        return $this->belongsTo(Iteration::class, 'iteration_id', 'id');
-    }
-    /**
-     * Get the emotion associated with the frame.
-     */
-    public function emotion()
-    {
-        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
-    }
-    /**
-     * Get the classifications associated with the frame.
-     */
-    public function classifications()
-    {
-        return $this->hasMany(Classification::class, 'frame_id', 'id');
+        return $this->morphOne(Content::class, 'contentChild');
     }
 }
