@@ -117,7 +117,7 @@ class FrameController extends Controller
      */
     public function show(Frame $frame)
     {
-        FrameResource::$format = "extendedFrame";
+        FrameResource::$format = "extended";
         return new FrameResource($frame);
     }
 
@@ -129,7 +129,7 @@ class FrameController extends Controller
     public function last()
     {
         $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
-        FrameResource::$format = "extendedFrame";
+        FrameResource::$format = "extended";
         if ($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->count() > 0) {
             return new FrameResource($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->last()->childable);
         }
@@ -170,10 +170,13 @@ class FrameController extends Controller
     {//fix
 
         FrameResource::$format = "extended";
-        $frames = $iteration->contents->filter(function ($content, $key) {
+        $contentsFrames = $iteration->contents->filter(function ($content, $key) {
             return $content->childable_type == "App\\Models\\Frame";
         });
-
+        $frames = [];
+        foreach ($contentsFrames as $content) {
+            array_push($frames,$content->childable);
+        }
         return new FrameCollection($frames);
     }
 
@@ -202,7 +205,7 @@ class FrameController extends Controller
         $content = Content::findorFail($frame->content->id);
         $content->emotion()->associate(Emotion::find(strtolower($validated_data["name"])));
         $content->save();
-        FrameResource::$format = "extendedFrame";
+        FrameResource::$format = "extended";
         return new FrameResource($frame);
     }
 

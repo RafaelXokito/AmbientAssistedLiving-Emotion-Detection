@@ -24,17 +24,6 @@ class FrameResource extends JsonResource
 
         switch (FrameResource::$format) {
             case 'extended':
-                $frame = Frame::find($this->childable_id);
-                return [
-                    'id' => $this->id,
-                    'filename' => $frame->name,
-                    'filepath' => $frame->path,
-                    'emotion' => new EmotionResource($this->emotion ?? new Emotion()),
-                    'createDate' => $this->createdate,
-                    'emotionIteration' => new EmotionResource($this->iteration->emotion ?? new Emotion()),
-                    'predictions' => new ClassificationCollection($this->classifications),
-                ];
-                case 'extendedFrame':
                     return [
                         'id' => $this->id,
                         'filename' => $this->name,
