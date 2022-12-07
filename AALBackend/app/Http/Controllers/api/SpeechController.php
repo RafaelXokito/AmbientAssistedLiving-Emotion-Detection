@@ -33,7 +33,7 @@ class SpeechController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return FrameResource
+     * @return SpeechResource
      */
     public function show(Speech $speech)
     {
@@ -41,10 +41,10 @@ class SpeechController extends Controller
     }
 
     /**
-     * Show the specified frames by given iteration.
+     * Show the specified speeches by given iteration.
      *
      * @param  Iteration  $iteration
-     * @return FrameCollection
+     * @return SpeechCollection
      */
     public function showSpeechesByIteration(Iteration $iteration)
     {
@@ -153,8 +153,8 @@ class SpeechController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  Frame  $frame
-     * @return FrameResource
+     * @param  Speech  $speech
+     * @return SpeechResource
      */
     public function classifySpeech(ClassifyContentRequest $request, Speech $speech)
     {
@@ -168,20 +168,25 @@ class SpeechController extends Controller
     /**
      * Display the last resource.
      *
-     * @return FrameResource
+     * @return SpeechResource
      */
     public function last()
     {
-        $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
-        if($lastIteration->contents->where("childable_type", "App\\Models\\Speech")->count()>0){
-            return new SpeechResource($lastIteration->contents->where("childable_type", "App\\Models\\Speech")->last()->childable);
-        }else{
-            return response()->json(array(
-                'code'      =>  422,
-                'message'   =>  "No speeches in the latest iteration"
-            ), 422);
+        $last_speech = Speech::join('contents', 'contents.childable_id', '=', 'speeches.id')
+            ->join('iterations', 'iterations.id', '=', 'contents.iteration_id')
+            ->where("contents.childable_type", "App\\Models\\Speech")
+            ->where("iterations.client_id", Auth::user()->userable->id)
+            ->get()->last();
+        if ($last_speech != null) {
+            return new SpeechResource($last_speech);
         }
+        return response()->json(array(
+            'code'      =>  422,
+            'message'   =>  "No files were inserted"
+        ), 422);
     }
+
+
 
     /**
      * Remove the specified resource from storage.

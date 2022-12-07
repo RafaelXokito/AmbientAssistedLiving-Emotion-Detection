@@ -128,10 +128,14 @@ class FrameController extends Controller
      */
     public function last()
     {
-        $lastIteration = Auth::user()->userable->iterations()->orderBy('created_at', 'desc')->get()->first();
+        $last_frame = Frame::join('contents', 'contents.childable_id', '=', 'frames.id')
+            ->join('iterations', 'iterations.id', '=', 'contents.iteration_id')
+            ->where("contents.childable_type", "App\\Models\\Frame")
+            ->where("iterations.client_id", Auth::user()->userable->id)
+            ->get()->last();
         FrameResource::$format = "extended";
-        if ($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->count() > 0) {
-            return new FrameResource($lastIteration->contents->where("childable_type", "App\\Models\\Frame")->last()->childable);
+        if ($last_frame != null) {
+            return new FrameResource($last_frame);
         }
         return response()->json(array(
             'code'      =>  422,
