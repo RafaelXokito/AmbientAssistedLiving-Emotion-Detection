@@ -54,6 +54,7 @@ class IterationController extends Controller
             DB::beginTransaction();
             $iteration->emotion()->associate(Emotion::findOrFail(strtolower($validated_data["emotion"])));
             $iteration->macaddress = $validated_data["macAddress"];
+            $iteration->type = strtolower($validated_data["type"]);
             $iteration->client()->associate(Auth::user()->userable);
 
             $iteration->usage_id = Str::uuid();

@@ -43,10 +43,12 @@ class FrameResource extends JsonResource
                 ];
             default:
                 return [
-                    'id' => $this->content->id,
+                    'id' => $this->id,
                     'name' => $this->name,
                     'path' => $this->path,
-                    'createdate' => $this->content->createdate,
+                    'emotion' => $this->content->emotion->name ?? "",
+                    'emotion_iteration' => $this->content->iteration->emotion->name ?? "",
+                    'createDate' => $this->content->createdate,
                 ];
         }
     }

@@ -26,7 +26,14 @@ class SpeechController extends Controller
      */
     public function index()
     {
-        abort(404);
+        $speeches = Speech::join('contents', 'contents.childable_id', '=', 'speeches.id')
+        ->join('iterations', 'iterations.id', '=', 'contents.iteration_id')
+        ->where("contents.childable_type", "App\\Models\\Speech")
+        ->where("iterations.client_id", Auth::user()->userable->id)
+        ->select('speeches.*')
+        ->simplePaginate(30);
+
+        return new SpeechCollection($speeches);
     }
 
     /**
@@ -37,6 +44,7 @@ class SpeechController extends Controller
      */
     public function show(Speech $speech)
     {
+        SpeechResource::$format = "extended";
         return new SpeechResource($speech);
     }
 
@@ -55,6 +63,7 @@ class SpeechController extends Controller
         foreach ($contentsSpeeches as $content) {
             array_push($speeches,$content->childable);
         }
+        SpeechResource::$format = "extended";
         return new SpeechCollection($speeches);
     }
 
@@ -115,6 +124,7 @@ class SpeechController extends Controller
 
             DB::commit();
 
+            SpeechResource::$format = "extended";
             return new IterationResource($iteration);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -159,7 +169,7 @@ class SpeechController extends Controller
     public function classifySpeech(ClassifyContentRequest $request, Speech $speech)
     {
         $validated_data = $request->validated();
-        $content = Content::findorFail($speech->content->id);
+        $content = $speech->content;
         $content->emotion()->associate(Emotion::find(strtolower($validated_data["name"])));
         $content->save();
         return new SpeechResource($speech);
@@ -176,8 +186,10 @@ class SpeechController extends Controller
             ->join('iterations', 'iterations.id', '=', 'contents.iteration_id')
             ->where("contents.childable_type", "App\\Models\\Speech")
             ->where("iterations.client_id", Auth::user()->userable->id)
+            ->select('speeches.*')
             ->get()->last();
         if ($last_speech != null) {
+            SpeechResource::$format = "extended";
             return new SpeechResource($last_speech);
         }
         return response()->json(array(

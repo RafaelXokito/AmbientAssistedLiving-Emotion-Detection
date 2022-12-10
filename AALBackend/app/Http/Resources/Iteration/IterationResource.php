@@ -26,6 +26,7 @@ class IterationResource extends JsonResource
                 return [
                     'id' => $this->id,
                     'macaddress' => $this->macaddress,
+                    'type' => $this->type,
                     'emotion' => new EmotionResource($this->emotion),
                     'created_at' => $this->created_at,
                     'client' => new ClientResource($this->client),
@@ -37,6 +38,7 @@ class IterationResource extends JsonResource
                 return [
                     'id' => $this->id,
                     'macaddress' => $this->macaddress,
+                    'type' => $this->type,
                     'emotion' => new EmotionResource($this->emotion),
                     'created_at' => $this->created_at,
                     'client' => new ClientResource($this->client),

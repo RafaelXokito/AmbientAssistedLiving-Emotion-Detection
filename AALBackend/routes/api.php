@@ -15,6 +15,7 @@ use App\Http\Controllers\api\IterationController;
 use App\Http\Controllers\api\StatisticController;
 use App\Http\Controllers\api\NotificationController;
 use App\Http\Controllers\api\AdministratorController;
+use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionExpressionController;
 use App\Http\Controllers\api\EmotionsNotificationController;
 
@@ -36,10 +37,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/emotions', [EmotionController::class, 'index']);
     Route::get('/emotions/groups/{group}', [EmotionController::class, 'showEmotionsByGroup']);
+    Route::get('/emotions/groups', [EmotionController::class, 'showGroups']);
 
     Route::get('/frames/clients/{client}/graphData', [FrameController::class, 'showGraphData']);
 
     Route::get('/frames/graphData', [FrameController::class, 'showClassificationGraphData']);
+    Route::get('/contents/graphData', [ContentController::class, 'showClassificationGraphData']);
+
     Route::get('/frames/last', [FrameController::class, 'last']); // Isto devia de estar apenas para os clients
 
     Route::get('/iterations/graphData', [IterationController::class, 'showGraphData']);
