@@ -35,6 +35,7 @@ class FrameController extends Controller
         ->where("contents.childable_type", "App\\Models\\Frame")
         ->where("iterations.client_id", Auth::user()->userable->id)
         ->select('frames.*')
+        ->orderBy('contents.created_at', 'desc')
         ->simplePaginate(30);
 
         return new FrameCollection($frames);
@@ -71,7 +72,7 @@ class FrameController extends Controller
             if ($request->has("file")) {
 
                 $files = $request->file('file');
-
+                
                 for ($i = 0; $i < count($files); $i++) {
                     $frame = new Frame();
                     $frame->name = $iteration->id . "_" . $i . '.jpg';

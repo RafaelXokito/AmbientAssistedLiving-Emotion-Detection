@@ -34,6 +34,7 @@ class SpeechResource extends JsonResource
                     'text' => $this->text,
                     'emotion' => $this->content->emotion->name ?? "",
                     'emotion_iteration' => $this->content->iteration->emotion->name ?? "",
+                    'accuracy' => $this->content->classifications[0]->accuracy ?? "N\A",
                     'createDate' => $this->content->createdate
                 ];
 

@@ -48,6 +48,7 @@ class FrameResource extends JsonResource
                     'path' => $this->path,
                     'emotion' => $this->content->emotion->name ?? "",
                     'emotion_iteration' => $this->content->iteration->emotion->name ?? "",
+                    'accuracy' => $this->content->classifications[0]->accuracy ?? "N\A",
                     'createDate' => $this->content->createdate,
                 ];
         }

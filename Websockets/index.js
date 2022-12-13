@@ -54,7 +54,9 @@ io.on('connection', function (socket) {
 
     socket.on('newFrameMessage', function (data) {
         console.log('newFrameMessage',data)
-        data = JSON.parse(data)
+        if (!(typeof data === 'object' && !Array.isArray(data) && data !== null)) {
+            data = JSON.parse(data)
+        }
         io.to('framesocket/'+data.userId).emit('newFrameMessage', data)
     })
 
