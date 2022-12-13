@@ -30,7 +30,14 @@ class FrameController extends Controller
      */
     public function index()
     {
-        abort(404);
+        $frames = Frame::join('contents', 'contents.childable_id', '=', 'frames.id')
+        ->join('iterations', 'iterations.id', '=', 'contents.iteration_id')
+        ->where("contents.childable_type", "App\\Models\\Frame")
+        ->where("iterations.client_id", Auth::user()->userable->id)
+        ->select('frames.*')
+        ->simplePaginate(30);
+
+        return new FrameCollection($frames);
     }
 
     /**
@@ -203,13 +210,13 @@ class FrameController extends Controller
      * @param  Frame  $frame
      * @return FrameResource
      */
-    public function classifyFrame(ClassifyContentRequest $request,Frame $frame)
+    public function classifyFrame(ClassifyContentRequest $request, Frame $frame)
     {
         $validated_data = $request->validated();
-        $content = Content::findorFail($frame->content->id);
+        $content = $frame->content;
         $content->emotion()->associate(Emotion::find(strtolower($validated_data["name"])));
         $content->save();
-        FrameResource::$format = "extended";
+        FrameResource::$format = $request["format"] ?? "extended";
         return new FrameResource($frame);
     }
 
@@ -295,7 +302,9 @@ class FrameController extends Controller
         }else
             $query = $query->get();
 
-        return $query;
+        return response()->json([
+            'data' => $query,
+        ]);;
     }
 
     /**

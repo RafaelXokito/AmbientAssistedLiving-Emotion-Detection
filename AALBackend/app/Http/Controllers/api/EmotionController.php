@@ -84,6 +84,18 @@ class EmotionController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param string $group
+     * @return EmotionCollection
+     */
+    public function showGroups()
+    {
+        $emotions = Emotion::whereRaw('category = name')->get();
+        return new EmotionCollection($emotions);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id

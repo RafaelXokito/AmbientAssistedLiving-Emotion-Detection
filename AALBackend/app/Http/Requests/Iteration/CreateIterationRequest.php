@@ -25,7 +25,8 @@ class CreateIterationRequest extends FormRequest
     {
         return [
             'macAddress'              => ['required', 'string'],
-            'emotion'              => ['required', 'string']
+            'emotion'              => ['required', 'string'],
+            'type'              => ['required', 'string']
         ];
     }
 }
