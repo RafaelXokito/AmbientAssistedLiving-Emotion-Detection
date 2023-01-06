@@ -20,7 +20,10 @@ class MultiModalEmotionController extends Controller
      */
     public function index()
     {
-        return new MultiModalEmotionCollection(MultiModalEmotion::all());
+        $multiModalEmotions = MultiModalEmotion::select('*')
+                                ->orderBy('created_at', 'desc')
+                                ->simplePaginate(30);
+        return new MultiModalEmotionCollection($multiModalEmotions);
     }
 
     /**

@@ -12,7 +12,7 @@ class MultiModalEmotion extends Model
      *
      * @var string
      */
-    protected $table = 'multimodalEmotions';
+    protected $table = 'multimodal_emotions';
 
     /**
      * The primary key for the model.
