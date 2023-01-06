@@ -31,6 +31,7 @@ class SpeechController extends Controller
         ->where("contents.childable_type", "App\\Models\\Speech")
         ->where("iterations.client_id", Auth::user()->userable->id)
         ->select('speeches.*')
+        ->orderBy('contents.created_at', 'desc')
         ->simplePaginate(30);
 
         return new SpeechCollection($speeches);
