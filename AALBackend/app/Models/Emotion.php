@@ -109,4 +109,12 @@ class Emotion extends Model
     {
         return $this->hasMany(Notification::class, 'emotion_name', 'name');
     }
+
+        /**
+     * Get the multi-modal emotions associated with the emotion.
+     */
+    public function multiModalEmotions()
+    {
+        return $this->hasMany(MultiModalEmotion::class, 'emotion_name', 'name');
+    }
 }
