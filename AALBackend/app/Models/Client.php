@@ -126,4 +126,12 @@ class Client extends Model
     {
         return $this->morphOne(User::class, 'userable');
     }
+
+    /**
+     * Get the multi-modal emotions associated with the client.
+     */
+    public function multiModalEmotions()
+    {
+        return $this->hasMany(MultiModalEmotion::class, 'client_id', 'id');
+    }
 }

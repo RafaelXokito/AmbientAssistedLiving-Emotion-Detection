@@ -18,6 +18,7 @@ use App\Http\Controllers\api\AdministratorController;
 use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionExpressionController;
 use App\Http\Controllers\api\EmotionsNotificationController;
+use App\Http\Controllers\api\MultiModalEmotionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +77,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'frames' => FrameController::class,
         'emotionsNotification' => EmotionsNotificationController::class,
         'emotionExpressions' => EmotionExpressionController::class,
+        'multiModalEmotions' => MultiModalEmotionController::class,
         'speeches' => SpeechController::class,
     ]);
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
