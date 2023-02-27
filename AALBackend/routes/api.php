@@ -10,15 +10,16 @@ use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\FrameController;
 use App\Http\Controllers\api\ClientController;
 use App\Http\Controllers\api\SpeechController;
+use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionController;
 use App\Http\Controllers\api\IterationController;
 use App\Http\Controllers\api\StatisticController;
 use App\Http\Controllers\api\NotificationController;
 use App\Http\Controllers\api\AdministratorController;
-use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionExpressionController;
-use App\Http\Controllers\api\EmotionsNotificationController;
 use App\Http\Controllers\api\MultiModalEmotionController;
+use App\Http\Controllers\api\EmotionsNotificationController;
+use App\Http\Controllers\api\GeriatricQuestionnaireController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +80,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'emotionExpressions' => EmotionExpressionController::class,
         'multiModalEmotions' => MultiModalEmotionController::class,
         'speeches' => SpeechController::class,
+        'geriatricQuestionnaires' => GeriatricQuestionnaireController::class
     ]);
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
