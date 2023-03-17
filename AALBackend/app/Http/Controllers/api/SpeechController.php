@@ -16,6 +16,7 @@ use App\Http\Resources\Speech\SpeechCollection;
 use App\Http\Requests\Speech\CreateSpeechRequest;
 use App\Http\Resources\Iteration\IterationResource;
 use App\Http\Requests\Content\ClassifyContentRequest;
+use App\Http\Resources\Classification\ClassificationCollection;
 
 class SpeechController extends Controller
 {
@@ -211,6 +212,17 @@ class SpeechController extends Controller
     {
         abort(404);
     }
-}
 
-//FIX THE REQUEST AND RESOURCES!
+    /**
+     * Get the ClassificationGraphData resource in storage.
+     *
+     * @param  string  $pattern
+     * @return SpeechCollection|\Illuminate\Http\JsonResponse
+     */
+    public function showSpeechClassification(Speech $speech)
+    {
+        $classifications = $speech->content->classifications;
+        return new ClassificationCollection($classifications);
+    }
+
+}

@@ -88,6 +88,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::get('/frames/download/{frame}', [FrameController::class, 'showFoto']);
 
     Route::get('/speeches/iteration/{iteration}', [SpeechController::class, 'showSpeechesByIteration']);
+    Route::get('/speeches/{speech}/predictions', [SpeechController::class, 'showSpeechClassification']);
     Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);
 });
 
