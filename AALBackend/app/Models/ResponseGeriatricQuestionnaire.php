@@ -25,7 +25,7 @@ class ResponseGeriatricQuestionnaire extends Model
      *
      * @var array
      */
-    protected $fillable = ['questionnaire_id','response','why','question','created_at','updated_at'];
+    protected $fillable = ['questionnaire_id','response','is_why','question','created_at','updated_at'];
 
     /**
      * The attributes excluded from the model's JSON form.

@@ -25,7 +25,7 @@ class CreateGeriatricQuestionnaireRequest extends FormRequest
     {
         return [
             'points' =>  ['required','numeric','between:0.0,15.0'],
-            'responses' => ['required','array','size:15'],
+            'responses' => ['required','array','size:30'],
             'responses.*' => ['required','json']
         ];
     }
@@ -38,7 +38,7 @@ class CreateGeriatricQuestionnaireRequest extends FormRequest
             'duration.between'      => "Questionnaire's points must be between 0.0 and 15.0",
             'responses.required'    => "Questionnaire's responses are required",
             'responses.array'       => "Questionnaire's responses must be an array",
-            'responses.size'        => "Questionnaire must have 15 responses"
+            'responses.size'        => "Questionnaire must have 30 responses"
         ];
     }
 }

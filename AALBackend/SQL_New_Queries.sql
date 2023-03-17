@@ -32,5 +32,15 @@ create table `responses_geriatric_questionnaire`
 ALTER TABLE responses_geriatric_questionnaire
 ADD COLUMN speech_id bigint not null;
 
+
 ALTER TABLE responses_geriatric_questionnaire
 ADD CONSTRAINT `responsesGeriatricQuestionnaire_ibfk_2` foreign key (`speech_id`) references speeches (`id`);
+
+ALTER TABLE responses_geriatric_questionnaire
+DROP COLUMN why;
+
+ALTER TABLE responses_geriatric_questionnaire
+ADD COLUMN is_why boolean not null;
+
+ALTER TABLE responses_geriatric_questionnaire
+DROP CONSTRAINT responsesGeriatricQuestionnaire_check_response;

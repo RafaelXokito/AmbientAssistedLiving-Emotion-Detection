@@ -85,15 +85,17 @@ class GeriatricQuestionnaireController extends Controller
             for ($i = 0; $i < count($responses); $i++) {
                 $response = new ResponseGeriatricQuestionnaire();
                 $jsonResponse = json_decode($responses[$i]);
-                try{
-                    $response->why = $jsonResponse->why;
-                }catch(\Throwable $th){
-                    // Do nothing
-                }
+                $response->is_why = $jsonResponse->is_why;
                 $response->response = $jsonResponse->response;
                 $response->question = $jsonResponse->question;
                 $response->geriatric_questionnaire()->associate($questionnaire);
                 $speech = Speech::find($jsonResponse->speech_id);
+                if(!($speech->text === $response->response)){
+                    return response()->json(array(
+                        'code'      =>  422,
+                        'message'   =>  "Speech Text is diferent than questionnaire response."
+                    ), 422);
+                }
                 $response->speech()->associate($speech);
                 $response->save();
 
