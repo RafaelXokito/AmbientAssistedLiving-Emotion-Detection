@@ -74,4 +74,11 @@ class ResponseGeriatricQuestionnaire extends Model
         return $this->belongsTo(GeriatricQuestionnaire::class, 'questionnaire_id', 'id');
     }
 
+    /**
+     * Get the speech associated with the response.
+     */
+    public function speech()
+    {
+        return $this->belongsTo(Speech::class);
+    }
 }

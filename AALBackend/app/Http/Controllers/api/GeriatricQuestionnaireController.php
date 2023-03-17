@@ -10,6 +10,7 @@ use App\Http\Resources\GeriatricQuestionnaire\GeriatricQuestionnaireResource;
 use App\Http\Resources\GeriatricQuestionnaire\GeriatricQuestionnaireCollection;
 use App\Http\Requests\GeriatricQuestionnaire\CreateGeriatricQuestionnaireRequest;
 use App\Models\ResponseGeriatricQuestionnaire;
+use App\Models\Speech;
 
 class GeriatricQuestionnaireController extends Controller
 {
@@ -92,7 +93,10 @@ class GeriatricQuestionnaireController extends Controller
                 $response->response = $jsonResponse->response;
                 $response->question = $jsonResponse->question;
                 $response->geriatric_questionnaire()->associate($questionnaire);
+                $speech = Speech::find($jsonResponse->speech_id);
+                $response->speech()->associate($speech);
                 $response->save();
+
             }
             DB::commit();
 

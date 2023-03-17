@@ -27,3 +27,10 @@ create table `responses_geriatric_questionnaire`
     constraint `responsesGeriatricQuestionnaire_check_response` CHECK (`response` IN ('Sim','Não')),
     constraint `responsesGeriatricQuestionnaire_check_question` CHECK (`question` >= 1 AND `question` <= 15)
 );
+
+
+ALTER TABLE responses_geriatric_questionnaire
+ADD COLUMN speech_id bigint not null;
+
+ALTER TABLE responses_geriatric_questionnaire
+ADD CONSTRAINT `responsesGeriatricQuestionnaire_ibfk_2` foreign key (`speech_id`) references speeches (`id`);
