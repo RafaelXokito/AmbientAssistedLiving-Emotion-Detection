@@ -89,7 +89,7 @@ class GeriatricQuestionnaireController extends Controller
                 $response->response = $jsonResponse->response;
                 $response->question = $jsonResponse->question;
                 $response->geriatric_questionnaire()->associate($questionnaire);
-                $speech = Speech::find($jsonResponse->speech_id);
+                $speech = Speech::findOrFail($jsonResponse->speech_id);
                 if(!($speech->text === $response->response)){
                     return response()->json(array(
                         'code'      =>  422,
