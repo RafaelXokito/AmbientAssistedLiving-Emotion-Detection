@@ -126,8 +126,9 @@ class SpeechController extends Controller
 
             DB::commit();
 
-            SpeechResource::$format = "extended";
-            return new IterationResource($iteration);
+            #SpeechResource::$format = "extended";
+            #return new IterationResource($iteration);
+            return new SpeechResource($speech);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(array(
