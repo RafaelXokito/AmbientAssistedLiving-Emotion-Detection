@@ -2,14 +2,14 @@
   <div>
     <back-button></back-button>
     <div class="mt-5 ml-5 text-center">
-      <h1 class="text-red-400">Frames of Iteration nº {{ id }}</h1>
+      <h1 class="text-red-400">Contents of Iteration nº {{ id }}</h1>
       <h4>Emotion Group - {{ firstCapitalLetter(emotion.name) }}</h4>
     </div>
     <v-container>
       <v-row no-gutters>
         <v-col
-          v-for="(frame, index) in frames"
-          :key="frame.id"
+          v-for="(content, index) in contents"
+          :key="content.id"
           cols="12"
           lg="2"
           md="3"
@@ -20,11 +20,11 @@
             class="mx-auto"
             max-width="344"
           >
-            <v-img
-              :src="frame.base64"></v-img>
+            <v-img v-if="content.base64" :src="content.base64"></v-img>
             <v-card-text>
-              <form @submit.prevent="classify(frame.id, frame.base64, index)">
+              <form @submit.prevent="classify(content.id, content.base64, index)">
                 <div class="text-center">
+                  <p v-if="content.text">Texto: "{{content.text}}"</p>
                   <v-select
                     v-model="emotionsClassified[index]"
                     :items="humanLabelEmotions"
@@ -53,7 +53,7 @@ export default {
   middleware: ("auth", "client"),
   data() {
     return {
-      frames: [],
+      contents: [],
       humanLabelEmotions: [],
       emotionsClassified: [],
       socket: null,
@@ -109,20 +109,32 @@ export default {
     })
 
     this.$axios
-      .$get("/api/frames/iteration/" + this.id)
+      .$get("/api/iterations/" + this.id)
       .then(({data}) => {
-        data.forEach(frame => {
-          this.emotionsClassified.push(frame.emotion.name !== undefined ? frame.emotion.name : null)
-          this.$axios
-            .$get("/api/frames/download/" + frame.id)
+        data.contents.forEach(content => {
+          this.emotionsClassified.push(content.emotion_name !== undefined ? content.emotion_name : null)
+          if(content.childable_type == "App\Models\Frame"){
+            this.$axios
+            .$get("/api/frames/download/" + content.childable_id)
             .then(imageBase64 => {
-              this.frames.push({
-                id: frame.id,
-                filename: frame.filename,
-                base64: imageBase64,
+              this.contents.push({
+                id: content.childable_id,
+                filename: content.filename,
+                base64: imageBase64
               })
               this.reveal.push(false)
             })
+          }else{
+            this.$axios
+            .$get("/api/speeches/" + content.childable_id)
+            .then(data => {
+              this.contents.push({
+                id: content.childable_id,
+                text: data.data.text
+              })
+              this.reveal.push(false)
+            })
+          }
         })
       })
   },
@@ -134,7 +146,8 @@ export default {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)
     },
     classify(id, base64, index) {
-      this.$axios
+      if(base64 != undefined){
+        this.$axios
         .$patch("/api/frames/" + id + "/classify", {
           name: this.emotionsClassified[index],
         })
@@ -154,7 +167,19 @@ export default {
             '"}'
 
           this.socket.emit('newFrameMessage',jsonData)
+      })
+      }else{
+        console.log(id)
+        this.$axios
+        .$patch("/api/speeches/" + id + "/classify", {
+          name: this.emotionsClassified[index],
         })
+        .then(() => {
+          this.$toast
+            .success("Speech nº " + id + " classified successfully")
+            .goAway(3000)
+        })
+      }
     },
   }
 }
