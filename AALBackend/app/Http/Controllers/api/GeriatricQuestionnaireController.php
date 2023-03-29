@@ -164,11 +164,11 @@ class GeriatricQuestionnaireController extends Controller
         }
         $emotionPointsMapping = [
             'angry' => 15,
-            'disgust' => 15,
+            'disgust' => 10,
             'fear' => 15,
             'guilt' => 10,
             'happy' => 5,
-            'sad' => 10,
+            'sad' => 15,
             'shame' => 10,
         ];
 
