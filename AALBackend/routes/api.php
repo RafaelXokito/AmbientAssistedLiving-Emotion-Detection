@@ -21,6 +21,7 @@ use App\Http\Controllers\api\MultiModalEmotionController;
 use App\Http\Controllers\api\EmotionsNotificationController;
 use App\Http\Controllers\api\GeriatricQuestionnaireController;
 use App\Http\Controllers\api\OxfordHappinessQuestionnaireController;
+use App\Http\Controllers\api\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +86,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'speeches' => SpeechController::class,
         'geriatricQuestionnaires' => GeriatricQuestionnaireController::class,
         'oxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
+        'messages' => MessageController::class,
     ]);
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);

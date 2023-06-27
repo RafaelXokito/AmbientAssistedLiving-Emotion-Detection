@@ -284,3 +284,13 @@ create table `responses_questionnaire`
     constraint `responsesQuestionnaire_ibfk_2` foreign key (`speech_id`) references speeches (`id`)
 );
 
+CREATE TABLE `messages` (
+    `id`                  bigint NOT NULL AUTO_INCREMENT,
+    `body`                varchar(255) not null,
+    `client_id`           bigint not null,
+    `isChatbot`           boolean not null,
+   `created_at`           timestamp null default null,
+    `updated_at`          timestamp null default null,
+    primary key (`id`),
+    constraint `messages_ibfk_1` foreign key (`client_id`) references clients (`id`)
+);

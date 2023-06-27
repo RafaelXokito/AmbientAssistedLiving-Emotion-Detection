@@ -26,7 +26,7 @@ class Message extends Model
      * @var array
      */
     protected $fillable = [
-        'client_id, '
+        'client_id', 'isChatbot','body'
     ];
 
     /**
@@ -44,7 +44,18 @@ class Message extends Model
      * @var array
      */
     protected $casts = [
-        'speech_text' => 'string'
+        'body' => 'string',
+        'created_at' => 'timestamp',
+        'updated_at' => 'timestamp'
+    ];
+
+     /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'created_at', 'updated_at'
     ];
 
     /**
@@ -52,22 +63,14 @@ class Message extends Model
      *
      * @var boolean
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
      // Relations ...
     /**
-     * Get the speech's content.
-     */
-    public function content()
-    {
-        return $this->morphOne(Content::class, 'childable');
-    }
-
-    /**
-     * Get the speech's response questionnaire
-     */
-    public function response()
-    {
-        return $this->hasOne(ResponseQuestionnaire::class);
-    }
+    * Get the client associated with the message.
+    */
+   public function client()
+   {
+       return $this->belongsTo(Client::class, 'client_id', 'id');
+   }
 }
