@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Resources\ResponseGeriatricQuestionnaire;
+namespace App\Http\Resources\ResponseQuestionnaire;
 
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ResponseGeriatricQuestionnaireResource extends JsonResource
+class ResponseQuestionnaireCollection extends ResourceCollection
 {
     /**
-     * Transform the resource into an array.
+     * Transform the resource collection into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable

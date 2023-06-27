@@ -20,6 +20,7 @@ use App\Http\Controllers\api\EmotionExpressionController;
 use App\Http\Controllers\api\MultiModalEmotionController;
 use App\Http\Controllers\api\EmotionsNotificationController;
 use App\Http\Controllers\api\GeriatricQuestionnaireController;
+use App\Http\Controllers\api\OxfordHappinessQuestionnaireController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,8 @@ Route::group(['middleware' =>  'auth:api', 'admin'], function() {
     ]);
 });
 
+
+
 // Client restrict
 Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::resources([
@@ -80,7 +83,8 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'emotionExpressions' => EmotionExpressionController::class,
         'multiModalEmotions' => MultiModalEmotionController::class,
         'speeches' => SpeechController::class,
-        'geriatricQuestionnaires' => GeriatricQuestionnaireController::class
+        'geriatricQuestionnaires' => GeriatricQuestionnaireController::class,
+        'oxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
     ]);
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
@@ -91,7 +95,9 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::get('/speeches/{speech}/predictions', [SpeechController::class, 'showSpeechClassification']);
     Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);
 
-    Route::get('geriatricQuestionnaires/statistics/{geriatricQuestionnaire}', [GeriatricQuestionnaireController::class, 'evaluateSAModel']);
+    Route::get('geriatricQuestionnaires/statistics/{Questionnaire}', [GeriatricQuestionnaireController::class, 'evaluateSAModel']);
+    Route::get('oxfordHappinessQuestionnaires/statistics/{Questionnaire}', [OxfordHappinessQuestionnaireController::class, 'evaluateSAModel']);
+
 });
 
 Route::group([

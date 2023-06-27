@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\ResponseGeriatricQuestionnaire;
+namespace App\Http\Resources\Questionnaire;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class ResponseGeriatricQuestionnaireCollection extends ResourceCollection
+class QuestionnaireCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.

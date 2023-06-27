@@ -2,30 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ResponseGeriatricQuestionnaire extends Model
+class OxfordHappinessQuestionnaire extends Model
 {
-     /**
+         /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = "responses_geriatric_questionnaire";
+    protected $table = "oh_questionnaires";
+
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = "id";
+    protected $primaryKey = 'id';
 
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
-    protected $fillable = ['questionnaire_id','response','is_why','question','created_at','updated_at'];
+    protected $fillable = [
+
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -41,7 +45,9 @@ class ResponseGeriatricQuestionnaire extends Model
      *
      * @var array
      */
-    protected $casts = ['created_at' => 'timestamp' , 'updated_at' => 'timestamp'];
+    protected $casts = [
+
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -49,7 +55,7 @@ class ResponseGeriatricQuestionnaire extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at'
+
     ];
 
     /**
@@ -57,28 +63,15 @@ class ResponseGeriatricQuestionnaire extends Model
      *
      * @var boolean
      */
-
-     public $timestamps = true;
-
+    public $timestamps = true;
      // Scopes...
 
      // Functions ...
 
      // Relations ...
 
-     /**
-     * Get the geriatric questionnaire associated with the response.
-     */
-    public function geriatric_questionnaire()
+    public function questionnaire()
     {
-        return $this->belongsTo(GeriatricQuestionnaire::class, 'questionnaire_id', 'id');
-    }
-
-    /**
-     * Get the speech associated with the response.
-     */
-    public function speech()
-    {
-        return $this->belongsTo(Speech::class);
+        return $this->morphOne(Questionnaire::class, 'questionnairable');
     }
 }

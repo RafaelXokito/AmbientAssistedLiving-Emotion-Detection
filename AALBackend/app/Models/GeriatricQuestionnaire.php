@@ -13,19 +13,22 @@ class GeriatricQuestionnaire extends Model
      */
     protected $table = "geriatric_questionnaires";
 
+
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = "id";
+    protected $primaryKey = 'id';
 
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
-    protected $fillable = ['client_id','points','created_at','updated_at'];
+    protected $fillable = [
+
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -41,7 +44,9 @@ class GeriatricQuestionnaire extends Model
      *
      * @var array
      */
-    protected $casts = ['points' => 'float', 'created_at' => 'timestamp' , 'updated_at' => 'timestamp'];
+    protected $casts = [
+        'created_at' => 'timestamp' , 'updated_at' => 'timestamp'
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -49,7 +54,7 @@ class GeriatricQuestionnaire extends Model
      * @var array
      */
     protected $dates = [
-        'created_at', 'updated_at'
+        'created_at','updated_at'
     ];
 
     /**
@@ -57,27 +62,15 @@ class GeriatricQuestionnaire extends Model
      *
      * @var boolean
      */
-
-     public $timestamps = true;
-
+    public $timestamps = true;
      // Scopes...
 
      // Functions ...
 
      // Relations ...
 
-    /**
-     * Get the client associated with the questionnaire.
-     */
-    public function client()
+    public function questionnaire()
     {
-        return $this->belongsTo(Client::class, 'client_id', 'id');
-    }
-
-    /**
-     * Get the responses to the questionnaire
-     */
-    public function responses(){
-        return $this->hasMany(ResponseGeriatricQuestionnaire::class, 'questionnaire_id','id');
+        return $this->morphOne(Questionnaire::class, 'questionnairable');
     }
 }

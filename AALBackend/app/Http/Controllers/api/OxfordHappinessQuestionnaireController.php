@@ -7,13 +7,13 @@ use App\Models\Content;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\GeriatricQuestionnaire;
+use App\Models\OxfordHappinessQuestionnaire;
 use App\Models\ResponseQuestionnaire;
 use App\Http\Resources\Questionnaire\QuestionnaireResource;
 use App\Http\Resources\Questionnaire\QuestionnaireCollection;
-use App\Http\Requests\GeriatricQuestionnaire\CreateGeriatricQuestionnaireRequest;
+use App\Http\Requests\OxfordHappinessQuestionnaire\CreateOxfordHappinessQuestionnaireRequest;
 
-class GeriatricQuestionnaireController extends Controller
+class OxfordHappinessQuestionnaireController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -22,14 +22,14 @@ class GeriatricQuestionnaireController extends Controller
      */
     public function index()
     {
-        $geriatric_questionnaires = GeriatricQuestionnaire::join('questionnaires', 'questionnaires.questionnairable_id', '=', 'geriatric_questionnaires.id')
-        ->where("questionnaires.questionnairable_type", "App\\Models\\GeriatricQuestionnaire")
+        $oh_questionnaires = OxfordHappinessQuestionnaire::join('questionnaires', 'questionnaires.questionnairable_id', '=', 'oh_questionnaires.id')
+        ->where("questionnaires.questionnairable_type", "App\\Models\\OxfordHappinessQuestionnaire")
         ->where("questionnaires.client_id", Auth::user()->userable->id)
-        ->select('geriatric_questionnaires.*')
+        ->select('oh_questionnaires.*')
         ->orderBy('questionnaires.created_at', 'desc')
         ->simplePaginate(30);
 
-        return new QuestionnaireCollection($geriatric_questionnaires);
+        return new QuestionnaireCollection($oh_questionnaires);
     }
 
 
@@ -51,8 +51,8 @@ class GeriatricQuestionnaireController extends Controller
      */
     public function show($Questionnaire)
     {   
-        $geriatric_questionnaire = GeriatricQuestionnaire::findorFail($Questionnaire);
-        return new QuestionnaireResource($geriatric_questionnaire);
+        $oh_questionnaire = OxfordHappinessQuestionnaire::findorFail($Questionnaire);
+        return new QuestionnaireResource($oh_questionnaire);
     }
 
     /**
@@ -78,19 +78,19 @@ class GeriatricQuestionnaireController extends Controller
         abort(404);
     }
 
-    public function store(CreateGeriatricQuestionnaireRequest $request)
+    public function store(CreateOxfordHappinessQuestionnaireRequest $request)
     {
-        $geriatric_questionnaire = new GeriatricQuestionnaire();
+        $oh_questionnaire = new OxfordHappinessQuestionnaire();
         $validated_data = $request->validated();
 
         try {
             DB::beginTransaction();
-            $geriatric_questionnaire->save();
-            $geriatric_questionnaire->questionnaire()->create([
+            $oh_questionnaire->save();
+            $oh_questionnaire->questionnaire()->create([
                 'points' => $validated_data["points"],
                 'client_id' => Auth::user()->userable->id
             ]);
-            $geriatric_questionnaire->save();
+            $oh_questionnaire->save();
             $responses = $validated_data["responses"];
             for ($i = 0; $i < count($responses); $i++) {
                 $response = new ResponseQuestionnaire();
@@ -98,7 +98,7 @@ class GeriatricQuestionnaireController extends Controller
                 $response->is_why = $jsonResponse->is_why;
                 $response->response = $jsonResponse->response;
                 $response->question = $jsonResponse->question;
-                $response->questionnaire()->associate($geriatric_questionnaire->questionnaire->id);
+                $response->questionnaire()->associate($oh_questionnaire->questionnaire->id);
                 $speech = Speech::findOrFail($jsonResponse->speech_id);
                 if(!($speech->text === $response->response)){
                     return response()->json(array(
@@ -111,7 +111,7 @@ class GeriatricQuestionnaireController extends Controller
             }
             DB::commit();
 
-            return new QuestionnaireResource($geriatric_questionnaire);
+            return new QuestionnaireResource($oh_questionnaire);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(array(
@@ -129,12 +129,12 @@ class GeriatricQuestionnaireController extends Controller
      */
     public function destroy($Questionnaire)
     {
-        $questionnaire = GeriatricQuestionnaire::findOrFail($Questionnaire);
+        $questionnaire = OxfordHappinessQuestionnaire::findOrFail($Questionnaire);
         $questionnaire->delete();
 
         return response()->json(array(
             'code'      =>  200,
-            'message'   =>  "Geriatric Questionnaire was removed"
+            'message'   =>  "Oxford Happiness Questionnaire was removed"
         ), 200);
     }
 
@@ -146,7 +146,7 @@ class GeriatricQuestionnaireController extends Controller
      */
 
      public function evaluateSAModel($Questionnaire){
-        $questionnaire = GeriatricQuestionnaire::find($Questionnaire)->questionnaire;
+        $questionnaire = OxfordHappinessQuestionnaire::find($Questionnaire)->questionnaire;
         $responses = DB::table('responses_questionnaire')
             ->join('speeches', 'responses_questionnaire.speech_id', '=', 'speeches.id')
             ->join('contents', function ($join) {
@@ -170,20 +170,19 @@ class GeriatricQuestionnaireController extends Controller
                 $occurrences[$response->emotion_name] += 1;
             }
         }
-        //inclusive
         $emotionPointsMapping = [
-            //0-5
-            'happy' => 5,
-            
-            // 6-10
-            'disgust' => 10,
-            'shame' => 10,
-            'angry' => 10,
-            'guilt' => 10,
-            
-            // 11-15
-            'fear' => 15,
-            'sad' => 15,
+            // 1 - 2
+            'fear' => 2,
+            'sad' => 2,
+
+            // 2 - 3
+            'disgust' => 3,
+            'shame' => 3,
+            'angry' => 3,
+            'guilt' => 3, 
+
+            // 3 - 6
+            'happy' => 6,
         ];
 
         $prevalentEmotionsVal = max($occurrences);
@@ -193,13 +192,14 @@ class GeriatricQuestionnaireController extends Controller
         $emotionPointsMapping = $emotionPointsMapping[$prevalentEmotions[0]];
 
         $value = [];
-        if($questionnaire->points >= 0 && $questionnaire->points <= 5){
-            $value = 5;
-        }elseif($questionnaire->points >= 6 && $questionnaire->points <= 10){
-            $value = 10;
+        if($questionnaire->points >= 1 && $questionnaire->points <= 2){
+            $value = 2;
+        }elseif($questionnaire->points > 2 && $questionnaire->points <= 3){
+            $value = 3;
         }else{
-            $value = 15;
+            $value = 6;
         }
+
         $graphData = (object)[
            "data" => (object)[
                 "points" => intval($questionnaire->points),

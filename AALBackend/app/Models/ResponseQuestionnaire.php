@@ -4,38 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property float  $accuracy
- * @property int    $createdate
- * @property int    $updated_at
- * @property string $emotion_name
- * @property string $name
- * @property string $path
- */
-class Frame extends Model
+class ResponseQuestionnaire extends Model
 {
-    /**
+     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'frames';
+    protected $table = "responses_questionnaire";
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = "id";
 
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'name', 'path'
-    ];
+    protected $fillable = ['questionnaire_id','response','is_why','question','created_at','updated_at'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,15 +41,15 @@ class Frame extends Model
      *
      * @var array
      */
-    protected $casts = [
-       'name' => 'string', 'path' => 'string'
-    ];
+    protected $casts = ['created_at' => 'timestamp' , 'updated_at' => 'timestamp'];
+
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
     protected $dates = [
+        'created_at', 'updated_at'
     ];
 
     /**
@@ -67,19 +57,28 @@ class Frame extends Model
      *
      * @var boolean
      */
-    public $timestamps = false;
 
-    // Scopes...
+     public $timestamps = true;
 
-    // Functions ...
+     // Scopes...
 
-    // Relations ...
+     // Functions ...
+
+     // Relations ...
+
+     /**
+     * Get the geriatric questionnaire associated with the response.
+     */
+    public function questionnaire()
+    {
+        return $this->belongsTo(Questionnaire::class, 'questionnaire_id', 'id');
+    }
 
     /**
-     * Get the frame's content.
+     * Get the speech associated with the response.
      */
-    public function content()
+    public function speech()
     {
-        return $this->morphOne(Content::class, 'childable');
+        return $this->belongsTo(Speech::class);
     }
 }

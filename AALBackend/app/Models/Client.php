@@ -139,7 +139,7 @@ class Client extends Model
      * Get the questionnaires associated with the client
      */
     public function questionnaires(){
-        return $this->hasMany(GeriatricQuestionnaire::class, 'client_id','id');
+        return $this->hasMany(Questionnaire::class, 'client_id','id');
     }
 
 }

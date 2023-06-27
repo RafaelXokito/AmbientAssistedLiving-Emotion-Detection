@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Content;
 use Illuminate\Database\Eloquent\Model;
 
 class Speech extends Model
@@ -65,10 +64,10 @@ class Speech extends Model
     }
 
     /**
-     * Get the speech's response questionnaire.
+     * Get the speech's response questionnaire
      */
     public function response()
     {
-        return $this->hasOne(ResponseGeriatricQuestionnaire::class);
+        return $this->hasOne(ResponseQuestionnaire::class);
     }
 }

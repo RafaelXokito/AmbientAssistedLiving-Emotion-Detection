@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Resources\GeriatricQuestionnaire;
+namespace App\Http\Resources\Questionnaire;
 
-use App\Http\Resources\ResponseGeriatricQuestionnaire\ResponseGeriatricQuestionnaireCollection;
+use App\Http\Resources\ResponseQuestionnaire\ResponseQuestionnaireCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GeriatricQuestionnaireResource extends JsonResource
+class QuestionnaireResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,13 +15,14 @@ class GeriatricQuestionnaireResource extends JsonResource
      */
     public function toArray($request)
     {
+        $questionnaire = $this->questionnaire;
         return [
             'id' => $this->id,
-            'points' => $this->points,
+            'points' => $questionnaire->points,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'client_id' => $this->client_id,
-            'responses' => new ResponseGeriatricQuestionnaireCollection($this->responses)
+            'client_id' => $questionnaire->client_id,
+            'responses' => new ResponseQuestionnaireCollection($questionnaire->responses)
         ];
     }
 }

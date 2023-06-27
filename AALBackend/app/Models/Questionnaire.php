@@ -5,32 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EmotionExpression extends Model
+class Questionnaire extends Model
 {
+    use HasFactory;
+
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'emotion_expressions';
+    protected $table = "questionnaires";
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = "id";
 
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'expression_name', 'client_id', 'created_at', 'emotion_name'
-    ];
-
-    /**
+    protected $fillable = ['questionnairable_type','questionnairable_id','client_id','points','created_at','updated_at'];
+    
+/**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
@@ -45,7 +45,7 @@ class EmotionExpression extends Model
      * @var array
      */
     protected $casts = [
-        'expression_name' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp', 'emotion_name' => 'string'
+        'questionnairable_type' => 'string', 'created_at' => 'timestamp', 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -62,25 +62,25 @@ class EmotionExpression extends Model
      *
      * @var boolean
      */
-    public $timestamps = true;
 
-    // Scopes...
+     public $timestamps = true;
 
-    // Functions ...
-
-    // Relations ...
-    /**
-     * Get the emotion associated with the iteration.
-     */
-    public function emotion()
-    {
-        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
+     // Relations
+    public function questionnairable() {
+        return $this->morphTo();
     }
+
     /**
-     * Get the client associated with the iteration.
+ * Get the responses to the questionnaire
+ */
+    public function responses(){
+        return $this->hasMany(ResponseQuestionnaire::class, 'questionnaire_id','id');
+    }
+
+    /**
+     * Get the client associated with the questionnaire.
      */
-    public function client()
-    {
+    public function client(){
         return $this->belongsTo(Client::class, 'client_id', 'id');
     }
 }
