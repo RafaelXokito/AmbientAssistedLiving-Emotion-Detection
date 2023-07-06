@@ -14,6 +14,15 @@ class MessageResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $client = $this->client->user->email;
+        return [
+            "id" => $this->id,
+            "isChatbot" => $this->isChatbot,
+            "client" => $client,
+            "body" => $this->body,
+            "body" => $this->body,
+            "created_at" => $this->created_at,
+            "updated_at" => $this->updated_at
+        ];
     }
 }

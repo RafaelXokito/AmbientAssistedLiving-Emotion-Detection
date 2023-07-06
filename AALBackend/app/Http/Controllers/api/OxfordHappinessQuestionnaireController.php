@@ -171,17 +171,15 @@ class OxfordHappinessQuestionnaireController extends Controller
             }
         }
         $emotionPointsMapping = [
-            // 1 - 2
-            'fear' => 2,
-            'sad' => 2,
+            // 1 - 3.5
+            'fear' => 3.5,
+            'sad' => 3.5,
+            'disgust' => 3.5,
+            'shame' => 3.5,
+            'angry' => 3.5,
+            'guilt' => 3.5, 
 
-            // 2 - 3
-            'disgust' => 3,
-            'shame' => 3,
-            'angry' => 3,
-            'guilt' => 3, 
-
-            // 3 - 6
+            // 3.5 - 6
             'happy' => 6,
         ];
 
@@ -192,14 +190,11 @@ class OxfordHappinessQuestionnaireController extends Controller
         $emotionPointsMapping = $emotionPointsMapping[$prevalentEmotions[0]];
 
         $value = [];
-        if($questionnaire->points >= 1 && $questionnaire->points <= 2){
-            $value = 2;
-        }elseif($questionnaire->points > 2 && $questionnaire->points <= 3){
-            $value = 3;
+        if($questionnaire->points >= 0 && $questionnaire->points <= 3.5){
+            $value = 3.5;
         }else{
             $value = 6;
         }
-
         $graphData = (object)[
            "data" => (object)[
                 "points" => intval($questionnaire->points),

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\api;
 
-
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use GuzzleHttp\Psr7\Utils;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -55,10 +57,25 @@ class MessageController extends Controller
             DB::beginTransaction();
 
             $message->isChatbot = $validated_data["isChatbot"];
-            $message->body = $validated_data["body"];;
+            $message->body = $validated_data["body"];
             $message->client()->associate(Auth::user()->userable);
             $message->save();
             DB::commit();
+            //-------------- Send to Rasa --------------
+            $client = new Client();
+            $headers = [
+            'Content-Type' => 'application/json; charset=utf-8',
+            ];
+            
+            $body = json_encode([
+                "sender" => Auth::user()->email,
+                "message" => $validated_data["body"]
+            ],
+            JSON_UNESCAPED_UNICODE);
+            
+            $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
+            $response = $client->send($request);
+            $responseArray = json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE);
 
             return new MessageResource($message);
         } catch (\Throwable $th) {
