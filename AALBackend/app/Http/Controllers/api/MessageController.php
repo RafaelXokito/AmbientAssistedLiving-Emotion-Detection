@@ -24,7 +24,7 @@ class MessageController extends Controller
     {
         $messages = Message::where("client_id", Auth::user()->userable->id)
         ->select('*')
-        ->orderBy('created_at', 'desc')
+        ->orderBy('created_at', 'asc')
         ->get();
 
         return new MessageCollection($messages);
@@ -76,8 +76,18 @@ class MessageController extends Controller
             $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
             $response = $client->send($request);
             $responseArray = json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE);
+            $finalMessages = [];
+            array_push($finalMessages,$message);   
+            foreach ($responseArray as &$responseChatbot) {
+                $msg = new Message();
+                $msg->isChatbot = true;
+                $msg->body = $responseChatbot["text"];
+                $msg->client()->associate(Auth::user()->userable);
+                $msg->save();
+                array_push($finalMessages,$msg);               
+            }
 
-            return new MessageResource($message);
+            return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(array(
