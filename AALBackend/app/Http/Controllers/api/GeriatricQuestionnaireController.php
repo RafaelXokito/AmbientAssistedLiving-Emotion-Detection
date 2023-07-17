@@ -11,7 +11,8 @@ use App\Models\GeriatricQuestionnaire;
 use App\Models\ResponseQuestionnaire;
 use App\Http\Resources\Questionnaire\QuestionnaireResource;
 use App\Http\Resources\Questionnaire\QuestionnaireCollection;
-use App\Http\Requests\GeriatricQuestionnaire\CreateGeriatricQuestionnaireRequest;
+use App\Http\Requests\GeriatricQuestionnaire\UpdatePointsGeriatricQuestionnaireRequest;
+use App\Http\Requests\ResponseQuestionnaire\CreateResponseGeriatricQuestionnaire;
 
 class GeriatricQuestionnaireController extends Controller
 {
@@ -78,37 +79,87 @@ class GeriatricQuestionnaireController extends Controller
         abort(404);
     }
 
-    public function store(CreateGeriatricQuestionnaireRequest $request)
+    
+    public function store(Request $request)
     {
         $geriatric_questionnaire = new GeriatricQuestionnaire();
-        $validated_data = $request->validated();
 
         try {
             DB::beginTransaction();
             $geriatric_questionnaire->save();
             $geriatric_questionnaire->questionnaire()->create([
-                'points' => $validated_data["points"],
                 'client_id' => Auth::user()->userable->id
             ]);
             $geriatric_questionnaire->save();
-            $responses = $validated_data["responses"];
-            for ($i = 0; $i < count($responses); $i++) {
-                $response = new ResponseQuestionnaire();
-                $jsonResponse = json_decode($responses[$i]);
-                $response->is_why = $jsonResponse->is_why;
-                $response->response = $jsonResponse->response;
-                $response->question = $jsonResponse->question;
-                $response->questionnaire()->associate($geriatric_questionnaire->questionnaire->id);
-                $speech = Speech::findOrFail($jsonResponse->speech_id);
-                if(!($speech->text === $response->response)){
-                    return response()->json(array(
-                        'code'      =>  422,
-                        'message'   =>  "Speech Text is diferent than questionnaire response."
-                    ), 422);
-                }
-                $response->speech()->associate($speech);
-                $response->save();
+            DB::commit();
+
+            return new QuestionnaireResource($geriatric_questionnaire);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+    }
+
+    public function updatePoints(UpdatePointsGeriatricQuestionnaireRequest $request, $Questionnaire){
+        $geriatric_questionnaire = GeriatricQuestionnaire::findorFail($Questionnaire);
+        $validated_data = $request->validated();
+
+        try {
+            DB::beginTransaction();
+            $geriatric_questionnaire->save();
+            $geriatric_questionnaire->questionnaire()->update([
+                'points' => $validated_data["points"]
+            ]);
+            $geriatric_questionnaire->save();
+            DB::commit();
+
+            return new QuestionnaireResource($geriatric_questionnaire);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+    }
+
+    public function updateResponses(CreateResponseGeriatricQuestionnaire $request, $Questionnaire){
+        $geriatric_questionnaire = GeriatricQuestionnaire::findorFail($Questionnaire);
+        $validated_data = $request->validated();
+
+        $responseQuestionExists = ResponseQuestionnaire::where('questionnaire_id', '=', $geriatric_questionnaire->questionnaire->id)
+        ->where('question', '=', $validated_data["question"])
+        ->exists();
+
+        if($responseQuestionExists){
+            return response()->json(array(
+                'code'      =>  422,
+                'message'   =>  "This question aready has a saved response"
+            ), 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            
+            $response = new ResponseQuestionnaire();
+            $response->is_why = $validated_data["is_why"];
+            $response->response = $validated_data["response"];
+            $response->question = $validated_data["question"];
+            $response->questionnaire()->associate($geriatric_questionnaire->questionnaire->id);
+            $speech = Speech::findOrFail($validated_data["speech_id"]);
+            if(!($speech->text === $response->response)){
+                return response()->json(array(
+                    'code'      =>  422,
+                    'message'   =>  "Speech Text is diferent than questionnaire response."
+                ), 422);
             }
+            $response->speech()->associate($speech);
+            $response->save();
+
+            $geriatric_questionnaire->save();
             DB::commit();
 
             return new QuestionnaireResource($geriatric_questionnaire);

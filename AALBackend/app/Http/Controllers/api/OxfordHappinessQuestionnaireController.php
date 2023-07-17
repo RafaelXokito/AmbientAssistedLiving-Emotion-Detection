@@ -11,7 +11,8 @@ use App\Models\OxfordHappinessQuestionnaire;
 use App\Models\ResponseQuestionnaire;
 use App\Http\Resources\Questionnaire\QuestionnaireResource;
 use App\Http\Resources\Questionnaire\QuestionnaireCollection;
-use App\Http\Requests\OxfordHappinessQuestionnaire\CreateOxfordHappinessQuestionnaireRequest;
+use App\Http\Requests\OxfordHappinessQuestionnaire\UpdatePointsOxfordHappinessQuestionnaireRequest;
+use App\Http\Requests\ResponseQuestionnaire\CreateResponseOxfordHappinessQuestionnaire;
 
 class OxfordHappinessQuestionnaireController extends Controller
 {
@@ -78,37 +79,87 @@ class OxfordHappinessQuestionnaireController extends Controller
         abort(404);
     }
 
-    public function store(CreateOxfordHappinessQuestionnaireRequest $request)
+    public function store(Request $request)
     {
         $oh_questionnaire = new OxfordHappinessQuestionnaire();
-        $validated_data = $request->validated();
 
         try {
             DB::beginTransaction();
             $oh_questionnaire->save();
             $oh_questionnaire->questionnaire()->create([
-                'points' => $validated_data["points"],
                 'client_id' => Auth::user()->userable->id
             ]);
             $oh_questionnaire->save();
-            $responses = $validated_data["responses"];
-            for ($i = 0; $i < count($responses); $i++) {
-                $response = new ResponseQuestionnaire();
-                $jsonResponse = json_decode($responses[$i]);
-                $response->is_why = $jsonResponse->is_why;
-                $response->response = $jsonResponse->response;
-                $response->question = $jsonResponse->question;
-                $response->questionnaire()->associate($oh_questionnaire->questionnaire->id);
-                $speech = Speech::findOrFail($jsonResponse->speech_id);
-                if(!($speech->text === $response->response)){
-                    return response()->json(array(
-                        'code'      =>  422,
-                        'message'   =>  "Speech Text is diferent than questionnaire response."
-                    ), 422);
-                }
-                $response->speech()->associate($speech);
-                $response->save();
+            DB::commit();
+
+            return new QuestionnaireResource($oh_questionnaire);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+    }
+
+    public function updatePoints(UpdatePointsOxfordHappinessQuestionnaireRequest $request, $Questionnaire){
+        $oh_questionnaire = OxfordHappinessQuestionnaire::findorFail($Questionnaire);
+        $validated_data = $request->validated();
+
+        try {
+            DB::beginTransaction();
+            $oh_questionnaire->save();
+            $oh_questionnaire->questionnaire()->update([
+                'points' => $validated_data["points"]
+            ]);
+            $oh_questionnaire->save();
+            DB::commit();
+
+            return new QuestionnaireResource($oh_questionnaire);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+    }
+
+
+    public function updateResponses(CreateResponseOxfordHappinessQuestionnaire $request, $Questionnaire){
+        $oh_questionnaire = OxfordHappinessQuestionnaire::findorFail($Questionnaire);
+        $validated_data = $request->validated();
+
+        $responseQuestionExists = ResponseQuestionnaire::where('questionnaire_id', '=', $oh_questionnaire->questionnaire->id)
+        ->where('question', '=', $validated_data["question"])
+        ->exists();
+
+        if($responseQuestionExists){
+            return response()->json(array(
+                'code'      =>  422,
+                'message'   =>  "This question aready has a saved response"
+            ), 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            
+            $response = new ResponseQuestionnaire();
+            $response->is_why = $validated_data["is_why"];
+            $response->response = $validated_data["response"];
+            $response->question = $validated_data["question"];
+            $response->questionnaire()->associate($oh_questionnaire->questionnaire->id);
+            $speech = Speech::findOrFail($validated_data["speech_id"]);
+            if(!($speech->text === $response->response)){
+                return response()->json(array(
+                    'code'      =>  422,
+                    'message'   =>  "Speech Text is diferent than questionnaire response."
+                ), 422);
             }
+            $response->speech()->associate($speech);
+            $response->save();
+
+            $oh_questionnaire->save();
             DB::commit();
 
             return new QuestionnaireResource($oh_questionnaire);

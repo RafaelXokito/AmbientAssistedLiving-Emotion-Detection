@@ -100,6 +100,12 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::get('geriatricQuestionnaires/statistics/{Questionnaire}', [GeriatricQuestionnaireController::class, 'evaluateSAModel']);
     Route::get('oxfordHappinessQuestionnaires/statistics/{Questionnaire}', [OxfordHappinessQuestionnaireController::class, 'evaluateSAModel']);
 
+    Route::put('geriatricQuestionnaires/{Questionnaire}/points', [GeriatricQuestionnaireController::class, 'updatePoints']);
+    Route::put('geriatricQuestionnaires/{Questionnaire}/responses', [GeriatricQuestionnaireController::class, 'updateResponses']);
+
+    Route::put('oxfordHappinessQuestionnaires/{Questionnaire}/points', [OxfordHappinessQuestionnaireController::class, 'updatePoints']);
+    Route::put('oxfordHappinessQuestionnaires/{Questionnaire}/responses', [OxfordHappinessQuestionnaireController::class, 'updateResponses']);
+  
 });
 
 Route::group([
