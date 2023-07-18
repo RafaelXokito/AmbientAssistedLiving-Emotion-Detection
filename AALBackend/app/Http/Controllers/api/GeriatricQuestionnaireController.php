@@ -132,6 +132,7 @@ class GeriatricQuestionnaireController extends Controller
 
         $responseQuestionExists = ResponseQuestionnaire::where('questionnaire_id', '=', $geriatric_questionnaire->questionnaire->id)
         ->where('question', '=', $validated_data["question"])
+        ->where('is_why', '=', $validated_data["is_why"])
         ->exists();
 
         if($responseQuestionExists){

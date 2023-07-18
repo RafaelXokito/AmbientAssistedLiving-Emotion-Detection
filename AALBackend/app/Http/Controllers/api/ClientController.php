@@ -147,4 +147,10 @@ class ClientController extends Controller
             'message'   =>  "Client was removed [". $oldEmail ."]:". $oldName ."!"
         ), 200);
     }
+
+    public function getMe(){
+        $client = Client::findOrFail(Auth::user()->userable->id);
+        return new ClientResource($client);
+    }
+
 }

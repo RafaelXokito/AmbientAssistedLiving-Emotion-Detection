@@ -88,6 +88,9 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'oxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
         'messages' => MessageController::class,
     ]);
+
+    Route::get('/me', [ClientController::class, 'getMe']);
+
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
     Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
