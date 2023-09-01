@@ -19,6 +19,7 @@ use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionExpressionController;
 use App\Http\Controllers\api\EmotionsNotificationController;
 use App\Http\Controllers\api\MultiModalEmotionController;
+use App\Models\MultiModalEmotion;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +46,8 @@ Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/frames/graphData', [FrameController::class, 'showClassificationGraphData']);
     Route::get('/contents/graphData', [ContentController::class, 'showClassificationGraphData']);
 
-    Route::get('/frames/last', [FrameController::class, 'last']); // Isto devia de estar apenas para os clients
+    Route::get('/frames/last', [FrameController::class, 'last']); // Isto devia de esta
+    Route::get('/multiModalEmotions/last', [MultiModalEmotionController::class, 'last']); // Isto devia de estar apenas para os clientsr apenas para os clients
 
     Route::get('/iterations/graphData', [IterationController::class, 'showGraphData']);
 
@@ -84,6 +86,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
     Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
     Route::get('/frames/download/{frame}', [FrameController::class, 'showFoto']);
+
 
     Route::get('/speeches/iteration/{iteration}', [SpeechController::class, 'showSpeechesByIteration']);
     Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);

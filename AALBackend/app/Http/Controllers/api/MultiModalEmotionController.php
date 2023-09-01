@@ -97,6 +97,19 @@ class MultiModalEmotionController extends Controller
         abort(404);
     }
 
+    public function last()
+    {
+        $last_multimodal = MultiModalEmotion::where("client_id", Auth::user()->userable->id)
+            ->get()->last();
+        if ($last_multimodal != null) {
+            return new MultiModalEmotionResource($last_multimodal);
+        }
+        return response()->json(array(
+            'code'      =>  422,
+            'message'   =>  "No multi modal emotions were inserted"
+        ), 422);
+    }
+
     /**
      * Remove the specified resource from storage.
      *
