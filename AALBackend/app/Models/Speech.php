@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Content;
 use Illuminate\Database\Eloquent\Model;
 
 class Speech extends Model
@@ -62,5 +61,13 @@ class Speech extends Model
     public function content()
     {
         return $this->morphOne(Content::class, 'childable');
+    }
+
+    /**
+     * Get the speech's response questionnaire
+     */
+    public function response()
+    {
+        return $this->hasOne(ResponseQuestionnaire::class);
     }
 }

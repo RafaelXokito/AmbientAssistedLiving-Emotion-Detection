@@ -3,38 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- */
-class Administrator extends Model
+class ResponseQuestionnaire extends Model
 {
-
-    use SoftDeletes;
-
-
-    /**
+     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'administrators';
+    protected $table = "responses_questionnaire";
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = "id";
 
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
-    protected $fillable = [
-
-    ];
+    protected $fillable = ['questionnaire_id','speech_id','response','is_why','question','created_at','updated_at'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -50,9 +41,7 @@ class Administrator extends Model
      *
      * @var array
      */
-    protected $casts = [
-
-    ];
+    protected $casts = ['created_at' => 'timestamp' , 'updated_at' => 'timestamp'];
 
     /**
      * The attributes that should be mutated to dates.
@@ -60,7 +49,7 @@ class Administrator extends Model
      * @var array
      */
     protected $dates = [
-
+        'created_at', 'updated_at'
     ];
 
     /**
@@ -68,25 +57,28 @@ class Administrator extends Model
      *
      * @var boolean
      */
-    public $timestamps = true;
 
-    // Scopes...
+     public $timestamps = true;
 
-    // Functions ...
+     // Scopes...
 
-    // Relations ...
-    /**
-     * Get the clients associated with the administrator.
+     // Functions ...
+
+     // Relations ...
+
+     /**
+     * Get the geriatric questionnaire associated with the response.
      */
-    public function clients()
+    public function questionnaire()
     {
-        return $this->hasMany(Client::class, 'administrator_id', 'id')->withTrashed();
+        return $this->belongsTo(Questionnaire::class, 'questionnaire_id', 'id');
     }
+
     /**
-     * Get the user associated with the administrator.
+     * Get the speech associated with the response.
      */
-    public function user()
+    public function speech()
     {
-        return $this->morphOne(User::class, 'userable');
+        return $this->belongsTo(Speech::class, 'speech_id', 'id');
     }
 }

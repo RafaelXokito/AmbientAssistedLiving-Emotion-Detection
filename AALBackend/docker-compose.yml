@@ -1,6 +1,13 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
 services:
+    chatbot:
+        # image built from ERNUI/ChatbotBackend
+        image: chatbot
+        ports:
+        - "5005:5005"
+        networks:
+            - sail
     laravel.test:
         build:
             context: ./vendor/laravel/sail/runtimes/8.1

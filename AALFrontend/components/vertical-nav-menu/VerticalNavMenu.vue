@@ -62,6 +62,12 @@
         :icon="icons.mdiEyeOutline"
       ></nav-menu-link>
       <nav-menu-link
+        v-if="currentUser.scope === 'Client'"
+        title="Questionnaires"
+        to="/questionnaires"
+        :icon="icons.mdiEyeOutline"
+      ></nav-menu-link>
+      <nav-menu-link
         v-if="currentUser.scope === 'Administrator'"
         title="Logs"
         to="/logs"

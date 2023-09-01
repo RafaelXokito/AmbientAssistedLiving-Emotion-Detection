@@ -35,7 +35,7 @@
           <template v-slot:item.emotion="{item}">
             {{ firstCapitalLetter(item.emotion.name) }}
           </template>
-          <template v-slot:item.frames="{item}">
+          <template v-slot:item.contents="{item}">
             <v-btn :to="`/iterations/${item.id}`" icon>
               <v-icon dense>
                 mdi-expand-all
@@ -184,18 +184,13 @@ export default {
           sortDirection: "desc",
         },
         {
-          value: "classifiedFrames",
-          text: "Classified Frames",
+          value: "type",
+          text: "Type",
           sortDirection: "desc",
         },
         {
-          value: "totalFrames",
-          text: "Total Frames",
-          sortDirection: "desc",
-        },
-        {
-          value: "frames",
-          text: "Frames",
+          value: "contents",
+          text: "Contents",
           sortable: false,
         },
       ],

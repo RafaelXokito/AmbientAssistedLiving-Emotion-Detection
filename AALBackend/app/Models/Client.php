@@ -134,4 +134,12 @@ class Client extends Model
     {
         return $this->hasMany(MultiModalEmotion::class, 'client_id', 'id');
     }
+
+    /**
+     * Get the questionnaires associated with the client
+     */
+    public function questionnaires(){
+        return $this->hasMany(Questionnaire::class, 'client_id','id');
+    }
+
 }

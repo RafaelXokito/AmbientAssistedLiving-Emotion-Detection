@@ -10,16 +10,19 @@ use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\FrameController;
 use App\Http\Controllers\api\ClientController;
 use App\Http\Controllers\api\SpeechController;
+use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionController;
 use App\Http\Controllers\api\IterationController;
 use App\Http\Controllers\api\StatisticController;
 use App\Http\Controllers\api\NotificationController;
 use App\Http\Controllers\api\AdministratorController;
-use App\Http\Controllers\api\ContentController;
 use App\Http\Controllers\api\EmotionExpressionController;
-use App\Http\Controllers\api\EmotionsNotificationController;
 use App\Http\Controllers\api\MultiModalEmotionController;
 use App\Models\MultiModalEmotion;
+use App\Http\Controllers\api\EmotionsNotificationController;
+use App\Http\Controllers\api\GeriatricQuestionnaireController;
+use App\Http\Controllers\api\OxfordHappinessQuestionnaireController;
+use App\Http\Controllers\api\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +75,8 @@ Route::group(['middleware' =>  'auth:api', 'admin'], function() {
     ]);
 });
 
+
+
 // Client restrict
 Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::resources([
@@ -81,7 +86,13 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'emotionExpressions' => EmotionExpressionController::class,
         'multiModalEmotions' => MultiModalEmotionController::class,
         'speeches' => SpeechController::class,
+        'geriatricQuestionnaires' => GeriatricQuestionnaireController::class,
+        'oxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
+        'messages' => MessageController::class,
     ]);
+
+    Route::get('/me', [ClientController::class, 'getMe']);
+
     Route::get('/emotionExpressions/emotion/{emotion}', [EmotionExpressionController::class, 'showByEmotion']);
     Route::get('/frames/iteration/{iteration}', [FrameController::class, 'showFramesByIteration']);
     Route::patch('/frames/{frame}/classify', [FrameController::class, 'classifyFrame']);
@@ -89,7 +100,18 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
 
 
     Route::get('/speeches/iteration/{iteration}', [SpeechController::class, 'showSpeechesByIteration']);
+    Route::get('/speeches/{speech}/predictions', [SpeechController::class, 'showSpeechClassification']);
     Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);
+
+    Route::get('geriatricQuestionnaires/statistics/{Questionnaire}', [GeriatricQuestionnaireController::class, 'evaluateSAModel']);
+    Route::get('oxfordHappinessQuestionnaires/statistics/{Questionnaire}', [OxfordHappinessQuestionnaireController::class, 'evaluateSAModel']);
+
+    Route::put('geriatricQuestionnaires/{Questionnaire}/points', [GeriatricQuestionnaireController::class, 'updatePoints']);
+    Route::put('geriatricQuestionnaires/{Questionnaire}/responses', [GeriatricQuestionnaireController::class, 'updateResponses']);
+
+    Route::put('oxfordHappinessQuestionnaires/{Questionnaire}/points', [OxfordHappinessQuestionnaireController::class, 'updatePoints']);
+    Route::put('oxfordHappinessQuestionnaires/{Questionnaire}/responses', [OxfordHappinessQuestionnaireController::class, 'updateResponses']);
+  
 });
 
 Route::group([
