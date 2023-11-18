@@ -68,7 +68,7 @@
         </v-row>
       </v-container>
     </v-card>
-    <h2 v-else class="text-center">There's no notifications to see</h2>
+    <h2 v-else class="text-center">Não existem notificações</h2>
     <v-dialog
       v-model="showNotification"
       max-width="600px"
@@ -93,7 +93,7 @@
             text
             @click="closeNotification"
           >
-            Close
+            Fechar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -126,7 +126,7 @@ export default {
   created(){
     this.getNotifications()
     this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-    this.socket.on('newNotificationMessage', data=> {
+    this.socket.on('newNotificationMessage', data => {
       const aux = data.data.split(';')
       this.notifications.unshift({
         id: aux[aux.length-5],

@@ -39,7 +39,7 @@
     <v-card-text class="my-7">
       <div class="d-flex align-center">
         <h1 v-if="statisticsMenu[myPattern]" class="text-4xl font-weight-semibold">
-          {{ "Number: " + number }}
+          {{ "Número: " + number }}
         </h1>
 
         <div v-if="percentage" class="d-flex align-center mb-n3">
@@ -68,7 +68,7 @@
         outlined
         @click="toggleGraph()"
       >
-        Details
+        Detalhes
       </v-btn>
     </v-card-text>
   </v-card>

@@ -254,9 +254,9 @@ class GeriatricQuestionnaireController extends Controller
         }
         $graphData = (object)[
            "data" => (object)[
-                "points" => intval($questionnaire->points),
-                "points_range" => $value,
-                "sa_highest_emo_range" => $emotionPointsMapping
+                "Resultado do questionário" => intval($questionnaire->points),
+                "Valor máximo do intervalo do resultado do questionário" => $value,
+                "Resultado do modelo de Inteligência Artificial" => $emotionPointsMapping
            ]
         ];
 

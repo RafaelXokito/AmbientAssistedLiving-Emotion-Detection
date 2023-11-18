@@ -4,7 +4,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex flex-column align-items-center text-center">
-              <img v-if="currentUser.age !== 'Other'" :src="currentUser.age === 'Male' ? 'https://bootdey.com/img/Content/avatar/avatar7.png' : 'https://bootdey.com/img/Content/avatar/avatar3.png'" alt="Admin" class="rounded-circle" width="150">
+              <img v-if="currentUser.age !== 'Outro'" :src="currentUser.age === 'Masculino' ? 'https://bootdey.com/img/Content/avatar/avatar7.png' : 'https://bootdey.com/img/Content/avatar/avatar3.png'" alt="Admin" class="rounded-circle" width="150">
               <div class="mt-3">
                 <div v-if="!showEdit">
                 <h4>{{currentUser.name}}</h4>
@@ -13,29 +13,29 @@
                 <b-form v-else-if="showEdit" ref="profileForm" @submit.prevent="onSubmit">
                   <b-form-group
                     id="input-group-1"
-                    label="Email address:"
+                    label="Endereço de email:"
                     label-for="input-1"
                   >
                     <b-form-input
                       id="input-1"
                       v-model="form.email"
                       type="email"
-                      placeholder="Enter email"
+                      placeholder="Insira o seu email"
                       required
                     ></b-form-input>
                   </b-form-group>
 
-                  <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
+                  <b-form-group id="input-group-2" label="Nome:" label-for="input-2">
                     <b-form-input
                       id="input-2"
                       v-model="form.name"
-                      placeholder="Enter name"
+                      placeholder="Insira o seu nome"
                       required
                     ></b-form-input>
                   </b-form-group>
                 </b-form>
                 <b-button v-if="showEdit" type="submit" variant="primary" @click="onSubmit">Save</b-button>
-                <b-button variant="outline-primary" @click="changeView">{{showEdit ? 'Back' : 'Edit'}}</b-button>
+                <b-button variant="outline-primary" @click="changeView">{{showEdit ? 'Voltar atrás' : 'Editar'}}</b-button>
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@ export default {
   methods: {
     showErrorMessage(err) {
       if (err.response) {
-        this.$toast.error('ERROR: ' + err.response.data).goAway(3000)
+        this.$toast.error('Erro: ' + err.response.data).goAway(3000)
       }
       else {
         this.$toast.error(err).goAway(3000)
@@ -86,11 +86,11 @@ export default {
         .$put('/api/auth/update', this.form)
         .then(() => {
           this.$auth.fetchUser()
-          this.$toast.success('Profile updated').goAway(3000)
+          this.$toast.success('Perfil atualizado com sucesso').goAway(3000)
           this.showEdit = false
         })
         .catch(err=>{
-          this.$toast.error('Profile was not updated').goAway(3000)
+          this.$toast.error('Erro a atualizar o perfil').goAway(3000)
         })
     },
     isNumber(event) {

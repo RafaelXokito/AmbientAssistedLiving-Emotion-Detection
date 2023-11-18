@@ -23,10 +23,10 @@
         <!-- title -->
         <v-card-text>
           <p class="text-2xl font-weight-semibold text--primary mb-2">
-            Welcome to SmartEmotion! 👋🏻
+            Seja bem-vindo à plataforma SmartEmotion! 👋🏻
           </p>
           <p class="mb-2">
-            Please sign-in to your account and start the monitoring
+            Por favor inicie sessão com a sua conta
           </p>
         </v-card-text>
 
@@ -37,7 +37,7 @@
               v-model="form.email"
               outlined
               label="Email"
-              placeholder="john@example.com"
+              placeholder="Insira o seu email"
               hide-details
               class="mb-3"
               required
@@ -47,8 +47,8 @@
               v-model="form.password"
               outlined
               :type="isPasswordVisible ? 'text' : 'password'"
-              label="Password"
-              placeholder="············"
+              label="Palavra-passe"
+              placeholder="********"
               :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
               hide-details
               @click:append="isPasswordVisible = !isPasswordVisible"
@@ -57,7 +57,7 @@
 
             <div class="d-flex align-center justify-space-between flex-wrap">
               <v-checkbox
-                label="Remember Me"
+                label="Guardar credenciais"
                 hide-details
                 class="me-3 mt-1"
               >
@@ -68,7 +68,7 @@
                 href="javascript:void(0)"
                 class="mt-1"
               >
-                Forgot Password?
+                Esqueceu-se da palavra-passe?
               </a>
             </div>
 
@@ -78,7 +78,7 @@
               color="primary"
               class="mt-6"
             >
-              Login
+              Iniciar sessão
             </v-btn>
           </v-form>
         </v-card-text>
@@ -86,7 +86,7 @@
         <!-- divider -->
         <v-card-text class="d-flex align-center mt-2">
           <v-divider></v-divider>
-          <span class="mx-5">or</span>
+          <span class="mx-5">Ou</span>
           <v-divider></v-divider>
         </v-card-text>
 
@@ -136,9 +136,9 @@
     >
       <v-card>
         <v-card-title class="text-h5">
-          Activate your account
+          Ative a sua conta
         </v-card-title>
-        <v-card-text>Do you agree that your data is used for research reasons aiming improving user experience?</v-card-text>
+        <v-card-text>Concorda que os seus dados sejam utilizados para fins de investigação com o objetivo de melhorar a experiência do utilizador?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -146,14 +146,14 @@
             text
             @click="activateAccount(false)"
           >
-            Disagree
+            Discordo
           </v-btn>
           <v-btn
             color="red darken-1"
             text
             @click="activateAccount(true)"
           >
-            Agree
+            Concordo
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -226,9 +226,9 @@ export default {
         this.$router.go(-1)
       }).catch(e => {
         if (e.response && e.response.data)
-          this.$toast.error('Sorry, you cant login. '+e.response.data[Object.keys(e.response.data)[0]][0]).goAway(3000)
+          this.$toast.error('Desculpe, não foi possível iniciar sessão.').goAway(3000)
         else if (e.response && e.response.data && e.response.data.error.includes("not activated")) {
-          this.$toast.error('Sorry, you cant login. You should activate your account first').goAway(3000)
+          this.$toast.error('Desculpe, não foi possível iniciar sessão. Ative a sua conta primeiro.').goAway(3000)
           this.dialog = true
         } else {
           this.$toast.error('Sorry, you cant login. Ensure your credentials are correct').goAway(3000)

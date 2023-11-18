@@ -11,7 +11,7 @@
         left
       >
         mdi-arrow-left
-      </v-icon>Back
+      </v-icon>Voltar atrás
     </v-btn>
   </div>
 </template>

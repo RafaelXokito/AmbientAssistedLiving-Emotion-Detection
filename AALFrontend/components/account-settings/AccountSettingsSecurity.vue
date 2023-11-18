@@ -17,7 +17,7 @@
                 v-model="currentPassword"
                 :type="isCurrentPasswordVisible ? 'text' : 'password'"
                 :append-icon="isCurrentPasswordVisible ? icons.mdiEyeOffOutline:icons.mdiEyeOutline"
-                label="Current Password"
+                label="Palavra-passe atual"
                 outlined
                 dense
                 @click:append="isCurrentPasswordVisible = !isCurrentPasswordVisible"
@@ -28,10 +28,10 @@
                 v-model="newPassword"
                 :type="isNewPasswordVisible ? 'text' : 'password'"
                 :append-icon="isNewPasswordVisible ? icons.mdiEyeOffOutline:icons.mdiEyeOutline"
-                label="New Password"
+                label="Nova palavra-passe"
                 outlined
                 dense
-                hint="Make sure it's at least 8 characters."
+                hint="A nova palavra-passe tem de ter pelo menos 8 caracteres"
                 persistent-hint
                 @click:append="isNewPasswordVisible = !isNewPasswordVisible"
               ></v-text-field>
@@ -41,7 +41,7 @@
                 v-model="cPassword"
                 :type="isCPasswordVisible ? 'text' : 'password'"
                 :append-icon="isCPasswordVisible ? icons.mdiEyeOffOutline:icons.mdiEyeOutline"
-                label="Confirm New Password"
+                label="Confirme a nova palavra-passe"
                 outlined
                 dense
                 class="mt-3"
@@ -74,7 +74,7 @@
           <v-icon class="text--primary me-3">
             {{ icons.mdiKeyOutline }}
           </v-icon>
-          <span class="text-break">Two-factor authentication</span>
+          <span class="text-break">Autenticação por dois fatores</span>
         </v-card-title>
 
         <v-card-text class="two-factor-auth text-center mx-auto">
@@ -91,12 +91,12 @@
             </v-icon>
           </v-avatar>
           <p class="text-base text--primary font-weight-semibold">
-            Two factor authentication is not enabled yet.
+            Autenticação por dois fatores ainda não está ativada.
           </p>
           <p class="text-sm text--primary">
-            Two-factor authentication adds an additional layer of
-            security to your account by requiring more than just a
-            password to log in. Learn more.
+            A autenticação por dois factores acrescenta uma camada adicional de
+            segurança à sua conta, exigindo mais do que apenas uma
+            palavra-passe para iniciar sessão. Saiba mais.
           </p>
         </v-card-text>
 
@@ -106,14 +106,14 @@
             color="primary"
             class="me-3 mt-3"
           >
-            Save changes
+            Guardar
           </v-btn>
           <v-btn
             color="secondary"
             outlined
             class="mt-3"
           >
-            Cancel
+            Cancelar
           </v-btn>
         </v-card-text>
       </div>

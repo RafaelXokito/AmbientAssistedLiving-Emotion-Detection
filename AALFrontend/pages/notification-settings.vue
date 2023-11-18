@@ -39,7 +39,7 @@
           color="primary"
           @click="initialize"
         >
-          Reset
+          Reiniciar
         </v-btn>
       </template>
     </v-data-table>
@@ -61,7 +61,7 @@
               >
                 <v-text-field
                   v-model="editedItem.accuracyLimit"
-                  label="Accuracy Limit"
+                  label="Limite precisão (%)"
                   type="number"
                   required
                 ></v-text-field>
@@ -72,7 +72,7 @@
               >
                 <v-text-field
                   v-model="editedItem.durationSeconds"
-                  label="Duration Seconds"
+                  label="duração (seg)"
                   type="number"
                   required
                 ></v-text-field>
@@ -88,25 +88,25 @@
             text
             @click="close"
           >
-            Cancel
+            Cancelar
           </v-btn>
           <v-btn
             color="blue darken-1"
             text
             @click="save"
           >
-            Save
+            Guardar
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="dialogDelete" max-width="500px">
       <v-card>
-        <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+        <v-card-title class="text-h5">Tem a certeza que quer apagar este item?</v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+          <v-btn color="blue darken-1" text @click="closeDelete">Não</v-btn>
+          <v-btn color="blue darken-1" text @click="deleteItemConfirm">Sim</v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
@@ -122,9 +122,9 @@ export default {
       dialog: false,
       dialogDelete: false,
       headers: [
-        { text: 'Name', value: 'name' },
-        { text: 'Group', value: 'group' },
-        { text: 'Actions', value: 'actions', sortable: false },
+        { text: 'Nome', value: 'name' },
+        { text: 'Grupo', value: 'group' },
+        { text: 'Ações', value: 'actions', sortable: false },
       ],
       emotions: [],
       emotionsNotification: [],
@@ -145,7 +145,7 @@ export default {
   },
   computed: {
     formTitle () {
-      return this.editedIndex === -1 ? 'New ' + this.editedItem.emotion_name + ' Notifications' : 'Edit ' + this.editedItem.emotion_name + ' Notifications'
+      return this.editedIndex === -1 ? 'Configurar notificações para a emoção de ' + this.editedItem.emotion_name : 'Editar as configurações para notificações da emoção de ' + this.editedItem.emotion_name
     },
   },
   watch: {
@@ -228,7 +228,7 @@ export default {
           this.closeDelete()
         })
         .catch(() => {
-          this.$toast.error("Error deleting configuration").goAway(3000)
+          this.$toast.error("Erro a apagar a configuração da notificação").goAway(3000)
         })
     },
 
@@ -257,8 +257,7 @@ export default {
         this.$axios
           .$post("/api/emotionsNotification", this.editedItem)
           .then(emotionNotification => {
-            this.$toast.success('Notifications for '+this.editedItem.emotion_name+' configured').goAway(3000)
-
+            this.$toast.success('Notificações configuradas para ' + this.editedItem.emotion_name).goAway(3000)
             Object.assign(this.emotions[this.editedIndex], {
               name: this.emotions[this.editedIndex].name,
               group: this.emotions[this.editedIndex].group,
@@ -270,11 +269,10 @@ export default {
               }
             })
             this.emotionsNotification.push(emotionNotification)
-
             this.close()
           })
           .catch(() => {
-            this.$toast.error("Error creating configuration").goAway(3000)
+            this.$toast.error("Error a criar as configurações").goAway(3000)
           })
       }
     },

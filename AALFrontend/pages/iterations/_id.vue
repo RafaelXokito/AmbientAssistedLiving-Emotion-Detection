@@ -2,8 +2,8 @@
   <div>
     <back-button></back-button>
     <div class="mt-5 ml-5 text-center">
-      <h1 class="text-red-400">Contents of Iteration nº {{ id }}</h1>
-      <h4>Emotion Group - {{ firstCapitalLetter(emotion.name) }}</h4>
+      <h1 class="text-red-400">Conteúdos da interação nº {{ id }}</h1>
+      <h4>Grupo de emoções - {{ firstCapitalLetter(emotion.name) }}</h4>
     </div>
     <v-container>
       <v-row no-gutters>
@@ -32,7 +32,7 @@
                   >
                   </v-select>
                   <v-btn type="submit" color="primary" class="mt-lg-2">
-                    Classify
+                    Classificar
                   </v-btn>
                 </div>
               </form>
@@ -72,7 +72,7 @@ export default {
       this.$axios
         .$get("/api/emotions/groups/" + this.emotion.name)
         .then(({data}) => {
-          this.humanLabelEmotions.push({ value: null, text: 'None', disabled: true, })
+          this.humanLabelEmotions.push({ value: null, text: '-', disabled: true, })
           data.forEach(e => {
             if (e.name !== e.category)
               this.humanLabelEmotions.push({ value: e.name, text: this.firstCapitalLetter(e.name) })

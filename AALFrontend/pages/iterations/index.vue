@@ -13,12 +13,12 @@
       <v-col cols="12">
         <v-card>
           <v-card-title>
-            Iterations
+            Iterações
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="Search"
+               label="Pesquisar"
               single-line
               hide-details
             ></v-text-field>
@@ -46,7 +46,7 @@
             {{
               item.created_at != null
                 ? new Date(item.created_at * 1000).toLocaleString("pt-PT")
-                : "Not Shown"
+                : "---"
             }}
           </template>
 
@@ -60,7 +60,7 @@
     >
       <v-card>
         <v-card-title>
-          Frame Selected
+          Imagem selecionada
         </v-card-title>
         <v-card-text>
           <div class="text-center font-mono">
@@ -92,7 +92,7 @@
             >
                 <v-select
                   v-model="frameOpened.emotionClassified"
-                  label="Emotions"
+                  label="Emoções"
                   :items="frameOpened.humanLabelEmotions"
                   clearable
                   required
@@ -120,16 +120,14 @@
               frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
             "
               >
-                All Predictions
+                Todas as previsões
               </v-tab>
               <v-tab
-                title="By group"
+                title="Por grupo"
                 :active="
               frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
             "
-              >
-                By group
-              </v-tab>
+              >Por grupo</v-tab>
               <v-tabs-items v-model="frameTab">
                 <v-tab-item>
                   <highchart
@@ -153,7 +151,7 @@
             text
             @click="showFrameModal = false"
           >
-            Close
+            Fechar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -175,7 +173,7 @@ export default {
       fields: [
         {
           value: "emotion",
-          text: "Emotion",
+          text: "Emoção",
           sortDirection: "desc",
         },
         {
@@ -185,12 +183,12 @@ export default {
         },
         {
           value: "type",
-          text: "Type",
+          text: "Tipo",
           sortDirection: "desc",
         },
         {
           value: "contents",
-          text: "Contents",
+          text: "Conteúdo",
           sortable: false,
         },
       ],
@@ -291,18 +289,18 @@ export default {
           },
         },
         title: {
-          text: "Emotions over time",
+          text: "Emoções ao longo do tempo",
         },
         yAxis: {
           title: {
-            text: "Emotions",
+            text: "Emoções",
           },
           categories: [],
         },
         xAxis: {
           type: "datetime",
           title: {
-            text: "Datetime",
+            text: "Tempo",
           },
           labels: {
             format: "{value:%Y-%m-%d %H:%M:%S}",
@@ -325,16 +323,16 @@ export default {
           type: "column",
         },
         title: {
-          text: "Iterations over time",
+          text: "Iterações ao longo do tempo",
         },
         yAxis: {
           title: {
-            text: "Nº Iterations",
+            text: "Número de iterações",
           },
         },
         xAxis: {
           title: {
-            text: "Time",
+            text: "Tempo",
           },
           categories: [],
         },
@@ -396,7 +394,7 @@ export default {
         })
         .then(() => {
           this.$toast
-            .success("Frame nº " + id + " classified successfully")
+            .success("Imagem com o nº " + id + " classificada com sucesso")
             .goAway(3000)
 
           // Connection opened
@@ -486,7 +484,7 @@ export default {
           .then(({data}) => {
             this.frameOpened.humanLabelEmotions.push({
               value: null,
-              text: "Please select an emotion",
+              text: "Por favor selecione uma emoção",
               disabled: true,
             })
             data.forEach(e => {
@@ -593,7 +591,7 @@ return graphData
         this.iterationsChartOptions.yAxis.categories = this.yLabels
       })
       .catch(() => {
-          this.$toast.info("No emotions found").goAway(3000)
+          this.$toast.info("Não existem emoções registadas no sistema").goAway(3000)
         })
     },
     getIterations() {
@@ -608,7 +606,7 @@ return graphData
           }
         })
         .catch(() => {
-          this.$toast.info("No iterations found").goAway(3000)
+          this.$toast.info("Não existem iterações registadas no sistema").goAway(3000)
         })
     },
     render() {

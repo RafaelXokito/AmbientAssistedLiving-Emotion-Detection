@@ -2,12 +2,12 @@
   <div>
     <v-card>
       <v-card-title>
-        Logs
+        Registo de logs
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
-          label="Search"
+          label="Pesquisar"
           single-line
           hide-details
         ></v-text-field>
@@ -31,7 +31,7 @@
                 : "Not Shown"
             }}
           </template>-->
-        <template v-slot:no-data> No logs created yet </template>
+        <template v-slot:no-data> Ainda não existem registos de logs </template>
       </v-data-table>
     </v-card>
   </div>
@@ -47,27 +47,27 @@ export default {
       fields: [
         {
           value: 'content',
-          text: 'Content',
+          text: 'Conteúdo',
           sortDirection: 'desc',
         },
         {
           value: 'client_id',
-          text: 'Client Id',
+          text: 'Id do Cliente',
           sortDirection: 'desc',
         },
         {
           value: 'process',
-          text: 'Process Name',
+          text: 'Nome do processo',
           sortDirection: 'desc',
         },
         {
           value: 'macaddress',
-          text: 'MAC Address',
+          text: 'Endereço MAC',
           sortDirection: 'desc',
         },
         {
           value: 'created_at',
-          text: 'Created At',
+          text: 'Data de criação',
           sortable: 'desc',
         },
       ],
@@ -96,7 +96,7 @@ export default {
           this.finishedRequest = true
         })
         .catch(() => {
-          this.$toast.info('No logs found').goAway(3000)
+          this.$toast.info('Ainda não existem registos de logs').goAway(3000)
         })
     },
   },

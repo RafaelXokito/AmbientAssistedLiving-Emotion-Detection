@@ -2,12 +2,12 @@
   <div>
     <v-card>
           <v-card-title>
-            Questionnaires
+            Questionários
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="Search"
+               label="Pesquisar"
               single-line
               hide-details
             ></v-text-field>
@@ -28,10 +28,10 @@
               </v-icon>
             </v-btn>
           </template>
-          <template v-slot:item.created_at="{item}">
+          <template v-slot:item.updated_at="{item}">
             {{
-              item.created_at != null
-                ? new Date(item.created_at * 1000).toLocaleString("pt-PT")
+              item.updated_at != null
+                ? new Date(item.updated_at * 1000).toLocaleString("pt-PT")
                 : "Not Shown"
             }}
           </template>
@@ -52,23 +52,28 @@ export default {
       search: '',
       fields: [
         {
+          value: "updated_at",
+          text: "Data de conclusão",
+          sortDirection: "desc",
+        },
+        {
+          value: "questionnaireType",
+          text: "Tipo de Questionário",
+          sortDirection: "desc",
+        },
+        {
           value: "points",
-          text: "Points",
+          text: "Pontuação",
           sortDirection: "desc",
         },
         {
-          value: "pointsLabel",
-          text: "Points Label",
+          value: "emotionLevel",
+          text: "Nível de Emoção",
           sortDirection: "desc",
-        },
-        {
-          value: "created_at",
-          text: "Data",
-          sortDirection: "desc",
-        },
+        },        
         {
           value: "responses",
-          text: "Responses",
+          text: "Respostas",
           sortable: false,
         }
       ],
@@ -104,22 +109,14 @@ export default {
     async getQuestionnaries() {
       await this.$axios.get("/api/geriatricQuestionnaires").then(response => {
         response.data.data.forEach(questionnaire => {
-          var label = ""
-          if(questionnaire.points >= 0 && questionnaire.points<=5){
-            label = "No depression"
-          }
-          else if(questionnaire.points >= 6 && questionnaire.points<=10){
-            label = "Slight depression"
-          }
-          else{
-            label = "Sereve depression"
-          }
+          
           this.questionnaires.push({
             id: questionnaire.id,
+            questionnaireType: questionnaire.questionnaire_type,
             points: questionnaire.points,
-            pointsLabel: label,
-            created_at : questionnaire.created_at,
-            responses: questionnaire.responses
+            updated_at : questionnaire.updated_at,
+            emotionLevel: questionnaire.emotionLevel,
+            responses: questionnaire.responses,
           })
         });
 

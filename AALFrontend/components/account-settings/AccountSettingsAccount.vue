@@ -22,7 +22,7 @@
           <v-icon class="d-sm-none">
             {{ icons.mdiCloudUploadOutline }}
           </v-icon>
-          <span class="d-none d-sm-block">Upload new photo</span>
+          <span class="d-none d-sm-block">Atualize a sua foto</span>
         </v-btn>
 
         <input
@@ -37,10 +37,10 @@
           outlined
           class="mt-5"
         >
-          Reset
+          Cancelar
         </v-btn>
         <p class="text-sm mt-5">
-          Allowed JPG, GIF or PNG. Max size of 800K
+          FIcheiros permitidos: JPG, GIF or PNG. Tamanho máximo da foto: 800K
         </p>
       </div>
     </v-card-text>
@@ -54,7 +54,7 @@
           >
             <v-text-field
               v-model="accountDataLocale.name"
-              label="Name"
+              label="Nome"
               dense
               outlined
             ></v-text-field>
@@ -66,7 +66,7 @@
           >
             <v-text-field
               v-model="accountDataLocale.email"
-              label="E-mail"
+              label="Email"
               dense
               outlined
             ></v-text-field>
@@ -79,12 +79,11 @@
             <v-text-field
               v-model="accountDataLocale.role"
               dense
-              label="Role"
+              label="Perfil"
               outlined
               disabled
             ></v-text-field>
           </v-col>
-
           <!-- alert -->
           <v-col cols="12">
             <v-alert
@@ -99,13 +98,13 @@
 
                 <div class="ms-3">
                   <p class="text-base font-weight-medium mb-1">
-                    Your email is not confirmed. Please check your inbox.
+                    O seu e-mail não foi confirmado. Por favor, verifique a sua caixa de entrada.
                   </p>
                   <a
                     href="javascript:void(0)"
                     class="text-decoration-none warning--text"
                   >
-                    <span class="text-sm">Resend Confirmation</span>
+                    <span class="text-sm">Reenviar confirmação</span>
                   </a>
                 </div>
               </div>
@@ -118,7 +117,7 @@
               class="me-3 mt-4"
               @click.prevent="save"
             >
-              Save changes
+              Guardar
             </v-btn>
             <v-btn
               color="secondary"
@@ -127,7 +126,7 @@
               type="reset"
               @click.prevent="resetForm"
             >
-              Cancel
+              Cancelar
             </v-btn>
           </v-col>
         </v-row>
@@ -148,7 +147,7 @@ export default {
     },
   },
   setup(props) {
-    const status = ['Active', 'Inactive', 'Pending', 'Closed']
+    const status = ['Ativo', 'Desativo', 'Pendente', 'Fechado']
 
     const accountDataLocale = ref(JSON.parse(JSON.stringify(props.accountData)))
 
@@ -198,12 +197,12 @@ export default {
       this.$axios
         .$put("/api/auth/update", data)
         .then(({data}) => {
-          this.$toast.success('Account updated').goAway(3000)
+          this.$toast.success('Os seus dados foram atualizada com sucesso').goAway(3000)
           this.$auth.setUser(data)
           console.log(this.$auth.user)
         })
         .catch(() => {
-          this.$toast.error("Error updating account").goAway(3000)
+          this.$toast.error("Erro ao atualizar os seus dados").goAway(3000)
         })
     }
   }

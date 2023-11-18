@@ -6,15 +6,6 @@
     <v-form class="multi-col-validation">
       <v-card-text class="pt-5">
         <v-row>
-          <v-col cols="12">
-            <v-textarea
-              v-model="optionsLocal.bio"
-              outlined
-              rows="3"
-              label="Bio"
-            ></v-textarea>
-          </v-col>
-
           <v-col
             cols="12"
             md="6"
@@ -23,7 +14,7 @@
               v-model="optionsLocal.birthday"
               outlined
               dense
-              label="Birthday"
+              label="Data de nascimento"
             ></v-text-field>
           </v-col>
 
@@ -35,57 +26,15 @@
               v-model="optionsLocal.phone"
               outlined
               dense
-              label="Phone"
+              label="Telemóvel"
             ></v-text-field>
           </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-text-field
-              v-model="optionsLocal.website"
-              outlined
-              dense
-              label="Website"
-            ></v-text-field>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-select
-              v-model="optionsLocal.country"
-              outlined
-              dense
-              label="Country"
-              :items="['USA','UK','AUSTRALIA','BRAZIL']"
-            ></v-select>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-          >
-            <v-select
-              v-model="optionsLocal.languages"
-              outlined
-              dense
-              multiple
-              chips
-              small-chips
-              label="Languages"
-              :items="['English','Spanish','French','German']"
-            ></v-select>
-          </v-col>
-
           <v-col
             cols="12"
             md="6"
           >
             <p class="text--primary mt-n3 mb-2">
-              Gender
+              Género
             </p>
             <v-radio-group
               v-model="optionsLocal.gender"
@@ -95,17 +44,17 @@
             >
               <v-radio
                 value="male"
-                label="Male"
+                label="Masculino"
               >
               </v-radio>
               <v-radio
                 value="female"
-                label="Female"
+                label="Feminino"
               >
               </v-radio>
               <v-radio
                 value="other"
-                label="Other"
+                label="Outro"
               >
               </v-radio>
             </v-radio-group>
@@ -118,7 +67,7 @@
           color="primary"
           class="me-3 mt-3"
         >
-          Save changes
+        Guardar
         </v-btn>
         <v-btn
           outlined
@@ -127,7 +76,7 @@
           type="reset"
           @click.prevent="resetForm"
         >
-          Cancel
+          Cancelar
         </v-btn>
       </v-card-text>
     </v-form>

@@ -39,8 +39,8 @@
             <v-text-field
               v-model="username"
               outlined
-              label="Username"
-              placeholder="JohnDoe"
+              label="Utilizador"
+              placeholder="Insira o seu utilizador"
               hide-details
               class="mb-3"
             ></v-text-field>
@@ -49,7 +49,7 @@
               v-model="email"
               outlined
               label="Email"
-              placeholder="john@example.com"
+              placeholder="Insira o seu email"
               hide-details
               class="mb-3"
             ></v-text-field>
@@ -58,8 +58,8 @@
               v-model="password"
               outlined
               :type="isPasswordVisible ? 'text' : 'password'"
-              label="Password"
-              placeholder="············"
+              label="Palavra-passe"
+              placeholder="********"
               :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
               hide-details
               @click:append="isPasswordVisible = !isPasswordVisible"
@@ -71,7 +71,7 @@
             >
               <template #label>
                 <div class="d-flex align-center flex-wrap">
-                  <span class="me-2">I agree to</span><a href="javascript:void(0)">privacy policy &amp; terms</a>
+                  <span class="me-2">Eu aceito</span><a href="javascript:void(0)">os termos da política de privacidade</a>
                 </div>
               </template>
             </v-checkbox>
@@ -81,7 +81,7 @@
               color="primary"
               class="mt-6"
             >
-              Sign Up
+              Registar
             </v-btn>
           </v-form>
         </v-card-text>
@@ -89,17 +89,17 @@
         <!-- create new account  -->
         <v-card-text class="d-flex align-center justify-center flex-wrap mt-2">
           <span class="me-2">
-            Already have an account?
+            Já tem uma conta?
           </span>
           <nuxt-link to="/login">
-            Sign in instead
+            Inicie sessão aqui
           </nuxt-link>
         </v-card-text>
 
         <!-- divider -->
         <v-card-text class="d-flex align-center mt-2">
           <v-divider></v-divider>
-          <span class="mx-5">or</span>
+          <span class="mx-5">ou</span>
           <v-divider></v-divider>
         </v-card-text>
 

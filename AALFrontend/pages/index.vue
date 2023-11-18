@@ -97,94 +97,32 @@
 </template>
 
 <script>
-// eslint-disable-next-line object-curly-newline
-import {
-  mdiPoll,
-  mdiLabelVariantOutline,
-  mdiCurrencyUsd,
-  mdiHelpCircleOutline,
-  mdiDotsVertical,
-  mdiTrendingUp, mdiMenuUp, mdiMenuDown, mdiMinus
-} from '@mdi/js'
-import StatisticsCardVertical from '@/components/statistics-card/StatisticsCardVertical.vue'
 
-// demos
-import DashboardCongratulationJohn from '@/components/dashboard/DashboardCongratulationJohn.vue'
+import {
+  mdiCurrencyUsd,
+  mdiDotsVertical,
+  mdiMenuUp, 
+  mdiMenuDown, 
+  mdiMinus
+} from '@mdi/js'
 import DashboardStatisticsCard from '@/components/dashboard/DashboardStatisticsCard.vue'
-import DashboardCardTotalEarning from '@/components/dashboard/DashboardCardTotalEarning.vue'
-import DashboardCardDepositAndWithdraw from '@/components/dashboard/DashboardCardDepositAndWithdraw.vue'
-import DashboardCardSalesByCountries from '@/components/dashboard/DashboardCardSalesByCountries.vue'
-import DashboardDatatable from '@/components/dashboard/DashboardDatatable.vue'
 import DashboardCardNotifications from "~/components/dashboard/DashboardCardNotifications"
 
 export default {
   components: {
     DashboardCardNotifications,
-    StatisticsCardVertical,
-    DashboardCongratulationJohn,
-    DashboardStatisticsCard,
-    DashboardCardTotalEarning,
-    DashboardCardDepositAndWithdraw,
-    DashboardCardSalesByCountries,
-    DashboardDatatable,
+    DashboardStatisticsCard
   },
   middleware: "auth",
-  setup() {
-    const totalProfit = {
-      statTitle: 'Total Profit',
-      icon: mdiPoll,
-      color: 'success',
-      subtitle: 'Weekly Project',
-      statistics: '$25.6k',
-      change: '+42%',
-    }
-
-    const totalSales = {
-      statTitle: 'Refunds',
-      icon: mdiCurrencyUsd,
-      color: 'secondary',
-      subtitle: 'Past Month',
-      statistics: '$78',
-      change: '-15%',
-    }
-
-    // vertical card options
-    const newProject = {
-      statTitle: 'New Project',
-      icon: mdiLabelVariantOutline,
-      color: 'primary',
-      subtitle: 'Yearly Project',
-      statistics: '862',
-      change: '-18%',
-    }
-
-    const salesQueries = {
-      statTitle: 'Sales Quries',
-      icon: mdiHelpCircleOutline,
-      color: 'warning',
-      subtitle: 'Last week',
-      statistics: '15',
-      change: '-18%',
-    }
-
+  data() {
     return {
-      totalProfit,
-      totalSales,
-      newProject,
-      salesQueries,
-
       icons: {
         mdiDotsVertical,
-        mdiTrendingUp,
         mdiCurrencyUsd,
         mdiMenuUp,
         mdiMenuDown,
         mdiMinus
       },
-    }
-  },
-  data() {
-    return {
       months:[
         "January",
         "February",
@@ -273,16 +211,16 @@ export default {
           type: "line",
         },
         title: {
-          text: "Iterations over time",
+          text: "Iterações ao longo do tempo",
         },
         yAxis: {
           title: {
-            text: "Nº Iterations",
+            text: "Número de iterações",
           },
         },
         xAxis: {
           title: {
-            text: "Time",
+            text: "Tempo",
           },
           categories: [],
         },
@@ -294,16 +232,16 @@ export default {
           type: "column",
         },
         title: {
-          text: "Classifications of Frames over time",
+          text: "Classificação de imagens ao longo do tempo",
         },
         yAxis: {
           title: {
-            text: "Nº Classified Frames",
+            text: "Número de imagens classificadas",
           },
         },
         xAxis: {
           title: {
-            text: "Time",
+            text: "Tempo",
           },
           categories: [],
         },
@@ -311,12 +249,12 @@ export default {
       },
       statistics: [],
       statisticsMenu: [
-        { title: 'Year-Month-Day', value: 'YEARMONTHDAY' },
-        { title: 'Year-Month', value: 'YEARMONTH' },
-        { title: 'Year', value: 'YEAR' },
-        { title: 'Month', value: 'MONTH' },
-        { title: 'Weekday', value: 'WEEKDAY' },
-        { title: 'Hours', value: 'HOURS' }
+        { title: 'Ano-Mês-Dia', value: 'YEARMONTHDAY' },
+        { title: 'Ano-Mês', value: 'YEARMONTH' },
+        { title: 'Ano', value: 'YEAR' },
+        { title: 'Mês', value: 'MONTH' },
+        { title: 'Dia-de-semana', value: 'WEEKDAY' },
+        { title: 'Horas', value: 'HOURS' }
       ],
     }
   },
@@ -439,7 +377,7 @@ export default {
           if (graphData.length > 0) {
             if (statistic === null)
               this.statistics.push({
-                name: 'Number of Iterations',
+                name: 'Número total de iterações',
                 number,
                 showPercentage: graphData.length > 1,
                 percentage: parseFloat(percentage).toFixed(2),
@@ -549,7 +487,7 @@ export default {
             if (graphData.length > 0) {
               if (statistic === null)
                 this.statistics.push({
-                  name: 'Number of Classifications',
+                  name: 'Número de classificações',
                   number,
                   showPercentage: graphData.length > 1,
                   percentage: parseFloat(percentage).toFixed(2),

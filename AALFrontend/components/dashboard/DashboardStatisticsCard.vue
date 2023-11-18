@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="align-start">
-      <span class="font-weight-semibold">Statistics Card</span>
+      <span class="font-weight-semibold">Estatísticas gerais</span>
     </v-card-title>
 
     <v-card-text>
@@ -46,15 +46,15 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import { mdiAccountArrowUpOutline, mdiCogRefreshOutline, mdiTrendingUp, mdiDotsVertical, mdiLabelOutline } from '@mdi/js'
+import { mdiAccountArrowUpOutline, mdiCogRefreshOutline, mdiTrendingUp, mdiLabelOutline } from '@mdi/js'
 
 export default {
   setup() {
     const resolveStatisticsIconVariation = data => {
-      if (data === 'Total of notifications') return { icon: mdiTrendingUp, color: 'primary' }
-      if (data === 'Emotion with the most notifications') return { icon: mdiAccountArrowUpOutline, color: 'success' }
-      if (data === 'Last Iteration Time') return { icon: mdiLabelOutline, color: 'warning' }
-      if (data === 'Emotion with the least notifications configured') return { icon: mdiCogRefreshOutline, color: 'info' }
+      if (data === 'Nº de notificações') return { icon: mdiTrendingUp, color: 'primary' }
+      if (data === 'Emoção com mais notificações') return { icon: mdiAccountArrowUpOutline, color: 'success' }
+      if (data === 'Data da última iteração') return { icon: mdiLabelOutline, color: 'warning' }
+      if (data === 'Emoção com menos notificações configuradas') return { icon: mdiCogRefreshOutline, color: 'info' }
 
       return { icon: mdiAccountArrowUpOutline, color: 'success' }
     }
@@ -64,7 +64,6 @@ export default {
 
       // icons
       icons: {
-        mdiDotsVertical,
         mdiTrendingUp,
         mdiAccountArrowUpOutline,
         mdiLabelOutline,
@@ -88,7 +87,7 @@ export default {
           this.statisticsData = statistics
         })
         .catch(() => {
-          this.$toast.info("No statistics found").goAway(3000)
+          this.$toast.info("Não existem estatísticas").goAway(3000)
         })
     },
     timeSince(date) {

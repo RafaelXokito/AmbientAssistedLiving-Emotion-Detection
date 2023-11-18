@@ -39,31 +39,26 @@
       class="vertical-nav-menu-items pr-5"
     >
       <nav-menu-link
-        title="Dashboard"
+        title="Página principal"
         to="/"
         :icon="icons.mdiHomeOutline"
       ></nav-menu-link>
       <nav-menu-link
-        title="Account Settings"
-        to="/account-settings"
-        :icon="icons.mdiAccountCogOutline"
-      ></nav-menu-link>
-      <nav-menu-link
         v-if="currentUser.scope === 'Client'"
-        title="Notification Settings"
+        title="Definir notificações"
         to="/notification-settings"
         :icon="icons.mdiMessageCogOutline"
       ></nav-menu-link>
-      <nav-menu-section-title title="USER INTERFACE"></nav-menu-section-title>
+      <nav-menu-section-title title="Conteúdos"></nav-menu-section-title>
       <nav-menu-link
         v-if="currentUser.scope === 'Client'"
-        title="Iterations"
+        title="Iterações"
         to="/iterations"
         :icon="icons.mdiEyeOutline"
       ></nav-menu-link>
       <nav-menu-link
         v-if="currentUser.scope === 'Client'"
-        title="Questionnaires"
+        title="Questionários"
         to="/questionnaires"
         :icon="icons.mdiEyeOutline"
       ></nav-menu-link>

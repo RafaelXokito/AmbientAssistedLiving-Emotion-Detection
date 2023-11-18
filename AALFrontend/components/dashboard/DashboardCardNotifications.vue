@@ -1,10 +1,10 @@
 <template>
   <v-card v-if="notifications.length > 0">
     <v-card-title class="align-start">
-      <span>Notifications</span>
+      <span>Notificações</span>
 
       <v-spacer></v-spacer>
-      <span class="text-xs text--disabled cursor-pointer" @click="$router.push('/inbox')">View All</span>
+      <span class="text-xs text--disabled cursor-pointer" @click="$router.push('/inbox')">Ver todas</span>
     </v-card-title>
 
     <v-card-text>
@@ -45,65 +45,11 @@
 </template>
 
 <script>
-import { mdiDotsVertical, mdiChevronUp, mdiChevronDown } from '@mdi/js'
 
 export default {
   data(){
     return {
       notifications: []
-    }
-  },
-  setup() {
-    const salesByCountries = [
-      {
-        abbr: 'US',
-        amount: '$8,656k',
-        country: 'United states of america',
-        change: '+25.8%',
-        sales: '894k',
-        color: 'success',
-      },
-      {
-        abbr: 'UK',
-        amount: '$2,415k',
-        country: 'United kingdom',
-        change: '-6.2%',
-        sales: '645k',
-        color: 'error',
-      },
-      {
-        abbr: 'IN',
-        amount: '$865k',
-        country: 'India',
-        change: '+12.4%',
-        sales: '148k',
-        color: 'warning',
-      },
-      {
-        abbr: 'JA',
-        amount: '$745k',
-        country: 'Japan',
-        change: '-11.9%',
-        sales: '86k',
-        color: 'secondary',
-      },
-      {
-        abbr: 'KO',
-        amount: '$45k',
-        country: 'Korea',
-        change: '+16.2%',
-        sales: '42k',
-        color: 'error',
-      },
-    ]
-
-    return {
-      salesByCountries,
-      icons: {
-        mdiDotsVertical,
-        mdiChevronUp,
-        mdiChevronDown,
-      },
     }
   },
   created(){
@@ -140,26 +86,26 @@ export default {
       let interval = seconds / 31536000
 
       if (interval > 1) {
-        return Math.floor(interval) + " years"
+        return Math.floor(interval) + " anos"
       }
       interval = seconds / 2592000
       if (interval > 1) {
-        return Math.floor(interval) + " months"
+        return Math.floor(interval) + " meses"
       }
       interval = seconds / 86400
       if (interval > 1) {
-        return Math.floor(interval) + " days"
+        return Math.floor(interval) + " dias"
       }
       interval = seconds / 3600
       if (interval > 1) {
-        return Math.floor(interval) + " hours"
+        return Math.floor(interval) + " horas"
       }
       interval = seconds / 60
       if (interval > 1) {
-        return Math.floor(interval) + " minutes"
+        return Math.floor(interval) + " minutos"
       }
 
-      return Math.floor(seconds) + " seconds"
+      return Math.floor(seconds) + " segundos"
     }
   }
 }

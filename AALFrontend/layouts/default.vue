@@ -29,15 +29,6 @@
           <v-spacer></v-spacer>
 
           <!-- Right Content -->
-          <a
-            href="https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free"
-            target="_blank"
-            rel="nofollow"
-          >
-            <v-icon class="ms-6 me-4">
-              {{ icons.mdiGithub }}
-            </v-icon>
-          </a>
           <theme-switcher></theme-switcher>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -57,8 +48,8 @@
                 </v-icon>
               </v-btn>
             </template>
-            <span v-if="!currentUser.notifiable">Activate notifications</span>
-            <span v-else>Deactivate notifications</span>
+            <span v-if="!currentUser.notifiable">Ativar notificações</span>
+            <span v-else>Desativar notificações</span>
           </v-tooltip>
 
           <app-bar-user-menu></app-bar-user-menu>

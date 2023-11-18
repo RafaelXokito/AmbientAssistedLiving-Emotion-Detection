@@ -22,12 +22,12 @@ class StatisticController extends Controller
             $notifications = Auth::user()->userable->notifications;
             if (sizeof($notifications) > 0)
                 $statistics[] = (object)[
-                    "name" => "Total of notifications",
+                    "name" => "Nº de notificações",
                     "value" => sizeof($notifications)];
             else
                 $statistics[] = (object)[
-                    "name" => "Total of notifications",
-                    "value" => "No notifications"];
+                    "name" => "Nº de notificações",
+                    "value" => "Sem notificações"];
 
             $listPair = DB::table("notifications")
                 ->select('notifications.emotion_name as value', DB::raw("count('notifications.emotion_name') as subValue"))
@@ -37,23 +37,23 @@ class StatisticController extends Controller
                 ->first();
             if ($listPair != null)
                 $statistics[] = (object)[
-                    "name" => "Emotion with the most notifications",
+                    "name" => "Emoção com mais notificações",
                     "value" => $listPair->value,
                     "subValue" => $listPair->subValue];
             else
                 $statistics[] = (object)[
-                    "name" => "Emotion with the most notifications",
-                    "value" => "No notifications"];
+                    "name" => "Emoção com mais notificações",
+                    "value" => "Sem notificações"];
 
             $iterations = Auth::user()->userable->iterations;
             if (sizeof($iterations) > 0)
                 $statistics[] = (object)[
-                    "name" => "Total of iterations",
+                    "name" => "Nº de iterações",
                     "value" => sizeof($iterations)];
             else
                 $statistics[] = (object)[
-                    "name" => "Total of iterations",
-                    "value" => "No iterations"];
+                    "name" => "Nº de iterações",
+                    "value" => "Sem iterações"];
 
             $listPair2 = DB::table("emotionsnotifications")
                 ->select('notifications.emotion_name as value', DB::raw("count('notifications.emotion_name') as subValue"))
@@ -64,13 +64,13 @@ class StatisticController extends Controller
                 ->first();
             if ($listPair2 != null)
                 $statistics[] = (object)[
-                    "name" => "Emotion with the least notifications configured",
+                    "name" => "Emoção com menos notificações configuradas",
                     "value" => $listPair2->value,
                     "subValue" => $listPair2->subValue];
             else
                 $statistics[] = (object)[
-                    "name" => "Emotion with the least notifications configured",
-                    "value" => "No notifications"];
+                    "name" => "Emoção com menos notificações configuradas",
+                    "value" => "Sem notificações"];
 
             return $statistics;
         }
@@ -78,12 +78,12 @@ class StatisticController extends Controller
         $notifications = Notification::all();
         if (sizeof($notifications) > 0)
             $statistics[] = (object)[
-                "name" => "Total of notifications",
+                "name" => "Nº de notificações",
                 "value" => sizeof($notifications)];
         else
             $statistics[] = (object)[
-                "name" => "Total of notifications",
-                "value" => "No notifications"];
+                "name" => "Nº de notificações",
+                "value" => "Sem notificações"];
 
         $listPair = DB::table("notifications")
             ->select('notifications.emotion_name as value', DB::raw("count('notifications.emotion_name') as subValue"))
@@ -92,23 +92,23 @@ class StatisticController extends Controller
             ->first();
         if ($listPair != null)
             $statistics[] = (object)[
-                "name" => "Emotion with the most notifications",
+                "name" => "Emoção com mais notificações",
                 "value" => $listPair->value,
                 "subValue" => $listPair->subValue];
         else
             $statistics[] = (object)[
-                "name" => "Emotion with the most notifications",
-                "value" => "No notifications"];
+                "name" => "Emoção com mais notificações",
+                "value" => "Sem notificações"];
 
         $iterations = Iteration::all();
         if (sizeof($iterations) > 0)
             $statistics[] = (object)[
-                "name" => "Total of iterations",
+                "name" => "Nº de iterações",
                 "value" => sizeof($iterations)];
         else
             $statistics[] = (object)[
-                "name" => "Total of iterations",
-                "value" => "No iterations"];
+                "name" => "Nº de iterações",
+                "value" => "Sem iterações"];
 
         $listPair2 = DB::table("emotionsnotifications")
             ->select('notifications.emotion_name as value', DB::raw("count('notifications.emotion_name') as subValue"))
@@ -118,13 +118,13 @@ class StatisticController extends Controller
             ->first();
         if ($listPair2 != null)
             $statistics[] = (object)[
-                "name" => "Emotion with the least notifications configured",
+                "name" => "Emoção com menos notificações configuradas",
                 "value" => $listPair2->value,
                 "subValue" => $listPair2->subValue];
         else
             $statistics[] = (object)[
-                "name" => "Emotion with the least notifications configured",
-                "value" => "No notifications"];
+                "name" => "Emoção com menos notificações configuradas",
+                "value" => "Sem notificações"];
 
         return $statistics;
     }

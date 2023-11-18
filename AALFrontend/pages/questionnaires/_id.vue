@@ -2,22 +2,22 @@
   <div>
     <back-button></back-button>
     <div class="mt-5 ml-5 text-center">
-      <h1 class="text-red-400">Questionnaire nº {{ id }}</h1>
+      <h1 class="text-red-400">Questionário nº {{ id }}</h1>
     </div>
     <div>
-      <highchart
+      <!--<highchart
           v-if="showIterationChart == true"
           :options="chartOptions"
-        />
+        />-->
     </div>
     <v-card>
           <v-card-title>
-            Responses
+            Respostas
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
               append-icon="mdi-magnify"
-              label="Search"
+               label="Pesquisar"
               single-line
               hide-details
             ></v-text-field>
@@ -53,17 +53,17 @@ export default {
       fields: [
         {
           value: "question",
-          text: "Question",
+          text: "Pergunta",
           sortDirection: "desc",
         },
         {
           value: "response",
-          text: "Response",
+          text: "Resposta",
           sortDirection: "desc",
         },
         {
           value: "is_why",
-          text: "Is Why",
+          text: "Justificação",
           sortDirection: "desc",
         }
         ],
@@ -73,10 +73,10 @@ export default {
           type: 'column'
         },
         title: {
-          text: 'Comparison between Highest found emotion in responses with the questionnaire points'
+          text: 'Comparação entre os resultados do questionário e a avaliação do modelo de Inteligência Artificial'
         },
         xAxis: {
-          categories: ['Points', 'Points Range', 'SA Highest Emo Range']
+          categories: ['Resultado do questionário', 'Valor máximo do intervalo do resultado do questionário', 'Resultado do modelo de Inteligência Artificial']
         },
         yAxis: {
           min: 0,
