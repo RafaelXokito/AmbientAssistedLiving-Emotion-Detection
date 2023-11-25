@@ -31,6 +31,13 @@
           :loading="responses.length === 0"
           :search="search"
         >
+        <template v-slot:item.created_at="{ item }">
+              {{
+                item.created_at != null
+                ? new Date(item.created_at * 1000).toLocaleString("pt-PT")
+                : "Data não apresentada"
+              }}
+            </template>
         </v-data-table>
     </v-card>
   </div>
@@ -39,7 +46,6 @@
 <script>
 
 import BackButton from "~/components/utils/BackButton"
-import Highcharts from 'highcharts'
 export default {
   components: {BackButton},
   middleware: ("auth", "client"),
@@ -62,8 +68,8 @@ export default {
           sortDirection: "desc",
         },
         {
-          value: "is_why",
-          text: "Justificação",
+          value: "created_at",
+          text: "Data",
           sortDirection: "desc",
         }
         ],
@@ -93,40 +99,15 @@ export default {
     id() {
       return this.$route.params.id
     },
+    type() {
+      return this.$route.params.type
+    },
   },
   created() {
-      this.$axios.$get("/api/geriatricQuestionnaires/" + this.id).then(({data}) => {
-        this.responses = data.responses
+    console.log("/api/"+this.type+"/"+this.id)
+      this.$axios.$get("/api/"+this.type+"/"+this.id+"?details=true").then(response => {
+        this.responses = response.data.responses
       })
-      this.getGraphData()
-  },
-  watch: {
-    config: {
-      handler() {
-        this.render()
-      },
-      deep: true,
-    },
-  },
-  methods:{
-    getGraphData(){
-      this.$axios.$get("/api/geriatricQuestionnaires/statistics/" + this.id).then(({data}) => {
-       for (const key in data) {
-        this.chartOptions.series.push({name:key,data: [data[key]]})
-       }
-        //console.log(this.responsesGraphData)
-        //chartOptions.series[0].data=
-        this.showIterationChart = true
-      })
-      /*.catch(() => {
-          this.$toast.info("No questionnaire found").goAway(3000)
-        })*/
-    },
-    render() {
-      this.chart = Highcharts.chart("container", {
-        ...this.config,
-      })
-    }
   }
 }
 </script>

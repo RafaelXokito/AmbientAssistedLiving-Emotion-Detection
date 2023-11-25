@@ -30,13 +30,26 @@
       <b-form @submit.prevent="onSubmit" @reset.prevent="resetCreate">
         <b-form-group
           id="input-group-name"
-          label="Name:"
+          label="Nome:"
           label-for="input-name"
           label-class="font-weight-bold"
         >
           <b-form-input
             id="input-name"
             v-model="form.name"
+            aria-describedby="input-name-feedback"
+            trim
+          ></b-form-input>
+        </b-form-group>
+        <b-form-group
+          id="input-group-display-name"
+          label="Descrição do nome:"
+          label-for="input-display-name"
+          label-class="font-weight-bold"
+        >
+          <b-form-input
+            id="input-display-name"
+            v-model="form.display_name"
             aria-describedby="input-name-feedback"
             trim
           ></b-form-input>
@@ -55,8 +68,8 @@
           </b-select>
         </b-form-group>
         <div align="center">
-          <b-button type="submit" variant="primary">Create</b-button>
-          <b-button type="reset" variant="danger">Reset</b-button>
+          <b-button type="submit" variant="primary">Criar</b-button>
+          <b-button type="reset" variant="danger">Reiniciar</b-button>
         </div>
       </b-form>
     </b-modal>
@@ -72,20 +85,27 @@ export default {
       form: {
         group: null,
         name: null,
+        display_name: null
       },
       fields: [
         {
           key: "name",
-          label: "Name",
+          label: "Nome",
           sortable: true,
           sortDirection: "desc",
         },
         {
           key: "group",
-          label: "Group",
+          label: "Grupo",
           sortable: true,
           sortDirection: "desc",
         },
+        {
+          key: "display_name",
+          label: "Descrição do nome",
+          sortable: true,
+          sortDirection: "desc",
+        }
       ],
       emotions: [],
       groups: [],
@@ -110,11 +130,11 @@ export default {
       this.$axios
         .$post("/api/emotions", this.form)
         .then(emotion => {
-          this.$toast.success('Emotion '+this.form.name+' created').goAway(3000)
+          this.$toast.success('A Emoção '+this.form.name+' foi criada com sucesso').goAway(3000)
           this.emotions.push(emotion)
         })
         .catch(() => {
-          this.$toast.error("Error creating emotion").goAway(3000)
+          this.$toast.error("Erro ao registar a emoção no sistema").goAway(3000)
         })
     },
     resetCreate() {
@@ -127,14 +147,14 @@ export default {
           this.emotions = emotions
         })
         .catch(() => {
-          this.$toast.info("No emotions found").goAway(3000)
+          this.$toast.info("Não existem emoções").goAway(3000)
         })
     },
     getGroups(){
-      this.groups = [{ value: null, text: 'Please select an option' },
-                    { value: 'positive', text: 'Positive' },
-                    { value: 'neutral', text: 'Neutral' },
-                    { value: 'negative', text: 'Negative' }]
+      this.groups = [{ value: null, text: 'Por favor selecione uma opção' },
+                    { value: 'positive', text: 'Positiva' },
+                    { value: 'neutral', text: 'Neutra' },
+                    { value: 'negative', text: 'Negativa' }]
     }
   },
 }
