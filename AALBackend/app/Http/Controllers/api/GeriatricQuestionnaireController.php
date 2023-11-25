@@ -9,8 +9,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\GeriatricQuestionnaire;
 use App\Models\ResponseQuestionnaire;
+use App\Models\QuestionnaireType;
 use App\Http\Resources\Questionnaire\QuestionnaireResource;
 use App\Http\Resources\Questionnaire\QuestionnaireCollection;
+use App\Http\Resources\Question\QuestionCollection;
+use App\Http\Resources\ResultMapping\ResultMappingCollection;
 use App\Http\Requests\GeriatricQuestionnaire\UpdatePointsGeriatricQuestionnaireRequest;
 use App\Http\Requests\ResponseQuestionnaire\CreateResponseGeriatricQuestionnaire;
 
@@ -189,77 +192,4 @@ class GeriatricQuestionnaireController extends Controller
             'message'   =>  "Geriatric Questionnaire was removed"
         ), 200);
     }
-
-
-    /**
-     * Compare the questionnaire points with the responses detected emotions wiht SA
-     *
-     * @return array
-     */
-
-     public function evaluateSAModel($Questionnaire){
-        $questionnaire = GeriatricQuestionnaire::find($Questionnaire)->questionnaire;
-        $responses = DB::table('responses_questionnaire')
-            ->join('speeches', 'responses_questionnaire.speech_id', '=', 'speeches.id')
-            ->join('contents', function ($join) {
-                $join->on('contents.childable_id', '=', 'speeches.id')
-                     ->where('contents.childable_type', '=', 'App\\Models\\Speech');
-            })
-            ->leftJoin('classifications', function ($join) {
-                $join->on('classifications.content_id', '=', 'contents.id')
-                     ->whereRaw('classifications.accuracy = (SELECT MAX(accuracy) FROM classifications WHERE content_id = contents.id)');
-            })
-            ->select(
-            'classifications.accuracy',
-            'classifications.emotion_name')
-            ->where('responses_questionnaire.questionnaire_id','=',$questionnaire->id)
-            ->get();
-        $occurrences = [];
-        foreach ($responses as $response) {
-            if (!isset($occurrences[$response->emotion_name])) {
-                $occurrences[$response->emotion_name] = 0;
-            }else{
-                $occurrences[$response->emotion_name] += 1;
-            }
-        }
-        //inclusive
-        $emotionPointsMapping = [
-            //0-5
-            'happy' => 5,
-            
-            // 6-10
-            'disgust' => 10,
-            'shame' => 10,
-            'angry' => 10,
-            'guilt' => 10,
-            
-            // 11-15
-            'fear' => 15,
-            'sad' => 15,
-        ];
-
-        $prevalentEmotionsVal = max($occurrences);
-        $prevalentEmotions = array_keys($occurrences, $prevalentEmotionsVal);
-
-        //$occurrences = json_encode($occurrences);
-        $emotionPointsMapping = $emotionPointsMapping[$prevalentEmotions[0]];
-
-        $value = [];
-        if($questionnaire->points >= 0 && $questionnaire->points <= 5){
-            $value = 5;
-        }elseif($questionnaire->points >= 6 && $questionnaire->points <= 10){
-            $value = 10;
-        }else{
-            $value = 15;
-        }
-        $graphData = (object)[
-           "data" => (object)[
-                "Resultado do questionário" => intval($questionnaire->points),
-                "Valor máximo do intervalo do resultado do questionário" => $value,
-                "Resultado do modelo de Inteligência Artificial" => $emotionPointsMapping
-           ]
-        ];
-
-        return $graphData;
-     }
 }

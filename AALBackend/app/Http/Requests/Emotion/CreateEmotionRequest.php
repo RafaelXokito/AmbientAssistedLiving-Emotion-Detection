@@ -26,6 +26,7 @@ class CreateEmotionRequest extends FormRequest
         return [
             'name'              => ['required', 'string', 'unique:App\Models\Emotion,name'],
             'group'             => ['required', 'string'],
+            'display_name'      => ['required', 'string'],
             'weight'             => ['required', 'numeric', 'min:-1', 'max:1'],
         ];
     }
@@ -38,6 +39,8 @@ class CreateEmotionRequest extends FormRequest
             'name.unique:App\Models\Emotion,name' => 'The emotion name has already been taken',
             'group.required' => "Emotion's group is required",
             'group.string' => "Emotion's group must be a string",
+            'display_name.required' => "Emotion's display name is required",
+            'display_name.string' => "Emotion's display name must be a string",
             'weight.required' => "Emotion's weight is required",
             'weight.numeric' => "Emotion's weight must be numeric between [-1;1]",
             'weight.min' => "Emotion's weight must be bigger than -1",

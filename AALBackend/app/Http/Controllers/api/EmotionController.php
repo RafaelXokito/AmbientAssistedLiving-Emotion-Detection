@@ -48,6 +48,7 @@ class EmotionController extends Controller
             $emotion->name = strtolower($validated_data["name"]);
             $emotion->category = strtolower($validated_data["group"]);
             $emotion->weight = $validated_data["weight"];
+            $emotion->display_name = $validated_data["display_name"];
             $emotion->save();
             DB::commit();
 

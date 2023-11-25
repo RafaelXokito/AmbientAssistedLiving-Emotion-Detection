@@ -23,6 +23,7 @@ use App\Http\Controllers\api\EmotionsNotificationController;
 use App\Http\Controllers\api\GeriatricQuestionnaireController;
 use App\Http\Controllers\api\OxfordHappinessQuestionnaireController;
 use App\Http\Controllers\api\MessageController;
+use App\Http\Controllers\api\QuestionnaireTypeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,9 @@ use App\Http\Controllers\api\MessageController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// RASA uses this endpoint
+Route::get('/questionnaires/{questionnaire}', [QuestionnaireTypeController::class, 'show']);
 
 Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/emotions', [EmotionController::class, 'index']);
@@ -86,8 +90,8 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'emotionExpressions' => EmotionExpressionController::class,
         'multiModalEmotions' => MultiModalEmotionController::class,
         'speeches' => SpeechController::class,
-        'geriatricQuestionnaires' => GeriatricQuestionnaireController::class,
-        'oxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
+        'GeriatricQuestionnaires' => GeriatricQuestionnaireController::class,
+        'OxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
         'messages' => MessageController::class,
     ]);
 
@@ -103,14 +107,13 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::get('/speeches/{speech}/predictions', [SpeechController::class, 'showSpeechClassification']);
     Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);
 
-    Route::get('geriatricQuestionnaires/statistics/{Questionnaire}', [GeriatricQuestionnaireController::class, 'evaluateSAModel']);
-    Route::get('oxfordHappinessQuestionnaires/statistics/{Questionnaire}', [OxfordHappinessQuestionnaireController::class, 'evaluateSAModel']);
+    Route::get('/questionnairesTypes', [QuestionnaireTypeController::class, 'index']);
 
-    Route::put('geriatricQuestionnaires/{Questionnaire}/points', [GeriatricQuestionnaireController::class, 'updatePoints']);
-    Route::put('geriatricQuestionnaires/{Questionnaire}/responses', [GeriatricQuestionnaireController::class, 'updateResponses']);
+    Route::put('GeriatricQuestionnaires/{Questionnaire}/points', [GeriatricQuestionnaireController::class, 'updatePoints']);
+    Route::put('GeriatricQuestionnaires/{Questionnaire}/responses', [GeriatricQuestionnaireController::class, 'updateResponses']);
 
-    Route::put('oxfordHappinessQuestionnaires/{Questionnaire}/points', [OxfordHappinessQuestionnaireController::class, 'updatePoints']);
-    Route::put('oxfordHappinessQuestionnaires/{Questionnaire}/responses', [OxfordHappinessQuestionnaireController::class, 'updateResponses']);
+    Route::put('OxfordHappinessQuestionnaires/{Questionnaire}/points', [OxfordHappinessQuestionnaireController::class, 'updatePoints']);
+    Route::put('OxfordHappinessQuestionnaires/{Questionnaire}/responses', [OxfordHappinessQuestionnaireController::class, 'updateResponses']);
   
 });
 
