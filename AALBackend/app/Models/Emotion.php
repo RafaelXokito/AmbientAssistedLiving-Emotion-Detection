@@ -32,7 +32,7 @@ class Emotion extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'category','weight'
+        'name', 'category','weight', 'display_name'
     ];
 
     /**
@@ -50,7 +50,7 @@ class Emotion extends Model
      * @var array
      */
     protected $casts = [
-        'name' => 'string', 'category' => 'string', 'weight' => 'float'
+        'name' => 'string', 'category' => 'string', 'weight' => 'float', 'display_name' => 'string'
     ];
 
     /**
