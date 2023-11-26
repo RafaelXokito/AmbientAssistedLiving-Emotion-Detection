@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <v-card-title>
-        Registo de logs
+        Registo de eventos
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -31,7 +31,7 @@
                 : "Not Shown"
             }}
           </template>-->
-        <template v-slot:no-data> Ainda não existem registos de logs </template>
+        <template v-slot:no-data> Ainda não existem registos de eventos </template>
       </v-data-table>
     </v-card>
   </div>
@@ -96,7 +96,7 @@ export default {
           this.finishedRequest = true
         })
         .catch(() => {
-          this.$toast.info('Ainda não existem registos de logs').goAway(3000)
+          this.$toast.info('Ainda não existem registos de eventos').goAway(3000)
         })
     },
   },

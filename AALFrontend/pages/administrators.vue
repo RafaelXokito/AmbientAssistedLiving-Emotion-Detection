@@ -13,7 +13,7 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Administrators</v-toolbar-title>
+              <v-toolbar-title>Administradores</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-text-field
@@ -33,7 +33,7 @@
                     v-bind="attrs"
                     v-on="on"
                   >
-                    New Item
+                    Criar
                   </v-btn>
                 </template>
                 <v-card>
@@ -47,20 +47,20 @@
                         <v-col cols="12" md="12">
                           <v-text-field
                             v-model="editedItem.name"
-                            label="Name"
+                            label="Nome"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="12" md="6">
                           <v-text-field
                             v-model="editedItem.email"
-                            label="Email"
+                            label="Endereço de email"
                             type="email"
                           ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="12" md="6">
                           <v-text-field
                             v-model="editedItem.password"
-                            label="Password"
+                            label="Palavra-passe"
                             type="password"
                           ></v-text-field>
                         </v-col>
@@ -71,10 +71,10 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="close">
-                      Cancel
+                      Cancelar
                     </v-btn>
                     <v-btn color="blue darken-1" text @click="save">
-                      Save
+                      Guardar
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -82,15 +82,15 @@
               <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
                   <v-card-title class="text-h5"
-                    >Are you sure you want to delete this item?</v-card-title
+                    >Tem a certeza que quer apagar este administrador do sistema?</v-card-title
                   >
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="closeDelete"
-                      >Cancel</v-btn
+                      >Não</v-btn
                     >
                     <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                      >OK</v-btn
+                      >Sim</v-btn
                     >
                     <v-spacer></v-spacer>
                   </v-card-actions>
@@ -104,7 +104,7 @@
             </v-icon>
             <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
           </template>
-          <template v-slot:no-data> No administrators created yet </template>
+          <template v-slot:no-data> Ainda não existem administradores registados </template>
         </v-data-table>
       </v-card>
     </v-container>
@@ -134,17 +134,17 @@ export default {
       fields: [
         {
           value: 'name',
-          text: 'Name',
+          text: 'Nome',
           sortDirection: 'desc',
         },
         {
           value: 'email',
-          text: 'Email',
+          text: 'Endereço de email',
           sortDirection: 'desc',
         },
         {
           value: 'actions',
-          text: 'Actions',
+          text: 'Ações',
           sortable: false,
         },
       ],
@@ -162,8 +162,8 @@ export default {
     },
     formTitle() {
       return this.editedIndex === -1
-        ? 'New Administrator'
-        : 'Edit Administrator'
+        ? 'Criar novo administrador'
+        : 'Editar administrador existente'
     },
   },
   created() {

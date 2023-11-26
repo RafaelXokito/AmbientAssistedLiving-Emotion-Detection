@@ -1,63 +1,42 @@
 <template>
   <div>
     <v-row>
-      <v-col
-        cols="12"
-        class="mb-6"
-      >
-        <highchart
-          v-if="showIterationChart == true"
-          :options="iterationsChartOptions"
-        />
+      <v-col cols="12" class="mb-6">
+        <highchart v-if="showIterationChart == true" :options="iterationsChartOptions" />
       </v-col>
       <v-col cols="12">
         <v-card>
           <v-card-title>
             Iterações
             <v-spacer></v-spacer>
-            <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-               label="Pesquisar"
-              single-line
-              hide-details
-            ></v-text-field>
+            <v-text-field v-model="search" append-icon="mdi-magnify" label="Pesquisar" single-line
+              hide-details></v-text-field>
           </v-card-title>
-          <v-data-table
-          id="iterationsTable"
-          :headers="fields"
-          :items="iterations"
-          :items-per-page="perPage"
-          class="elevation-1"
-          :loading="iterations.length === 0"
-          :search="search"
-        >
-          <template v-slot:item.emotion="{item}">
-            {{ firstCapitalLetter(item.emotion.name) }}
-          </template>
-          <template v-slot:item.contents="{item}">
-            <v-btn :to="`/iterations/${item.id}`" icon>
-              <v-icon dense>
-                mdi-expand-all
-              </v-icon>
-            </v-btn>
-          </template>
-          <template v-slot:item.created_at="{item}">
-            {{
-              item.created_at != null
+          <v-data-table id="iterationsTable" :headers="fields" :items="iterations" :items-per-page="perPage"
+            class="elevation-1" :loading="iterations.length === 0" :search="search">
+            <template v-slot:item.emotion="{ item }">
+              {{ firstCapitalLetter(item.emotion.display_name) }}
+            </template>
+            <template v-slot:item.contents="{ item }">
+              <v-btn :to="`/iterations/${item.id}`" icon>
+                <v-icon dense>
+                  mdi-expand-all
+                </v-icon>
+              </v-btn>
+            </template>
+            <template v-slot:item.created_at="{ item }">
+              {{
+                item.created_at != null
                 ? new Date(item.created_at * 1000).toLocaleString("pt-PT")
                 : "---"
-            }}
-          </template>
-
-        </v-data-table>
+              }}
+            </template>
+            <template v-slot:no-data> Ainda não existem iterações registadas </template>
+          </v-data-table>
         </v-card>
       </v-col>
     </v-row>
-    <v-dialog
-      v-model="showFrameModal"
-      max-width="500px"
-    >
+    <v-dialog v-model="showFrameModal" max-width="500px">
       <v-card>
         <v-card-title>
           Imagem selecionada
@@ -67,90 +46,55 @@
             <h3 v-if="frameOpened.emotion.name !== ''">
               {{ firstCapitalLetter(frameOpened.emotionIteration.name) }} - IA
             </h3>
-            <h3  v-else>
+            <h3 v-else>
               {{ firstCapitalLetter(frameOpened.emotion.name) }} - HL
             </h3>
             <hr />
-            <v-img
-              v-if="frameOpened.base64 !== ''"
-              :src="frameOpened.base64"
-              class="w-50 mt-2 mx-auto"
-              width="50%"
-            />
+            <v-img v-if="frameOpened.base64 !== ''" :src="frameOpened.base64" class="w-50 mt-2 mx-auto" width="50%" />
             <br />
-            <v-btn
-              color="primary"
-              class="mt-lg-3"
-              @click="frameOpened.showHLForm = !frameOpened.showHLForm"
-            >Classify {{ frameOpened.showHLForm ? "-" : "+" }}
+            <v-btn color="primary" class="mt-lg-3" @click="frameOpened.showHLForm = !frameOpened.showHLForm">Classify {{
+              frameOpened.showHLForm ? "-" : "+" }}
             </v-btn>
           </div>
           <div v-if="frameOpened.showHLForm" class="mt-lg-2">
-            <v-form
-              ref="form"
-              @submit.prevent="classify(frameOpened.id, frameOpened.base64)"
-            >
-                <v-select
-                  v-model="frameOpened.emotionClassified"
-                  label="Emoções"
-                  :items="frameOpened.humanLabelEmotions"
-                  clearable
-                  required
-                >
-                  <template #append-outer>
-                    <v-btn
-                      icon
-                      color="green"
-                      :disabled="frameOpened.emotionClassified === null"
-                      type="submit"
-                    >
-                      <v-icon>
-                        mdi-send
-                      </v-icon>
-                    </v-btn>
-                  </template>
-                </v-select>
+            <v-form ref="form" @submit.prevent="classify(frameOpened.id, frameOpened.base64)">
+              <v-select v-model="frameOpened.emotionClassified" label="Emoções" :items="frameOpened.humanLabelEmotions"
+                clearable required>
+                <template #append-outer>
+                  <v-btn icon color="green" :disabled="frameOpened.emotionClassified === null" type="submit">
+                    <v-icon>
+                      mdi-send
+                    </v-icon>
+                  </v-btn>
+                </template>
+              </v-select>
             </v-form>
           </div>
           <div class="text-center font-mono pt-lg-4">
             <hr class="mb-lg-3" />
-            <v-tabs v-model="frameTab" content-class="mt-3" >
-              <v-tab
-                :disabled="
-              frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
-            "
-              >
+            <v-tabs v-model="frameTab" content-class="mt-3">
+              <v-tab :disabled="
+                frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
+              ">
                 Todas as previsões
               </v-tab>
-              <v-tab
-                title="Por grupo"
-                :active="
-              frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
-            "
-              >Por grupo</v-tab>
+              <v-tab title="Por grupo" :active="
+                frameOpenedAllPredictionsChartOptions.xAxis.categories.length <= 3
+              ">Por grupo</v-tab>
               <v-tabs-items v-model="frameTab">
                 <v-tab-item>
-                  <highchart
-                    v-if="showFrameOpenedAllPredictionsChart === true"
-                    :options="frameOpenedAllPredictionsChartOptions"
-                  />
+                  <highchart v-if="showFrameOpenedAllPredictionsChart === true"
+                    :options="frameOpenedAllPredictionsChartOptions" />
                 </v-tab-item>
                 <v-tab-item>
-                  <highchart
-                    v-if="showFrameOpenedByGroupChart === true"
-                    :options="frameOpenedByGroupChartOptions"
-                  />
+                  <highchart v-if="showFrameOpenedByGroupChart === true" :options="frameOpenedByGroupChartOptions" />
                 </v-tab-item>
               </v-tabs-items>
             </v-tabs>
           </div>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-            color="primary"
-            text
-            @click="showFrameModal = false"
-          >
+          <v-btn color="primary" text @click="showFrameModal = false">
             Fechar
           </v-btn>
         </v-card-actions>
@@ -179,11 +123,6 @@ export default {
         {
           value: "created_at",
           text: "Data",
-          sortDirection: "desc",
-        },
-        {
-          value: "type",
-          text: "Tipo",
           sortDirection: "desc",
         },
         {
@@ -292,49 +231,20 @@ export default {
           text: "Emoções ao longo do tempo",
         },
         yAxis: {
+          type: "category",
           title: {
             text: "Emoções",
           },
           categories: [],
         },
         xAxis: {
-          type: "datetime",
+          type: "timestamps",
           title: {
             text: "Tempo",
           },
           labels: {
-            format: "{value:%Y-%m-%d %H:%M:%S}",
-          },
-        },
-        series: [
-          /* {
-            name:  "Time",
-            data: [],
-            color: "#03045e",
-            marker: {
-                enabled: true,
-                radius: 5
-            },
-          }, */
-        ],
-      },
-      iterationsBarChartOptions: {
-        chart: {
-          type: "column",
-        },
-        title: {
-          text: "Iterações ao longo do tempo",
-        },
-        yAxis: {
-          title: {
-            text: "Número de iterações",
-          },
-        },
-        xAxis: {
-          title: {
-            text: "Tempo",
-          },
-          categories: [],
+            format: "{value:%Y-%m-%d %H:%M}",
+          }
         },
         series: [
           /* {
@@ -380,7 +290,7 @@ export default {
     },
   },
   mounted() {
-    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+    this.socket = this.$nuxtSocket({ persist: 'mySocket' })
   },
   async created() {
     await this.getEmotions()
@@ -406,16 +316,15 @@ export default {
             '", "image": "' +
             base64 +
             '"}'
-          this.socket.emit('newFrameMessage',jsonData)
+          this.socket.emit('newFrameMessage', jsonData)
           this.hideModal()
           this.collectGraphData()
         })
     },
     async showModal(point) {
-      // console.log(point.x, point.y, point.id, point)
       while (this.frameOpened.humanLabelEmotions.length) { this.frameOpened.humanLabelEmotions.pop() }
-      await this.$axios.$get("/api/frames/" + point.id).then(async ({data}) => {
-        data.createDate = data.createDate  * 1000
+      await this.$axios.$get("/api/frames/" + point.id).then(async ({ data }) => {
+        data.createDate = data.createDate * 1000
         this.frameOpened.createDate = data.createDate
         this.frameOpened.emotion = data.emotion
         this.frameOpened.emotionIteration = data.emotionIteration
@@ -481,7 +390,7 @@ export default {
           .$get(
             "/api/emotions/groups/" + this.frameOpened.emotionIteration.name
           )
-          .then(({data}) => {
+          .then(({ data }) => {
             this.frameOpened.humanLabelEmotions.push({
               value: null,
               text: "Por favor selecione uma emoção",
@@ -518,91 +427,52 @@ export default {
     async collectGraphData() {
       const graphData = []
       this.iterationsChartOptions.series = []
-
+      var dates = []
       for (let i = 0; i < this.yLabels.length; i++) {
-        graphData[i] = []
+        var iterations = this.iterations.filter(iteration => {
+          return this.firstCapitalLetter(iteration.emotion.display_name) === this.yLabels[i];
+        });
+        var data = [];
+        iterations.forEach(iteration => {
+          var idx = this.yLabels.indexOf(this.firstCapitalLetter(iteration.emotion.display_name));
+          var date = iteration.created_at * 1000;
+          data.push([date, idx])
+          dates.push(date)
+        });
+        graphData[i] = data;
         this.iterationsChartOptions.series.push({
           name: this.yLabels[i],
-          data: graphData[i],
-          marker: {
-            enabled: true,
-            radius: 5,
-          },
+          data: graphData[i]
         })
       }
-
-      let pointGraph = []
-      await this.$axios
-        .$get("/api/frames/clients/" + this.currentUser.id + "/graphData")
-        .then(({data}) => {
-          data.forEach(r => {
-            r.createDate = r.createDate  * 1000
-            pointGraph.push(r.createDate)
-            pointGraph.push(r.accuracy)
-            pointGraph.push(r.id)
-
-            if (r.emotion_classified === "N/A") {
-              graphData[
-                this.yLabels.indexOf(
-                  this.firstCapitalLetter(r.emotion_predicted)
-                )
-                ].push({ id: r.id, x: r.createDate, y: r.accuracy })
-            } else if (r.emotion_classified !== "invalid")
-                graphData[
-                  this.yLabels.indexOf(
-                    this.firstCapitalLetter(r.emotion_classified)
-                  )
-                  ].push({ id: r.id, x: r.createDate, y: r.accuracy })
-
-            pointGraph = []
-          })
-
-          const _this = this
-          this.iterationsChartOptions.plotOptions.series.point.events = {
-            click() {
-              _this.showModal(this)
-            },
-          }
-
-          this.showIterationChart = true
-        })
-        .catch(error => {
-          if (typeof variable !== "undefined")
-            this.$toast.info(error.response.data).goAway(3000)
-          else console.log(error)
-          this.$toast.info(error).goAway(3000)
-        })
-
-return graphData
+      this.showIterationChart = true
+      return graphData
     },
     async getEmotions() {
       await this.$axios.get("/api/emotions").then(response => {
         const emotions = response.data.data
         emotions.forEach(emotion => {
           if (emotion.category !== "invalid")
-            this.yLabels.push(this.firstCapitalLetter(emotion.name))
+            this.yLabels.push(this.firstCapitalLetter(emotion.display_name))
           else
             this.invalidEmotion = {
-              value: emotion.name,
-              text: this.firstCapitalLetter(emotion.name),
+              value: emotion.display_name,
+              text: this.firstCapitalLetter(emotion.display_name),
             }
         })
-
         this.iterationsChartOptions.yAxis.categories = this.yLabels
       })
-      .catch(() => {
+        .catch(() => {
           this.$toast.info("Não existem emoções registadas no sistema").goAway(3000)
         })
     },
     getIterations() {
       this.$axios
         .$get("/api/iterations")
-        .then(iterations => {
-          this.iterations = iterations.data
+        .then(response => {
+          this.iterations = response.data
           if (this.iterations !== []) {
             this.collectGraphData()
-
-            // this.iterationsChartOptions.series[0].data =
           }
         })
         .catch(() => {
@@ -618,5 +488,4 @@ return graphData
 }
 </script>
 
-<style>
-</style>
+<style></style>

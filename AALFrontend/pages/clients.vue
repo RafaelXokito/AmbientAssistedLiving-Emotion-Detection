@@ -2,38 +2,20 @@
   <div>
     <v-container>
       <v-card>
-        <v-data-table
-          :loading="finishedRequest == false"
-          :headers="fields"
-          :items="clients"
-          :search="search"
-          sort-by="name"
-          class="elevation-1"
-          :items-per-page="perPage"
-        >
+        <v-data-table :loading="finishedRequest == false" :headers="fields" :items="clients" :search="search"
+          sort-by="name" class="elevation-1" :items-per-page="perPage">
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Clients</v-toolbar-title>
+              <v-toolbar-title>Clientes</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
-              <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                 label="Pesquisar"
-                single-line
-                hide-details
-              ></v-text-field>
+              <v-text-field v-model="search" append-icon="mdi-magnify" label="Pesquisar" single-line
+                hide-details></v-text-field>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="500px">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    color="primary"
-                    dark
-                    class="mb-2"
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                    New Item
+                  <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
+                    Criar
                   </v-btn>
                 </template>
                 <v-card>
@@ -45,73 +27,38 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12" md="12">
-                          <v-text-field
-                            v-model="editedItem.name"
-                            label="Name"
-                          ></v-text-field>
+                          <v-text-field v-model="editedItem.name" label="Nome"></v-text-field>
                         </v-col>
                         <v-col cols="12" md="12">
-                          <v-text-field
-                            v-model="editedItem.email"
-                            label="Email"
-                            type="email"
-                          ></v-text-field>
+                          <v-text-field v-model="editedItem.email" label="Endereço de email" type="email"></v-text-field>
                         </v-col>
                         <v-col cols="12" md="12">
-                          <vue-tel-input-vuetify
-                            defaultCountry="PT"
-                            v-model="editedItem.contact"
-                            :validate-on-blur="true"
-                            @validate="validatePhoneNumber"
-                            :error-messages="
+                          <vue-tel-input-vuetify defaultCountry="PT" v-model="editedItem.contact" :validate-on-blur="true"
+                            @validate="validatePhoneNumber" :error-messages="
                               editedItem.contact.length > 0 &&
-                              !editedItem.contactValid
-                                ? 'Enter a valid phone number'
+                                !editedItem.contactValid
+                                ? 'Indique um número de telemóvel válido'
                                 : ''
-                            "
-                          ></vue-tel-input-vuetify>
+                            "></vue-tel-input-vuetify>
                         </v-col>
                         <v-col cols="12" md="12">
-                          <v-text-field
-                            v-model="editedItem.password"
-                            label="Password"
-                            type="password"
-                          ></v-text-field>
+                          <v-text-field v-model="editedItem.password" label="Palavra-passe" type="password"></v-text-field>
                         </v-col>
                         <v-col cols="12" md="12">
-                          <v-menu
-                            v-model="menu"
-                            :close-on-content-click="false"
-                            :nudge-right="40"
-                            transition="scale-transition"
-                            offset-y
-                            min-width="auto"
-                          >
+                          <v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40"
+                            transition="scale-transition" offset-y min-width="auto">
                             <template v-slot:activator="{ on, attrs }">
-                              <v-text-field
-                                v-model="editedItem.birthdate"
-                                label="Picker without buttons"
-                                prepend-icon="mdi-calendar"
-                                readonly
-                                v-bind="attrs"
-                                v-on="on"
-                              ></v-text-field>
+                              <v-text-field v-model="editedItem.birthdate" label="Picker without buttons"
+                                prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                             </template>
-                            <v-date-picker
-                              v-model="editedItem.birthdate"
-                              color="red lighten-1"
-                              :max="
-                                new Date(
-                                  Date.now() -
-                                    new Date().getTimezoneOffset() * 60000
-                                )
-                                  .toISOString()
-                                  .substr(0, 10)
-                              "
-                              min="1950-01-01"
-                              @input="menu = false"
-                              required
-                            ></v-date-picker>
+                            <v-date-picker v-model="editedItem.birthdate" color="red lighten-1" :max="
+                              new Date(
+                                Date.now() -
+                                new Date().getTimezoneOffset() * 60000
+                              )
+                                .toISOString()
+                                .substr(0, 10)
+                            " min="1950-01-01" @input="menu = false" required></v-date-picker>
                           </v-menu>
                         </v-col>
                       </v-row>
@@ -121,27 +68,21 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue darken-1" text @click="close">
-                      Cancel
+                      Cancelar
                     </v-btn>
                     <v-btn color="blue darken-1" text @click="save">
-                      Save
+                      Guardar
                     </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
               <v-dialog v-model="dialogDelete" max-width="500px">
                 <v-card>
-                  <v-card-title class="text-h5"
-                    >Are you sure you want to delete this item?</v-card-title
-                  >
+                  <v-card-title class="text-h5">Tem a certeza que quer apagar este cliente do sistema?</v-card-title>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeDelete"
-                      >Cancel</v-btn
-                    >
-                    <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                      >OK</v-btn
-                    >
+                    <v-btn color="blue darken-1" text @click="closeDelete">Não</v-btn>
+                    <v-btn color="blue darken-1" text @click="deleteItemConfirm">Sim</v-btn>
                     <v-spacer></v-spacer>
                   </v-card-actions>
                 </v-card>
@@ -154,7 +95,7 @@
             </v-icon>
             <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
           </template>
-          <template v-slot:no-data> No clients created yet </template>
+          <template v-slot:no-data> Ainda não existem clientes registados </template>
         </v-data-table>
       </v-card>
     </v-container>
@@ -200,17 +141,17 @@ export default {
       fields: [
         {
           value: 'name',
-          text: 'Name',
+          text: 'Nome',
           sortDirection: 'desc',
         },
         {
           value: 'email',
-          text: 'Email',
+          text: 'Endereço de email',
           sortDirection: 'desc',
         },
         {
           value: 'actions',
-          text: 'Actions',
+          text: 'Ações',
           sortable: false,
         },
       ],
@@ -227,7 +168,7 @@ export default {
       return this.clients.length
     },
     formTitle() {
-      return this.editedIndex === -1 ? 'New Client' : 'Edit Client'
+      return this.editedIndex === -1 ? 'Criar novo cliente' : 'Editar cliente existente'
     },
   },
   created() {
@@ -237,8 +178,8 @@ export default {
     validatePhoneNumber({ number, isValid, country }) {
       this.editedItem.contactValid = isValid
     },
-    editItem(item) {},
-    deleteItem(item) {},
+    editItem(item) { },
+    deleteItem(item) { },
     deleteItemConfirm() {
       this.clients.splice(this.editedIndex, 1)
       this.closeDelete()
@@ -292,5 +233,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>

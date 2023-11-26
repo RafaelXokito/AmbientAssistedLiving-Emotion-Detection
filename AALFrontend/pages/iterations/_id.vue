@@ -67,7 +67,7 @@ export default {
     },
   },
   created() {
-    this.$axios.$get("/api/iterations/" + this.id).then(({data}) => {
+    this.$axios.$get("/api/iterations/" + this.id+"?details=true").then(({data}) => {
       this.emotion = data.emotion
       this.$axios
         .$get("/api/emotions/groups/" + this.emotion.name)

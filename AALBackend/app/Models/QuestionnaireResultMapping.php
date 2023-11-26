@@ -29,7 +29,7 @@ class QuestionnaireResultMapping extends Model
      * @var array
      */
     protected $fillable = [
-        'points_min', 'points_max', 'message', 'points_max_inclusive', 'questionnaire'
+        'points_min', 'points_max', 'message', 'points_max_inclusive', 'questionnaire', 'short_message'
     ];
 
         /**
@@ -48,6 +48,7 @@ class QuestionnaireResultMapping extends Model
      */
     protected $casts = [
         'message' => 'string',
+        'short_message' => 'string',
         'questionnaire' => 'string', 
         'points_max_inclusive' => 'boolean',  
         'points_min' => 'float',  

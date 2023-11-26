@@ -15,11 +15,7 @@
           mdi-expand-all
         </v-icon>
       </template>
-      <template v-slot:no-data>
-        <v-btn color="primary" @click="initialize">
-          Reiniciar
-        </v-btn>
-      </template>
+      <template v-slot:no-data> Ainda não existem definições de notificações registadas </template>
     </v-data-table>
     <v-divider></v-divider>
     <v-card v-if="showEmotionsNotificationTable && emotionsNotifications.length > 0" class="mx-auto">
@@ -36,6 +32,7 @@
           </v-icon>
         </template>
       </v-data-table>
+      <template v-slot:no-data> Ainda não existem definições de notificações para a emoção: {{ currentEmotion.display_name }} registadas </template>
     </v-card>
 
     <v-dialog v-model="dialog" max-width="500px">

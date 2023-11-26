@@ -27,6 +27,7 @@
                             : "Utilizador"
                         }}
                     </template>
+                <template v-slot:no-data> Ainda não existem mensagens registadas </template>
                 </v-data-table>
             </div>
         </v-card>

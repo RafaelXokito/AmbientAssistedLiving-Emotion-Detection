@@ -108,11 +108,11 @@ class IterationController extends Controller
         abort(404);
     }
 
-    /**
+    /** TODO FIX THIS
      * Get the ClassificationGraphData resource in storage.
      *
      * @param  string  $pattern
-     * @return FrameCollection|\Illuminate\Http\JsonResponse
+     * @return IterationCollection|\Illuminate\Http\JsonResponse
      */
     public function showGraphData(Request $request)
     {

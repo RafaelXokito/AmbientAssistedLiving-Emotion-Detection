@@ -32,6 +32,7 @@
                 : "Data não apresentada"
               }}
             </template>
+        <template v-slot:no-data> Ainda não existem respostas registadas </template>
         </v-data-table>
     </v-card>
   </div>

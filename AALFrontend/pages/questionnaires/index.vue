@@ -123,6 +123,7 @@
               : "Data não apresentada"
             }}
           </template>
+          <template v-slot:no-data> Ainda não existem questionários registados </template>
         </v-data-table>
       </v-card>
     </div>
@@ -181,12 +182,12 @@ export default {
         },
         {
           value: "points",
-          text: "Pontuação",
+          text: "Pontuação final",
           sortDirection: "desc",
         },
         {
-          value: "emotionLevel",
-          text: "Nível de Emoção",
+          value: "short_message",
+          text: "Resultado final",
           sortDirection: "desc",
         },
         {
@@ -267,7 +268,8 @@ export default {
           this.questionnaires.push({
             details: name + "/" + questionnaire.id,
             updated_at: questionnaire.updated_at,
-            points: questionnaire.points
+            points: questionnaire.points,
+            short_message: questionnaire.short_message
           })
         });
       })

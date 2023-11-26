@@ -75,14 +75,23 @@
             v-if="statistic.showGraph"
             :options="statistic.graphOptions"
           />
-          <v-btn
+          <v-btn  v-if="!statistic.showGraph" 
             block
             color="primary"
             class="mt-6"
             outlined
-            @click="statistic.showGraph = !statistic.showGraph"
+            @click="statistic.showGraph = true"
           >
-            Details
+            Mais detalhes
+          </v-btn>
+          <v-btn  v-else
+            block
+            color="primary"
+            class="mt-6"
+            outlined
+            @click="statistic.showGraph = false"
+          >
+            Menos detalhes
           </v-btn>
         </v-card-text>
       </v-card>
