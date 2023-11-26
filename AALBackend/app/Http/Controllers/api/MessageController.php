@@ -24,9 +24,8 @@ class MessageController extends Controller
     {
         $messages = Message::where("client_id", Auth::user()->userable->id)
         ->select('*')
-        ->orderBy('created_at', 'asc')
+        ->orderBy('created_at', 'desc')
         ->get();
-
         return new MessageCollection($messages);
     }
 

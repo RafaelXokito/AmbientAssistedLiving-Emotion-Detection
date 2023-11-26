@@ -54,13 +54,19 @@
         v-if="currentUser.scope === 'Client'"
         title="Iterações"
         to="/iterations"
-        :icon="icons.mdiEyeOutline"
+        :icon="icons.mdiChartBoxOutline"
       ></nav-menu-link>
       <nav-menu-link
         v-if="currentUser.scope === 'Client'"
         title="Questionários"
         to="/questionnaires"
-        :icon="icons.mdiEyeOutline"
+        :icon="icons.mdiTimelineQuestion"
+      ></nav-menu-link>
+      <nav-menu-link
+        v-if="currentUser.scope === 'Client'"
+        title="Mensagens"
+        to="/messages"
+        :icon="icons.mdiRobotHappyOutline"
       ></nav-menu-link>
       <nav-menu-link
         v-if="currentUser.scope === 'Administrator'"
@@ -88,17 +94,15 @@
 <script>
 // eslint-disable-next-line object-curly-newline
 import {
-  mdiHomeOutline,
-  mdiAlphaTBoxOutline,
-  mdiEyeOutline,
-  mdiCreditCardOutline,
-  mdiTable,
-  mdiFileOutline,
-  mdiFormSelect,
-  mdiAccountCogOutline,
+  mdiMessageText,
+  mdiRobotHappyOutline,
+  mdiChartBoxOutline,
   mdiMessageCogOutline,
+  mdiHomeOutline,
   mdiAccountTieOutline,
   mdiAccountOutline,
+  mdiFileOutline,
+  mdiTimelineQuestion
 } from '@mdi/js'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuGroup from './components/NavMenuGroup.vue'
@@ -109,7 +113,7 @@ export default {
   components: {
     NavMenuSectionTitle,
     NavMenuGroup,
-    NavMenuLink,
+    NavMenuLink
   },
   props: {
     isDrawerOpen: {
@@ -121,17 +125,15 @@ export default {
     return {
 
       icons: {
+        mdiMessageText,
+        mdiRobotHappyOutline,
+        mdiChartBoxOutline,
         mdiHomeOutline,
-        mdiAlphaTBoxOutline,
-        mdiEyeOutline,
-        mdiCreditCardOutline,
-        mdiTable,
-        mdiFileOutline,
-        mdiFormSelect,
-        mdiAccountCogOutline,
-        mdiMessageCogOutline,
         mdiAccountTieOutline,
-        mdiAccountOutline
+        mdiAccountOutline,
+        mdiFileOutline,
+        mdiMessageCogOutline,
+        mdiTimelineQuestion
       },
     }
   },

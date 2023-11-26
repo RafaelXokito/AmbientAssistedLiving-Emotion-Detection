@@ -31,8 +31,8 @@ class GeriatricQuestionnaireController extends Controller
         ->where("questionnaires.client_id", Auth::user()->userable->id)
         ->select('geriatric_questionnaires.*')
         ->orderBy('questionnaires.created_at', 'desc')
-        ->simplePaginate(30);
-
+        ->get();
+        
         return new QuestionnaireCollection($geriatric_questionnaires);
     }
 
