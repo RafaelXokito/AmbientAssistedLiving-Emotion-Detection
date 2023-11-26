@@ -24,8 +24,8 @@ class CreateEmotionNotificationRequest extends FormRequest
     public function rules()
     {
         return [
-            'accuracyLimit' => ['required','numeric','between:0.00,100.00'],
-            'durationSeconds' => ['required','integer','min:1'],
+            'accuracylimit' => ['required','numeric','between:0.00,100.00'],
+            'duration' => ['required','integer','min:1'],
             'emotion_name' => ['required','string','exists:emotions,name']
         ];
     }

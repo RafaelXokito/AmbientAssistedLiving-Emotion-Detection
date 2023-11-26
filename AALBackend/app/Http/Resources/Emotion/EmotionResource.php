@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Emotion;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\EmotionNotification\EmotionNotificationCollection;
 
 class EmotionResource extends JsonResource
 {
@@ -14,6 +15,16 @@ class EmotionResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'name' => $this->name,
+            'category' => $this->category,
+            'weight' => $this->weight,
+            'display_name' => $this->display_name,
+            'display_group' => $this->display_group,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'notificationsSettings' => new EmotionNotificationCollection($this->emotionNotifications),
+        ];
     }
 }
+

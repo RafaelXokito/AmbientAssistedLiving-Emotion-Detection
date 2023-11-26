@@ -297,6 +297,14 @@ CREATE TABLE `messages` (
 
 ALTER TABLE `emotions` ADD COLUMN display_name varchar(255) null;
 
+ALTER TABLE `emotions` ADD COLUMN display_group varchar(255) null;
+
+UPDATE `emotions` SET display_group = 'neutro' WHERE category = 'neutral';
+
+UPDATE `emotions` SET display_group = 'negativa' WHERE category = 'negative';
+
+UPDATE `emotions` SET display_group = 'positiva' WHERE category = 'positive';
+
 UPDATE `emotions` SET display_name = 'raiva' WHERE name = 'angry';
 
 UPDATE `emotions` SET display_name = 'desgosto' WHERE name = 'disgust';

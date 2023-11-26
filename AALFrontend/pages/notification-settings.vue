@@ -1,81 +1,58 @@
 <template>
-  <v-card
-  class="mx-auto"
-  >
-    <v-data-table
-      :headers="headers"
-      :items="emotions"
-      :loading="!(emotions.length > 0)"
-      sort-by="calories"
-      class="elevation-1"
-    >
+  <v-card class="mx-auto">
+    <v-card-title>
+      <h3>
+        Definição de notificações
+      </h3>
+    </v-card-title>
+    <v-data-table :headers="headers" :items="emotions" :loading="!(emotions.length > 0)" sort-by="display_name"
+      class="elevation-1">
       <template v-slot:item.actions="{ item }">
-        <v-icon
-          v-if="Object.keys(item.notificationsSettings).length"
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil
+        <v-icon small class="mr-2" @click="createItem(item)">
+          mdi-plus
         </v-icon>
-        <v-icon
-          v-else
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil-plus
-        </v-icon>
-        <v-icon
-          v-if="Object.keys(item.notificationsSettings).length"
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
+        <v-icon v-if="item.notificationsSettings.length > 0" small @click="showItem(item)">
+          mdi-expand-all
         </v-icon>
       </template>
       <template v-slot:no-data>
-        <v-btn
-          color="primary"
-          @click="initialize"
-        >
+        <v-btn color="primary" @click="initialize">
           Reiniciar
         </v-btn>
       </template>
     </v-data-table>
-    <v-dialog
-      v-model="dialog"
-      max-width="500px"
-    >
+    <v-divider></v-divider>
+    <v-card v-if="showEmotionsNotificationTable && emotionsNotifications.length > 0" class="mx-auto">
+      <v-card-title>
+        <h3>
+          Definições de notificações para a emoção: {{ currentEmotion.display_name }}
+        </h3>
+      </v-card-title>
+      <v-data-table :headers="headersNotificationsSettings" :items="emotionsNotifications" sort-by="id"
+        class="elevation-1">
+        <template v-slot:item.actions="{ item }">
+          <v-icon small @click="deleteItem(item)">
+            mdi-delete
+          </v-icon>
+        </template>
+      </v-data-table>
+    </v-card>
+
+    <v-dialog v-model="dialog" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{ formTitle }}</span>
+          <span class="text-h5">Configurar definições de notificações para a emoção: {{ currentEmotion.display_name }}</span>
         </v-card-title>
 
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <v-text-field
-                  v-model="editedItem.accuracyLimit"
-                  label="Limite precisão (%)"
-                  type="number"
-                  required
-                ></v-text-field>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="newItem.accuracylimit" label="Limite precisão (%)" type="number"
+                  required></v-text-field>
               </v-col>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <v-text-field
-                  v-model="editedItem.durationSeconds"
-                  label="duração (seg)"
-                  type="number"
-                  required
-                ></v-text-field>
+              <v-col cols="12" md="6">
+                <v-text-field v-model="newItem.duration" label="duração (seg)" type="number" required></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -83,18 +60,10 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="close"
-          >
+          <v-btn color="blue darken-1" text @click="close">
             Cancelar
           </v-btn>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="save"
-          >
+          <v-btn color="blue darken-1" text @click="save">
             Guardar
           </v-btn>
         </v-card-actions>
@@ -117,165 +86,134 @@
 <script>
 export default {
   middleware: ('auth', 'client'),
-  data(){
+  data() {
     return {
+      showEmotionsNotificationTable: false,
       dialog: false,
       dialogDelete: false,
       headers: [
-        { text: 'Nome', value: 'name' },
-        { text: 'Grupo', value: 'group' },
+        { text: 'Nome', value: 'display_name' },
+        { text: 'Grupo', value: 'display_group' },
+        { text: 'Ações', value: 'actions', sortable: false },
+      ],
+      headersNotificationsSettings: [
+        { text: 'Id', value: 'id' },
+        { text: 'Duração', value: 'duration' },
+        { text: 'Precisão', value: 'accuracylimit' },
+        { text: 'Data de criação', value: 'created_at' },
         { text: 'Ações', value: 'actions', sortable: false },
       ],
       emotions: [],
       emotionsNotification: [],
-      editedIndex: -1,
-      editedItem: {
+      newDeleteItem: null,
+      newItem: {
         id: -1,
-        emotion_name: '',
-        accuracyLimit: 0,
-        durationSeconds: 0,
+        name: '',
+        accuracylimit: 0,
+        duration: 0,
       },
-      defaultItem: {
-        id: -1,
-        emotion_name: '',
-        accuracyLimit: 0,
-        durationSeconds: 0,
-      },
+      emotionsNotifications: [],
+      currentEmotion: {}
     }
   },
-  computed: {
-    formTitle () {
-      return this.editedIndex === -1 ? 'Configurar notificações para a emoção de ' + this.editedItem.emotion_name : 'Editar as configurações para notificações da emoção de ' + this.editedItem.emotion_name
-    },
-  },
   watch: {
-    dialog (val) {
+    dialog(val) {
       val || this.close()
     },
-    dialogDelete (val) {
+    dialogDelete(val) {
       val || this.closeDelete()
     },
   },
-  created () {
+  created() {
     this.initialize()
   },
   methods: {
-    async initialize () {
-
-      await this.$axios.get("/api/emotionsNotification").then(({data}) => {
-        data = data.data
-        data.forEach(emotionNotification => {
-          if (emotionNotification.name !== 'invalid')
-            this.emotionsNotification.push({
-              id: emotionNotification.id,
-              emotion_name: this.firstCapitalLetter(emotionNotification.emotion_name),
-              accuracyLimit: emotionNotification.accuracyLimit,
-              durationSeconds: emotionNotification.durationSeconds,
+    async initialize() {
+      await this.$axios.get("/api/emotions").then(response => {
+        const emotions = response.data.data
+        emotions.forEach(emotion => {
+          if (emotion.name !== 'invalid')
+            this.emotions.push({
+              name: emotion.name,
+              display_name: emotion.display_name,
+              display_group: emotion.display_group,
+              notificationsSettings: emotion.notificationsSettings
             })
-        })
-
-        this.$axios.get("/api/emotions").then(response => {
-          const emotions = response.data.data
-          emotions.forEach(emotion => {
-            if (emotion.name !== 'invalid')
-              this.emotions.push({
-                name: this.firstCapitalLetter(emotion.name),
-                group: this.firstCapitalLetter(emotion.group),
-                notificationsSettings: this.emotionsNotification.find(e => e.emotion_name === this.firstCapitalLetter(emotion.name)) ?? {}
-              })
-          })
-        })
+        });
       })
     },
-
-    firstCapitalLetter(str = "") {
-      return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)
+    showItem(item) {
+      this.currentEmotion = item;
+      this.showEmotionsNotificationTable = true;
+      this.emotionsNotifications = item.notificationsSettings;
     },
-
-    editItem (item) {
-
-      this.editedIndex = this.emotions.indexOf(item)
-      if (Object.keys(item.notificationsSettings).length)
-        this.editedItem = Object.assign({}, item.notificationsSettings)
-      else
-        this.editedItem = Object.assign({}, {
-          emotion_name: item.name,
-          accuracyLimit: null,
-          durationSeconds: null,
-        })
+    createItem(item) {
+      this.currentEmotion = item;
+      this.newItem = Object.assign({}, {
+        emotion_name: item.name,
+        display_name: item.display_name,
+        accuracylimit: null,
+        duration: null,
+      })
       this.dialog = true
     },
 
-    deleteItem (item) {
-      this.editedIndex = this.emotions.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
+    deleteItem(item) {
+      this.newDeleteItem = item;
+      this.dialogDelete = true;
     },
 
-    deleteItemConfirm () {
-      const notificationsSettings = this.emotions.at(this.editedIndex).notificationsSettings
+    deleteItemConfirm() {
       this.$axios
-        .$delete("/api/emotionsNotification/"+notificationsSettings.id)
+        .$delete("/api/emotionsNotification/" + this.newDeleteItem.id)
         .then(() => {
-          this.$toast.success('Notification '+notificationsSettings.name+' for '+ notificationsSettings.emotion_name +' configured').goAway(3000)
+          this.$toast.success('Notificação '+this.newDeleteItem.id+' apagada para a emoção: ' + this.currentEmotion.display_name).goAway(3000)
+          this.$axios.get("/api/emotions/"+this.newDeleteItem.emotion_name).then(response => {
+            const notificationsSettings = response.data.data.notificationsSettings
+            var index = this.emotions.findIndex(x => x.name === this.currentEmotion.name)
+            this.emotions[index].notificationsSettings = notificationsSettings;
+            this.emotionsNotifications = notificationsSettings;
+            this.closeDelete()
 
-          Object.assign(this.emotions[this.editedIndex], {
-            name: this.emotions[this.editedIndex].name,
-            group: this.emotions[this.editedIndex].group,
-            notificationsSettings: {}
-          })
-          this.emotionsNotification.splice(this.emotionsNotification.findIndex(e => e.emotion_name === notificationsSettings.emotion_name), 1)
-          this.closeDelete()
+          });
         })
         .catch(() => {
           this.$toast.error("Erro a apagar a configuração da notificação").goAway(3000)
         })
     },
 
-    close () {
+    close() {
       this.dialog = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
+        this.currentEmotion = {}
+        this.newItem = {}
       })
     },
 
-    closeDelete () {
+    closeDelete() {
       this.dialogDelete = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
+        this.newDeleteItem = {}
       })
     },
 
-    save () {
-      // this.editedIndex > -1
-      if (this.emotions[this.editedIndex].notificationsSettings.id) {
-        // TODO - Edit notification setting request
-        Object.assign(this.emotionsNotification[this.editedIndex], this.editedItem)
-      } else {
-        this.$axios
-          .$post("/api/emotionsNotification", this.editedItem)
-          .then(emotionNotification => {
-            this.$toast.success('Notificações configuradas para ' + this.editedItem.emotion_name).goAway(3000)
-            Object.assign(this.emotions[this.editedIndex], {
-              name: this.emotions[this.editedIndex].name,
-              group: this.emotions[this.editedIndex].group,
-              notificationsSettings: {
-                id: emotionNotification.id,
-                emotion_name: this.firstCapitalLetter(emotionNotification.emotion_name),
-                accuracyLimit: emotionNotification.accuracyLimit,
-                durationSeconds: emotionNotification.durationSeconds,
-              }
-            })
-            this.emotionsNotification.push(emotionNotification)
+    save() {
+      this.$axios
+        .$post("/api/emotionsNotification", this.newItem)
+        .then(() => {
+          this.$toast.success('Notificações configuradas para ' + this.currentEmotion.display_name).goAway(3000)
+          this.$axios.get("/api/emotions/"+this.newItem.emotion_name).then(response => {
+            const notificationsSettings = response.data.data.notificationsSettings
+            var index = this.emotions.findIndex(x => x.name === this.currentEmotion.name)
+            this.emotions[index].notificationsSettings = notificationsSettings;
             this.close()
-          })
-          .catch(() => {
-            this.$toast.error("Error a criar as configurações").goAway(3000)
-          })
-      }
-    },
+          });
+          
+        })
+        .catch(() => {
+          this.$toast.error("Erro a criar as configurações").goAway(3000)
+        })
+    }
   },
 }
 </script>

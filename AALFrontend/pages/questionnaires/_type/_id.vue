@@ -4,12 +4,6 @@
     <div class="mt-5 ml-5 text-center">
       <h1 class="text-red-400">Questionário nº {{ id }}</h1>
     </div>
-    <div>
-      <!--<highchart
-          v-if="showIterationChart == true"
-          :options="chartOptions"
-        />-->
-    </div>
     <v-card>
           <v-card-title>
             Respostas

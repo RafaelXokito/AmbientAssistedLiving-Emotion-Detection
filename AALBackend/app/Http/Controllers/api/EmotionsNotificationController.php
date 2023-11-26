@@ -50,8 +50,8 @@ class EmotionsNotificationController extends Controller
             $emotionNotification->emotion()->associate(Emotion::find($validated_data["emotion_name"]));
             $emotionNotification->client()->associate(Auth::user()->userable);
 
-            $emotionNotification->accuracylimit = $validated_data["accuracyLimit"];
-            $emotionNotification->duration = $validated_data["durationSeconds"];
+            $emotionNotification->accuracylimit = $validated_data["accuracylimit"];
+            $emotionNotification->duration = $validated_data["duration"];
             $emotionNotification->save();
 
             DB::commit();

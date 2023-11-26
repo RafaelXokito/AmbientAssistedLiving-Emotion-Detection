@@ -41,6 +41,9 @@ export default {
     middleware: ("auth", "client"),
     data() {
         return {
+            perPage: 10,
+            currentPage: 1,
+            search: '',
             messages: [],
             fields: [
                 {
@@ -76,9 +79,9 @@ export default {
                     })
                 });
             })
-            .catch(() => {
-                this.$toast.info("Não existem mensagens").goAway(3000)
-            })
+                .catch(() => {
+                    this.$toast.info("Não existem mensagens").goAway(3000)
+                })
         }
     }
 }
