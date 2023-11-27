@@ -99,6 +99,7 @@
         </div>
       </div>
     </v-card>
+    <highchart  v-if="showQuestionnaireChartOptions == true" :options="questionnaireChartOptions" />
     <div v-if="tableLength != 0">
       <v-divider></v-divider>
       <v-card>
@@ -131,7 +132,7 @@
 </template>
 
 <script>
-
+import Highcharts from "highcharts"
 export default {
   components: {
   },
@@ -199,7 +200,46 @@ export default {
       questionnaires: [],
       socket: null,
       perPage: 10,
-      currentPage: 1
+      currentPage: 1,
+      showQuestionnaireChartOptions: false,
+      questionnaireChartOptions: {
+        chart: {
+          type: "line",
+          backgroundColor: "rgba(0,0,0,0)",
+          zoomType: "x",
+        },
+        plotOptions: {
+          series: {
+            cursor: "pointer",
+            point: {
+              events: {
+                //
+              },
+            },
+          },
+        },
+        title: {
+          text: "Pontuação dos questionários ao longo do tempo",
+        },
+        yAxis: {
+          type: "category",
+          title: {
+            text: "Níveis",
+          },
+          categories: [],
+        },
+        xAxis: {
+          type: "timestamps",
+          title: {
+            text: "Tempo",
+          },
+          labels: {
+            format: "{value:%Y-%m-%d %H:%M}",
+          }
+        },
+        series: [
+        ],
+      }
     }
   },
   computed: {
@@ -218,7 +258,16 @@ export default {
       deep: true,
     },
     questionnaireType(newVal) {
+      this.questionnaireChartOptions.series = [];
+      this.showQuestionnaireChartOptions = false;
       this.questionnaireTypeData = this.getQuestionnaireTypeDataByDisplayName(newVal)[0];
+      var labels = []
+      this.questionnaireTypeData.results_mappings.forEach(mapping => {
+        if(labels.length == 0 || !labels.includes(mapping.short_message)){
+          labels.push(mapping.short_message);
+        }
+      });
+      this.questionnaireChartOptions.yAxis.categories = labels;
       this.getQuestionnariesByType(this.questionnaireTypeData.name, this.questionnaireTypeData.display_name);
     }
   },
@@ -243,6 +292,7 @@ export default {
       });
     },
     async getQuestionnariesTypes() {
+      
       await this.$axios.get("/api/questionnairesTypes").then(response => {
         response.data.data.forEach(questionnaire => {
           this.questionnairesTypesData.push({
@@ -264,6 +314,7 @@ export default {
       name = name + 's';
       await this.$axios.get("/api/" + name).then(response => {
         this.questionnaires = [];
+        var dataGraph = []
         response.data.data.forEach(questionnaire => {
           this.questionnaires.push({
             details: name + "/" + questionnaire.id,
@@ -271,12 +322,21 @@ export default {
             points: questionnaire.points,
             short_message: questionnaire.short_message
           })
+          var idxShortMessage = this.questionnaireChartOptions.yAxis.categories.indexOf(questionnaire.short_message)
+          dataGraph.push([ questionnaire.updated_at*1000, idxShortMessage ])
         });
+        this.questionnaireChartOptions.series.push({name: "Pontuação ao longo do tempo", data: dataGraph});
+        this.showQuestionnaireChartOptions = true;
       })
         .catch(() => {
           this.$toast.info("Não existem questionários efetuados do tipo " + display_name).goAway(3000)
         })
-    }
+    },
+    render() {
+      this.chart = Highcharts.chart("container", {
+        ...this.config,
+      })
+    },
   }
 }
 </script>

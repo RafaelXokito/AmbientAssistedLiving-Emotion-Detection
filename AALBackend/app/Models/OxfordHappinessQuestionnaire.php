@@ -40,13 +40,14 @@ class OxfordHappinessQuestionnaire extends Model
 
     ];
 
+
     /**
      * The attributes that should be casted to native types.
      *
      * @var array
      */
     protected $casts = [
-
+        'created_at' => 'timestamp' , 'updated_at' => 'timestamp'
     ];
 
     /**
@@ -55,9 +56,8 @@ class OxfordHappinessQuestionnaire extends Model
      * @var array
      */
     protected $dates = [
-
+        'created_at','updated_at'
     ];
-
     /**
      * Indicates if the model should be timestamped.
      *
