@@ -53,7 +53,7 @@
           <span class="text-base font-weight-medium ms-n2" :class="state+'--text'">{{percentage}}%</span>
         </div>
       </div>
-      <h2>{{statisticsMenu[myPattern].title + ": " + value}}</h2>
+      <h3>{{statisticsMenu[myPattern].title + ": " + value}}</h3>
     </v-card-text>
     <v-card-text v-if="state !== ''">
       <!-- Chart -->

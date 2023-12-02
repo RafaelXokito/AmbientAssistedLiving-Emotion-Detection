@@ -17,9 +17,9 @@
               class="me-3 "
             ></v-img>
 
-            <h2 class="text-2xl font-weight-semibold">
+            <h3 class="text-2xl font-weight-semibold">
               SmartEmotion
-            </h2>
+            </h3>
           </nuxt-link>
         </v-card-title>
 

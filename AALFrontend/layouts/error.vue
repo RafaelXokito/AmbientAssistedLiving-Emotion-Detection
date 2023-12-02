@@ -12,12 +12,12 @@
     ></v-img>
 
     <div class="page-title text-center px-5">
-      <h2 class="text-2xl font-weight-semibold text--primary d-flex align-center justify-center">
+      <h3 class="text-2xl font-weight-semibold text--primary d-flex align-center justify-center">
         <span class="me-2">Page Not Found</span>
         <v-icon color="warning">
           {{ icons.mdiAlert }}
         </v-icon>
-      </h2>
+      </h3>
       <p class="text-sm">
         we couldn't find the page you are looking for
       </p>

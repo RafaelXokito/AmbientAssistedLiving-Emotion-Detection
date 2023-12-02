@@ -99,10 +99,10 @@
         </div>
       </div>
     </v-card>
-    <highchart  v-if="showQuestionnaireChartOptions == true" :options="questionnaireChartOptions" />
+    <highchart class="mt-10"  v-if="showQuestionnaireChartOptions == true" :options="questionnaireChartOptions" />
     <div v-if="tableLength != 0">
       <v-divider></v-divider>
-      <v-card>
+      <v-card class="mt-10" >
         <v-card-title>Questionários efetuados</v-card-title>
         <v-card-text>
           <v-text-field v-model="search" append-icon="mdi-magnify" label="Pesquisar" single-line

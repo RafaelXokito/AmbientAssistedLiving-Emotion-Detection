@@ -24,15 +24,15 @@
         cols="3"
         sm="2"
       >
-        <h2>H2</h2>
+        <h3>H2</h3>
       </v-col>
       <v-col
         cols="9"
         sm="10"
       >
-        <h2>
+        <h3>
           Heading 2
-        </h2>
+        </h3>
         <span>font-size: 24px / line-height: 1.5 / font-weight: 600</span>
       </v-col>
 

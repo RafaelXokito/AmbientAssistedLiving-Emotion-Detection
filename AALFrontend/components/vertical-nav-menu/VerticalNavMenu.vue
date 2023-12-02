@@ -25,9 +25,9 @@
           class="app-logo me-3"
         ></v-img>
         <v-slide-x-transition>
-          <h2 class="app-title text--primary">
+          <h3 class="app-title text--primary">
             SmartEmotion
-          </h2>
+          </h3>
         </v-slide-x-transition>
       </NuxtLink>
     </div>

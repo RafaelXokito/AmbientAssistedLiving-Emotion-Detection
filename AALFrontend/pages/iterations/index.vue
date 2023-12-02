@@ -115,6 +115,11 @@ export default {
     return {
       search: '',
       fields: [
+      {
+          value: "id",
+          text: "Id",
+          sortDirection: "desc",
+        },
         {
           value: "emotion",
           text: "Emoção",
@@ -129,7 +134,7 @@ export default {
           value: "contents",
           text: "Conteúdo",
           sortable: false,
-        },
+        }
       ],
       socket: null,
       showIterationChart: false,

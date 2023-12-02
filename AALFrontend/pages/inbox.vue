@@ -68,7 +68,7 @@
         </v-row>
       </v-container>
     </v-card>
-    <h2 v-else class="text-center">Não existem notificações</h2>
+    <h3 v-else class="text-center">Não existem notificações</h3>
     <v-dialog
       v-model="showNotification"
       max-width="600px"
