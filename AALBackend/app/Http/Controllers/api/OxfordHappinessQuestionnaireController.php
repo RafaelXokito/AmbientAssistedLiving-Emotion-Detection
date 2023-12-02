@@ -10,12 +10,14 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\OxfordHappinessQuestionnaire;
 use App\Models\ResponseQuestionnaire;
 use App\Models\QuestionnaireType;
+use App\Models\Iteration;
 use App\Http\Resources\Questionnaire\QuestionnaireResource;
 use App\Http\Resources\Questionnaire\QuestionnaireCollection;
 use App\Http\Resources\Question\QuestionCollection;
 use App\Http\Resources\ResultMapping\ResultMappingCollection;
 use App\Http\Requests\OxfordHappinessQuestionnaire\UpdatePointsOxfordHappinessQuestionnaireRequest;
-use App\Http\Requests\ResponseQuestionnaire\CreateResponseOxfordHappinessQuestionnaire;
+use App\Http\Requests\ResponseQuestionnaire\CreateResponseQuestionnaire;
+use Illuminate\Support\Facades\Validator;
 
 class OxfordHappinessQuestionnaireController extends Controller
 {
@@ -129,7 +131,7 @@ class OxfordHappinessQuestionnaireController extends Controller
     }
 
 
-    public function updateResponses(CreateResponseOxfordHappinessQuestionnaire $request, $Questionnaire){
+    public function updateResponses(CreateResponseQuestionnaire $request, $Questionnaire){
         $oh_questionnaire = OxfordHappinessQuestionnaire::findorFail($Questionnaire);
         $validated_data = $request->validated();
 
@@ -153,16 +155,34 @@ class OxfordHappinessQuestionnaireController extends Controller
             $response->response = $validated_data["response"];
             $response->question = $validated_data["question"];
             $response->questionnaire()->associate($oh_questionnaire->questionnaire->id);
-            $speech = Speech::findOrFail($validated_data["speech_id"]);
-            if(!($speech->text === $response->response)){
-                return response()->json(array(
-                    'code'      =>  422,
-                    'message'   =>  "Speech Text is diferent than questionnaire response."
-                ), 422);
-            }
-            $response->speech()->associate($speech);
             $response->save();
+            
+            if($response->is_why == TRUE){
 
+                $validator = Validator::make($request->all(), [
+                    'accuracy' => ['required','numeric','between:0.00,100.00'],
+                    'created_at' => ['required', 'date_format:Y-m-d H:i:s'],
+                    'iteration_id' => ['required','integer','exists:iterations,id'],
+                    'iteration_usage_id' => ['required','string','exists:iterations,usage_id'],
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json($validator->errors(), 422);
+                }
+                $iteration = Iteration::findOrFail($validated_data["iteration_id"]);
+                if ($iteration->usage_id != $validated_data["iteration_usage_id"] && !Carbon::createFromTimestamp($iteration->created_at)->addMinutes(30)->gt(Carbon::now()))
+                    return response()->json(array(
+                        'code'      =>  422,
+                        'message'   =>  "Iteration Usage Id doesnt match or expired!"
+                    ), 422);
+                
+                $response->content()->create([
+                    'emotion_name' => $iteration->emotion_name,
+                    'accuracy' => $validated_data["accuracy"],
+                    'createdate' => $validated_data["created_at"],
+                    'iteration_id' => $iteration->id
+                ]);
+            }           
             $oh_questionnaire->save();
             DB::commit();
 
@@ -185,8 +205,10 @@ class OxfordHappinessQuestionnaireController extends Controller
     public function destroy($Questionnaire)
     {
         $questionnaire = OxfordHappinessQuestionnaire::findOrFail($Questionnaire);
+        $questionnaire->questionnaire->responses()->delete();
+        $questionnaire->questionnaire()->delete();
         $questionnaire->delete();
-
+        
         return response()->json(array(
             'code'      =>  200,
             'message'   =>  "Oxford Happiness Questionnaire was removed"

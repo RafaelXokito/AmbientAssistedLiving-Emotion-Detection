@@ -4,7 +4,7 @@ namespace App\Http\Requests\ResponseQuestionnaire;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateResponseGeriatricQuestionnaire extends FormRequest
+class CreateResponseQuestionnaire extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,25 +26,28 @@ class CreateResponseGeriatricQuestionnaire extends FormRequest
         return [
             'response' =>  ['required', 'string'],
             'is_why' => ['required', 'boolean'],
-            'question' => ['required', 'integer','min:1', 'max:15'],
-            'speech_id' => ['required', 'integer', 'exists:speeches,id']
+            'question' => ['required', 'integer','min:1', 'max:29'],
+            'accuracy' => ['numeric','between:0.00,100.00'],
+            'created_at' => ['date_format:Y-m-d H:i:s'],
+            'iteration_id' => ['integer','exists:iterations,id'],
+            'iteration_usage_id' => ['string','exists:iterations,usage_id'],
         ];
     }
 
     public function messages()
     {
         return [
-            "response.required"       => "Response's text is required",
+            'response.required'       => "Response's text is required",
             'response.string'      => "Response's text must be a string",
             'is_why.required'      => "Response's is_why is required",
             'is_why.boolean'      => "Response's is_why must be a boolean",
             'question.required' =>  "Response's question is required", 
             'question.integer' =>  "Response's question must be a integer", 
-            'question.min' =>  "Response's question must be between 1 and 15", 
-            'question.max' =>  "Response's question must be between 1 and 15",
-            'speech_id.required' => "Response's speech id is required",
-            'speech_id.integer' => "Response's speech id must be a integer",
-            'speech_id.exists' => "Response's speech id does not exists",
+            'question.min' =>  "Response's question must be between 1 and 29", 
+            'question.max' =>  "Response's question must be between 1 and 29",
+            'accuracy.numeric' => "The accuracy value must be numeric",
+            'accuracy.between' => "The accuracy value must be between 0 and 100",
+            'created_at.date_format' => 'The created date must follow the pattern: Y-m-d H:i:s'
         ];
     }
 }

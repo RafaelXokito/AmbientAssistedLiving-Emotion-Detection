@@ -51,7 +51,7 @@ class QuestionnaireResource extends JsonResource
                 'points' => $this->questionnaire->points,
                 'short_message' => $finalMessage,
                 'client_id' => $this->questionnaire->client_id,
-                'responses' => $this->questionnaire->responses
+                'responses' => new ResponseQuestionnaireCollection($this->questionnaire->responses)
             ];
         }
         

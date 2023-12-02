@@ -25,7 +25,7 @@ class ResponseQuestionnaire extends Model
      *
      * @var array
      */
-    protected $fillable = ['questionnaire_id','speech_id','response','is_why','question','created_at','updated_at'];
+    protected $fillable = ['questionnaire_id','response','is_why','question','created_at','updated_at'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -41,7 +41,7 @@ class ResponseQuestionnaire extends Model
      *
      * @var array
      */
-    protected $casts = ['created_at' => 'timestamp' , 'updated_at' => 'timestamp'];
+    protected $casts = ['created_at' => 'timestamp' , 'updated_at' => 'timestamp', 'is_why' => 'boolean'];
 
     /**
      * The attributes that should be mutated to dates.
@@ -75,10 +75,10 @@ class ResponseQuestionnaire extends Model
     }
 
     /**
-     * Get the speech associated with the response.
+     * Get the speech's content.
      */
-    public function speech()
+    public function content()
     {
-        return $this->belongsTo(Speech::class, 'speech_id', 'id');
+        return $this->morphOne(Content::class, 'childable');
     }
 }

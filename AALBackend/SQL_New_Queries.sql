@@ -428,6 +428,9 @@ INSERT INTO `questionnaire_result_mappings` (`points_min`, `points_max`, `messag
  UPDATE `questionnaire_types` SET questionnairable_model_name = 'App\\Models\\OxfordHappinessQuestionnaire' WHERE name = 'OxfordHappinessQuestionnaire';
  UPDATE `questionnaire_types` SET questionnairable_model_name = 'App\\Models\\GeriatricQuestionnaire' WHERE name = 'GeriatricQuestionnaire';
 
+ALTER TABLE `responses_questionnaire` DROP CONSTRAINT `responsesQuestionnaire_ibfk_2`;
+ALTER TABLE `responses_questionnaire` DROP COLUMN `speech_id`;
+
 -- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend
 
 -------------------------------------------------------------------------------

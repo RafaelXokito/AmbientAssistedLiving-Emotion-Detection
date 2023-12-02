@@ -14,6 +14,27 @@ class ResponseQuestionnaireResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        if($this->is_why == FALSE){
+            return [
+                'id' => $this->id,
+                'questionnaire_id' => $this->questionnaire_id,
+                'response' => $this->response,
+                'is_why' => $this->is_why,
+                'question' => $this->question,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at
+            ];
+        }
+        return [
+            'id' => $this->id,
+            'questionnaire_id' => $this->questionnaire_id,
+            'response' => $this->response,
+            'is_why' => $this->is_why,
+            'question' => $this->question,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'emotion' => $this->content->emotion->display_name ?? "",
+            'accuracy' => $this->content->accuracy           
+        ];
     }
 }

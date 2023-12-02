@@ -81,8 +81,10 @@ class MessageController extends Controller
                 $msg = new Message();
                 $msg->isChatbot = true;
                 $msg->body = $responseChatbot["text"];
-                $msg->client()->associate(Auth::user()->userable);
-                $msg->save();
+                if(!str_contains($responseChatbot["text"],'{') && !str_contains($responseChatbot["text"],'}')){
+                    $msg->client()->associate(Auth::user()->userable);
+                    $msg->save();
+                }
                 array_push($finalMessages,$msg);               
             }
 
