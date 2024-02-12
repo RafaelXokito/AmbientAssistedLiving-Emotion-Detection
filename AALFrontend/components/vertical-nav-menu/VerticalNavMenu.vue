@@ -69,6 +69,12 @@
         :icon="icons.mdiRobotHappyOutline"
       ></nav-menu-link>
       <nav-menu-link
+        v-if="currentUser.scope === 'Client'"
+        title="MRE"
+        to="/emotionRegulationMechanisms"
+        :icon="icons.mdiEmoticonExcited"
+      ></nav-menu-link>
+      <nav-menu-link
         v-if="currentUser.scope === 'Administrator'"
         title="Logs"
         to="/logs"
@@ -102,7 +108,8 @@ import {
   mdiAccountTieOutline,
   mdiAccountOutline,
   mdiFileOutline,
-  mdiTimelineQuestion
+  mdiTimelineQuestion,
+  mdiEmoticonExcited
 } from '@mdi/js'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuGroup from './components/NavMenuGroup.vue'
@@ -133,7 +140,8 @@ export default {
         mdiAccountOutline,
         mdiFileOutline,
         mdiMessageCogOutline,
-        mdiTimelineQuestion
+        mdiTimelineQuestion,
+        mdiEmoticonExcited
       },
     }
   },

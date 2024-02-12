@@ -70,7 +70,7 @@ export default {
     },
     methods: {
         async getMessages() {
-            await this.$axios.get("/api/messages").then(response => {
+            await this.$axios.get("/api/messages?order=desc").then(response => {
                 this.messages = [];
                 response.data.data.forEach(msg => {
                     this.messages.push({
