@@ -10,7 +10,7 @@ create table if not exists administrators
 
 create table if not exists emotions
 (
-    name       varchar(255) not null, 
+    name       varchar(255) not null 
     primary key,
     category   varchar(255) null,
     created_at timestamp    null,
@@ -431,11 +431,31 @@ INSERT INTO `questionnaire_result_mappings` (`points_min`, `points_max`, `messag
 ALTER TABLE `responses_questionnaire` DROP CONSTRAINT `responsesQuestionnaire_ibfk_2`;
 ALTER TABLE `responses_questionnaire` DROP COLUMN `speech_id`;
 
+CREATE TABLE `regulation_mechanisms` (
+    name       varchar(255) not null, 
+    PRIMARY KEY (`name`)
+);
+
+INSERT `regulation_mechanisms` (`name`) VALUES ('joke');
+
+CREATE TABLE `emotions_regulation_mechanisms` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `client_id` bigint,
+    `regulation_mechanism` varchar(255) NOT NULL,
+    `emotion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+    `is_default` boolean DEFAULT FALSE,
+    `created_at`    timestamp    null,
+    `updated_at`    timestamp    null,
+    `deleted_at`    timestamp    null,
+    CONSTRAINT `emotion_regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
+    CONSTRAINT `emotion_regulation_mechanisms_ibfk_2` FOREIGN KEY (`regulation_mechanism`) REFERENCES `regulation_mechanisms` (`name`),
+    CONSTRAINT `emotion_regulation_mechanisms_ibfk_3` FOREIGN KEY (`emotion`) REFERENCES `emotions` (`name`),
+    CONSTRAINT `emotion_regulation_mechanisms_unique` UNIQUE (`client_id`, `regulation_mechanism`, `emotion`),
+    PRIMARY KEY (`id`)
+);
+
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'happy', true);
+
+ALTER TABLE `regulation_mechanisms` ADD COLUMN display_name varchar(255) null;
+
 -- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend
-
--------------------------------------------------------------------------------
--- add mapping for emotions 
--------------------------------------------------------------------------------
-
--- alter table `questionnaires` to have an FK for questionnaire_types
--- alter the questionnaire model to have the FK

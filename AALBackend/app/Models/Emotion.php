@@ -117,4 +117,14 @@ class Emotion extends Model
     {
         return $this->hasMany(MultiModalEmotion::class, 'emotion_name', 'name');
     }
+
+    /**
+     * Get the regulation mechanisms associated with the emotion.
+     */
+    public function emotionRegulationMechanisms()
+    {
+        return $this->hasMany(EmotionRegulationMechanism::class, 'emotion', 'name');
+    }
+
+    
 }

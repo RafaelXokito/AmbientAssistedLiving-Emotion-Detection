@@ -142,4 +142,11 @@ class Client extends Model
         return $this->hasMany(Questionnaire::class, 'client_id','id');
     }
 
+    /**
+     * Get the emotion regulation mechanisms associated with the client.
+     */
+    public function emotionRegulationMechanisms()
+    {
+        return $this->hasMany(EmotionRegulationMechanism::class, 'client_id', 'id');
+    }
 }

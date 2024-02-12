@@ -22,9 +22,10 @@ class MessageController extends Controller
      */
     public function index()
     {
+        $order = request()->query('order') == "desc" ? "desc" : "asc";
         $messages = Message::where("client_id", Auth::user()->userable->id)
         ->select('*')
-        ->orderBy('created_at', 'desc')
+        ->orderBy('created_at', $order)
         ->get();
         return new MessageCollection($messages);
     }

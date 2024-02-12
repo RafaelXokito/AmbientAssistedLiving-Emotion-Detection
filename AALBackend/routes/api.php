@@ -24,6 +24,8 @@ use App\Http\Controllers\api\GeriatricQuestionnaireController;
 use App\Http\Controllers\api\OxfordHappinessQuestionnaireController;
 use App\Http\Controllers\api\MessageController;
 use App\Http\Controllers\api\QuestionnaireTypeController;
+use App\Http\Controllers\api\EmotionRegulationMechanismController;
+use App\Http\Controllers\api\RegulationMechanismController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +95,8 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'GeriatricQuestionnaires' => GeriatricQuestionnaireController::class,
         'OxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
         'messages' => MessageController::class,
+        'emotionRegulationMechanisms' => EmotionRegulationMechanismController::class,
+        'regulationMechanisms' => RegulationMechanismController::class,
     ]);
 
     Route::get('/me', [ClientController::class, 'getMe']);
