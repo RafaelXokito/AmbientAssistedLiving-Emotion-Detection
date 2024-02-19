@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Message\MessageResource;
 use App\Http\Resources\Message\MessageCollection;
 use App\Http\Requests\Message\CreateMessageRequest;
+use App\Models\EmotionRegulationMechanism;
+use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
@@ -77,16 +79,25 @@ class MessageController extends Controller
             $response = $client->send($request);
             $responseArray = json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE);
             $finalMessages = [];
-            array_push($finalMessages,$message);   
-            foreach ($responseArray as &$responseChatbot) {
+            array_push($finalMessages,$message);
+            foreach ($responseArray as $responseChatbot) {
                 $msg = new Message();
                 $msg->isChatbot = true;
                 $msg->body = $responseChatbot["text"];
-                if(!str_contains($responseChatbot["text"],'{') && !str_contains($responseChatbot["text"],'}')){
-                    $msg->client()->associate(Auth::user()->userable);
+                $msg->client()->associate(Auth::user()->userable);
+                $decodedObject = json_decode($responseChatbot["text"]);
+                if($decodedObject == null){
                     $msg->save();
+                }else{
+                    $erm = $this->fetchERM($decodedObject->emotion);
+                    $ermResponse = $this->calculateRM($erm);
+                    $msgERM = new Message();
+                    $msgERM->isChatbot = true;
+                    $msgERM->body = $ermResponse;
+                    $msgERM->client()->associate(Auth::user()->userable);
+                    array_push($finalMessages,$msgERM);
                 }
-                array_push($finalMessages,$msg);               
+                array_push($finalMessages,$msg);
             }
 
             return new MessageCollection($finalMessages);
@@ -97,6 +108,34 @@ class MessageController extends Controller
                 'message'   =>  $th->getMessage()
             ), 400);
         }
+    }
+
+    public function fetchERM($emotion){
+        $mechanism = EmotionRegulationMechanism::where("client_id", Auth::user()->userable->id)
+        ->where("emotion", $emotion)
+        ->first();
+        if($mechanism == null){
+            $mechanism = EmotionRegulationMechanism::where("is_default", '1')
+            ->where("emotion", $emotion)
+            ->first();
+        }
+        return $mechanism->regulation_mechanism;
+    }
+
+    public function calculateRM($mechanism){
+        switch ($mechanism) {
+            case "joke":
+                $path = storage_path('app/regulation_mechanisms/jokes.json');
+                $type = pathinfo($path, PATHINFO_EXTENSION);
+                $contents = file_get_contents($path);
+                // If you want to decode the JSON
+                $jsonData = json_decode($contents, true);
+                $randomKey = array_rand($jsonData);
+                // Access the random entry using the random key
+                $response = json_encode($jsonData[$randomKey]);
+                break;
+        }
+        return $response;
     }
 
     /**
