@@ -81,25 +81,21 @@ class MessageController extends Controller
             $finalMessages = [];
             array_push($finalMessages,$message);
             foreach ($responseArray as $responseChatbot) {
-                $msg = new Message();
-                $msg->isChatbot = true;
-                $msg->body = $responseChatbot["text"];
-                $msg->client()->associate(Auth::user()->userable);
                 $decodedObject = json_decode($responseChatbot["text"]);
                 if($decodedObject == null){
+                    $msg = new Message();
+                    $msg->isChatbot = true;
+                    $msg->body = $responseChatbot["text"];
+                    $msg->client()->associate(Auth::user()->userable);
                     $msg->save();
-                }else{
+                    array_push($finalMessages,$msg);
+                }else if(property_exists($decodedObject, 'emotion')){
+                    // If we have a prediction with emotions
                     $erm = $this->fetchERM($decodedObject->emotion);
-                    $ermResponse = $this->calculateRM($erm);
-                    $msgERM = new Message();
-                    $msgERM->isChatbot = true;
-                    $msgERM->body = $ermResponse;
-                    $msgERM->client()->associate(Auth::user()->userable);
-                    array_push($finalMessages,$msgERM);
+                    $finalMessages = $this->calculateRM($erm, $finalMessages);
                 }
-                array_push($finalMessages,$msg);
+                
             }
-
             return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -122,7 +118,7 @@ class MessageController extends Controller
         return $mechanism->regulation_mechanism;
     }
 
-    public function calculateRM($mechanism){
+    public function calculateRM($mechanism, $messages){
         switch ($mechanism) {
             case "joke":
                 $path = storage_path('app/regulation_mechanisms/jokes.json');
@@ -132,10 +128,22 @@ class MessageController extends Controller
                 $jsonData = json_decode($contents, true);
                 $randomKey = array_rand($jsonData);
                 // Access the random entry using the random key
-                $response = json_encode($jsonData[$randomKey]);
+                $rm = $jsonData[$randomKey];
+                $msgJoke = new Message();
+                $msgJoke->isChatbot = true;
+                $msgJoke->body = $rm['joke'];
+                $msgJoke->client()->associate(Auth::user()->userable);
+                $msgJoke->save();
+                $msgAnswer = new Message();
+                $msgAnswer->isChatbot = true;
+                $msgAnswer->body = $rm['answer'];
+                $msgAnswer->client()->associate(Auth::user()->userable);
+                $msgAnswer->save();
+                array_push($messages, $msgJoke);
+                array_push($messages, $msgAnswer);
                 break;
         }
-        return $response;
+        return $messages;
     }
 
     /**
