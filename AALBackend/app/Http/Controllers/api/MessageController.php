@@ -74,12 +74,21 @@ class MessageController extends Controller
                 "message" => $validated_data["body"]
             ],
             JSON_UNESCAPED_UNICODE);
-            
             $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
             $response = $client->send($request);
             $responseArray = json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE);
             $finalMessages = [];
             array_push($finalMessages,$message);
+            $ermIsPossible = true;
+
+            // Rasa return a custom json: "custom": { "ERM": "false" }, if ERM cannot be done
+            // If property not present then its okay to do ERM
+            foreach ($responseArray as $responseChatbot) {
+                if(array_key_exists("custom", $responseChatbot) && $responseChatbot["custom"]["ERM"] == "false"){ 
+                    $ermIsPossible = false;
+                }
+            }
+            
             foreach ($responseArray as $responseChatbot) {
                 $decodedObject = json_decode($responseChatbot["text"]);
                 if($decodedObject == null){
@@ -89,12 +98,12 @@ class MessageController extends Controller
                     $msg->client()->associate(Auth::user()->userable);
                     $msg->save();
                     array_push($finalMessages,$msg);
-                }else if(property_exists($decodedObject, 'emotion')){
+                }
+                else if($ermIsPossible == true && property_exists($decodedObject, 'emotion')){ 
                     // If we have a prediction with emotions
                     $erm = $this->fetchERM($decodedObject->emotion);
                     $finalMessages = $this->calculateRM($erm, $finalMessages);
                 }
-                
             }
             return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
