@@ -80,28 +80,27 @@ class MessageController extends Controller
             $finalMessages = [];
             array_push($finalMessages,$message);
             $ermIsPossible = true;
-
             // Rasa return a custom json: "custom": { "ERM": "false" }, if ERM cannot be done
             // If property not present then its okay to do ERM
             foreach ($responseArray as $responseChatbot) {
-                if(array_key_exists("custom", $responseChatbot) && $responseChatbot["custom"]["ERM"] == "false"){ 
+                if(array_key_exists("custom", $responseChatbot) && 
+                   array_key_exists("ERM", $responseChatbot["custom"]) && 
+                   $responseChatbot["custom"]["ERM"] == "false"){ 
                     $ermIsPossible = false;
                 }
             }
             
             foreach ($responseArray as $responseChatbot) {
-                $decodedObject = json_decode($responseChatbot["text"]);
-                if($decodedObject == null){
+                if(array_key_exists("text", $responseChatbot)){
                     $msg = new Message();
                     $msg->isChatbot = true;
                     $msg->body = $responseChatbot["text"];
                     $msg->client()->associate(Auth::user()->userable);
                     $msg->save();
                     array_push($finalMessages,$msg);
-                }
-                else if($ermIsPossible == true && property_exists($decodedObject, 'emotion')){ 
+                }else if($ermIsPossible == true && array_key_exists("emotion", $responseChatbot["custom"]) ){ 
                     // If we have a prediction with emotions
-                    $erm = $this->fetchERM($decodedObject->emotion);
+                    $erm = $this->fetchERM($responseChatbot["custom"]["emotion"]);
                     $finalMessages = $this->calculateRM($erm, $finalMessages);
                 }
             }
