@@ -73,4 +73,12 @@ class Message extends Model
    {
        return $this->belongsTo(Client::class, 'client_id', 'id');
    }
+
+    /**
+     * Get the speech's content.
+     */
+    public function content()
+    {
+        return $this->morphOne(Content::class, 'childable');
+    }
 }

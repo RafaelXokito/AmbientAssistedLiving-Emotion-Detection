@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Utils;
@@ -13,7 +14,11 @@ use App\Http\Resources\Message\MessageResource;
 use App\Http\Resources\Message\MessageCollection;
 use App\Http\Requests\Message\CreateMessageRequest;
 use App\Models\EmotionRegulationMechanism;
+use App\Models\Iteration;
+use App\Models\Emotion;
+use App\Models\Classification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -52,17 +57,17 @@ class MessageController extends Controller
      */
     public function store(CreateMessageRequest $request)
     {
-        $message = new Message();
+        $clientMessage = new Message();
         $validated_data = $request->validated();
 
         try {
             DB::beginTransaction();
 
-            $message->isChatbot = $validated_data["isChatbot"];
-            $message->body = $validated_data["body"];
-            $message->client()->associate(Auth::user()->userable);
-            $message->save();
-            DB::commit();
+            // Save the client' message
+            $clientMessage->isChatbot = $validated_data["isChatbot"];
+            $clientMessage->body = $validated_data["body"];
+            $clientMessage->client()->associate(Auth::user()->userable);
+            $clientMessage->save();
             //-------------- Send to Rasa --------------
             $client = new Client();
             $headers = [
@@ -77,8 +82,9 @@ class MessageController extends Controller
             $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
             $response = $client->send($request);
             $responseArray = json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE);
+            
             $finalMessages = [];
-            array_push($finalMessages,$message);
+            array_push($finalMessages,$clientMessage);
             $ermIsPossible = true;
             // Rasa return a custom json: "custom": { "ERM": "false" }, if ERM cannot be done
             // If property not present then its okay to do ERM
@@ -89,7 +95,7 @@ class MessageController extends Controller
                     $ermIsPossible = false;
                 }
             }
-            
+            // Save chatbot messages and handle ERM
             foreach ($responseArray as $responseChatbot) {
                 if(array_key_exists("text", $responseChatbot)){
                     $msg = new Message();
@@ -98,18 +104,60 @@ class MessageController extends Controller
                     $msg->client()->associate(Auth::user()->userable);
                     $msg->save();
                     array_push($finalMessages,$msg);
-                }else if($ermIsPossible == true && array_key_exists("emotion", $responseChatbot["custom"]) ){ 
+                }else if($ermIsPossible == true && array_key_exists("emotion", $responseChatbot["custom"])){ 
                     // If we have a prediction with emotions
-                    $erm = $this->fetchERM($responseChatbot["custom"]["emotion"]);
+                    $emotion = $responseChatbot["custom"]["emotion"];
+                    $erm = $this->fetchERM($emotion);
                     $finalMessages = $this->calculateRM($erm, $finalMessages);
+
+                    // handle iteration
+                    // Handle iteration
+                    $iteration = Iteration::where('emotion_name', "=", $emotion)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                    // If there's no iteration or if the creation date plus 30 minutes is greater than the current date and time 
+                    if($iteration == null || !Carbon::createFromTimestamp($iteration->created_at)->addMinutes(30)->gt(Carbon::now())){
+                        $iteration = new Iteration();
+                        $iteration->emotion()->associate(Emotion::findOrFail($emotion));
+                        $iteration->macaddress = "N/A";
+                        $iteration->usage_id = Str::uuid();
+                        $iteration->type = "best";
+                        $iteration->client()->associate(Auth::user()->userable);
+                        $iteration->save();
+                    }
+                    $clientMessage->save();
+                    // Creates the content (parent) of the client message
+                    $clientMessage->content()->create([
+                        'emotion_name' => $iteration->emotion_name,
+                        'accuracy' => $responseChatbot["custom"]["accuracy"],
+                        'createdate' => Carbon::now(),
+                        'iteration_id' => $iteration->id
+                    ]);
+                    // handles the client message SA predictions
+                    $predictions = explode(";",$responseChatbot["custom"]["predictions"]);
+                    foreach ($predictions as &$prediction) {
+
+                        $classification = new Classification();
+                        $aux = explode("#", $prediction, 2);
+                        $classification->emotion()->associate(Emotion::find(strtolower($aux[0])));
+                        $classification->accuracy = $aux[1];
+                        $classification->content()->associate($clientMessage->content->id);
+                        $classification->save();
+                    }
                 }
             }
+            DB::commit();
             return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
             DB::rollBack();
+            $messageTh = $th->getMessage();
+            if (str_contains($messageTh, 'chatbot')) {
+                $messageTh = "O agente conversacional MIMO está indisponível";
+            }
             return response()->json(array(
                 'code'      =>  400,
-                'message'   =>  $th->getMessage()
+                'message'   =>  $messageTh
             ), 400);
         }
     }
