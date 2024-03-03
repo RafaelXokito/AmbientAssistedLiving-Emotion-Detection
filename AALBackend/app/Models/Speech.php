@@ -62,12 +62,4 @@ class Speech extends Model
     {
         return $this->morphOne(Content::class, 'childable');
     }
-
-    /**
-     * Get the speech's response questionnaire
-     */
-    public function response()
-    {
-        return $this->hasOne(ResponseQuestionnaire::class);
-    }
 }

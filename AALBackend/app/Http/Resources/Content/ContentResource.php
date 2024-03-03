@@ -3,7 +3,7 @@
 namespace App\Http\Resources\Content;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\ResponseQuestionnaire\ResponseQuestionnaireResource;
+use App\Http\Resources\Message\MessageResource;
 use App\Http\Resources\Frame\FrameResource;
 use App\Http\Resources\Speech\SpeechResource;
 use App\Http\Resources\Emotion\EmotionResource;
@@ -22,13 +22,13 @@ class ContentResource extends JsonResource
         $child = $this->childable;
         // Content
         switch(end($model)){
-            case "ResponseQuestionnaire":
+            case "Message":
                 return [
                     "emotion" => new EmotionResource($this->emotion),
                     "accuracy" => $this->accuracy,
                     "createdate" => $this->createdate,
-                    "type" => "ResponseQuestionnaire",
-                    "content" => new ResponseQuestionnaireResource($child)
+                    "type" => "Message",
+                    "content" => new MessageResource($child)
                 ];
             case "Frame":
                 return [

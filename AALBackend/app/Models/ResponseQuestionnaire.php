@@ -73,12 +73,4 @@ class ResponseQuestionnaire extends Model
     {
         return $this->belongsTo(Questionnaire::class, 'questionnaire_id', 'id');
     }
-
-    /**
-     * Get the speech's content.
-     */
-    public function content()
-    {
-        return $this->morphOne(Content::class, 'childable');
-    }
 }

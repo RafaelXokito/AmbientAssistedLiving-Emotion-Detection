@@ -111,14 +111,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
     Route::get('/speeches/{speech}/predictions', [SpeechController::class, 'showSpeechClassification']);
     Route::patch('/speeches/{speech}/classify', [SpeechController::class, 'classifySpeech']);
 
-    Route::get('/questionnairesTypes', [QuestionnaireTypeController::class, 'index']);
-
-    Route::put('GeriatricQuestionnaires/{Questionnaire}/points', [GeriatricQuestionnaireController::class, 'updatePoints']);
-    Route::put('GeriatricQuestionnaires/{Questionnaire}/responses', [GeriatricQuestionnaireController::class, 'updateResponses']);
-
-    Route::put('OxfordHappinessQuestionnaires/{Questionnaire}/points', [OxfordHappinessQuestionnaireController::class, 'updatePoints']);
-    Route::put('OxfordHappinessQuestionnaires/{Questionnaire}/responses', [OxfordHappinessQuestionnaireController::class, 'updateResponses']);
-  
+    Route::get('/questionnairesTypes', [QuestionnaireTypeController::class, 'index']);  
 });
 
 Route::group([
