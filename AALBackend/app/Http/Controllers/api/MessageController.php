@@ -17,6 +17,8 @@ use App\Models\EmotionRegulationMechanism;
 use App\Models\Iteration;
 use App\Models\Emotion;
 use App\Models\Classification;
+use App\Models\GeriatricQuestionnaire;
+use App\Models\OxfordHappinessQuestionnaire;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -48,7 +50,6 @@ class MessageController extends Controller
         abort(404);
     }
 
-
     /**
      * Store a newly created resource in storage.
      *
@@ -57,44 +58,46 @@ class MessageController extends Controller
      */
     public function store(CreateMessageRequest $request)
     {
-        $clientMessage = new Message();
+        $clientMessage = null;
+        $finalMessages = [];
         $validated_data = $request->validated();
-
         try {
             DB::beginTransaction();
-
-            // Save the client' message
-            $clientMessage->isChatbot = $validated_data["isChatbot"];
-            $clientMessage->body = $validated_data["body"];
-            $clientMessage->client()->associate(Auth::user()->userable);
-            $clientMessage->save();
+            $clientInput = "";
+            if(array_key_exists("custom", $validated_data)){
+                $clientInput = $validated_data["custom"];
+            }
+            else if(array_key_exists("body", $validated_data)){
+                // Save the client' message
+                $clientInput = $validated_data["body"];
+                $clientMessage = new Message();
+                $clientMessage->isChatbot = $validated_data["isChatbot"];
+                $clientMessage->body = $clientInput;
+                $clientMessage->client()->associate(Auth::user()->userable);
+                $clientMessage->save();
+                array_push($finalMessages, $clientMessage);
+            }
+            
             //-------------- Send to Rasa --------------
-            $client = new Client();
-            $headers = [
-            'Content-Type' => 'application/json; charset=utf-8',
-            ];
+            $responseArray = $this->sendToRasa($clientInput);
             
-            $body = json_encode([
-                "sender" => Auth::user()->email,
-                "message" => $validated_data["body"]
-            ],
-            JSON_UNESCAPED_UNICODE);
-            $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
-            $response = $client->send($request);
-            $responseArray = json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE);
-            
-            $finalMessages = [];
-            array_push($finalMessages,$clientMessage);
             $ermIsPossible = true;
             // Rasa return a custom json: "custom": { "ERM": "false" }, if ERM cannot be done
             // If property not present then its okay to do ERM
             foreach ($responseArray as $responseChatbot) {
-                if(array_key_exists("custom", $responseChatbot) && 
-                   array_key_exists("ERM", $responseChatbot["custom"]) && 
-                   $responseChatbot["custom"]["ERM"] == "false"){ 
+                if(!array_key_exists("custom", $responseChatbot)){
+                    continue;
+                }
+                $response = $responseChatbot["custom"];
+                if(array_key_exists("ERM", $response) && 
+                   $response["ERM"] == "false"){ 
                     $ermIsPossible = false;
                 }
+                if( array_key_exists("questionnaire", $response)){
+                    $this->handleQuestionnaire($response);
+                }
             }
+            
             // Save chatbot messages and handle ERM
             foreach ($responseArray as $responseChatbot) {
                 if(array_key_exists("text", $responseChatbot)){
@@ -107,44 +110,11 @@ class MessageController extends Controller
                 }else if($ermIsPossible == true && array_key_exists("emotion", $responseChatbot["custom"])){ 
                     // If we have a prediction with emotions
                     $emotion = $responseChatbot["custom"]["emotion"];
+                    // ERM
                     $erm = $this->fetchERM($emotion);
                     $finalMessages = $this->calculateRM($erm, $finalMessages);
-
                     // handle iteration
-                    // Handle iteration
-                    $iteration = Iteration::where('emotion_name', "=", $emotion)
-                    ->orderBy('created_at', 'desc')
-                    ->first();
-
-                    // If there's no iteration or if the creation date plus 30 minutes is greater than the current date and time 
-                    if($iteration == null || !Carbon::createFromTimestamp($iteration->created_at)->addMinutes(30)->gt(Carbon::now())){
-                        $iteration = new Iteration();
-                        $iteration->emotion()->associate(Emotion::findOrFail($emotion));
-                        $iteration->macaddress = "N/A";
-                        $iteration->usage_id = Str::uuid();
-                        $iteration->type = "best";
-                        $iteration->client()->associate(Auth::user()->userable);
-                        $iteration->save();
-                    }
-                    $clientMessage->save();
-                    // Creates the content (parent) of the client message
-                    $clientMessage->content()->create([
-                        'emotion_name' => $iteration->emotion_name,
-                        'accuracy' => $responseChatbot["custom"]["accuracy"],
-                        'createdate' => Carbon::now(),
-                        'iteration_id' => $iteration->id
-                    ]);
-                    // handles the client message SA predictions
-                    $predictions = explode(";",$responseChatbot["custom"]["predictions"]);
-                    foreach ($predictions as &$prediction) {
-
-                        $classification = new Classification();
-                        $aux = explode("#", $prediction, 2);
-                        $classification->emotion()->associate(Emotion::find(strtolower($aux[0])));
-                        $classification->accuracy = $aux[1];
-                        $classification->content()->associate($clientMessage->content->id);
-                        $classification->save();
-                    }
+                    $this->handleIteration($responseChatbot["custom"]);
                 }
             }
             DB::commit();
@@ -159,6 +129,128 @@ class MessageController extends Controller
                 'code'      =>  400,
                 'message'   =>  $messageTh
             ), 400);
+        }
+    }
+    public function fetchQuestionnaire($type, $data){
+        $newQuestionnaire = false;
+        $questionnaire = null;
+        // Fetch questionnaire by type
+        switch($type){
+            case "GeriatricQuestionnaire":
+                $questionnaire = GeriatricQuestionnaire::orderBy('created_at', 'desc')
+                ->first();
+
+                break;
+            case "OxfordHappinessQuestionnaire": 
+                $questionnaire = OxfordHappinessQuestionnaire::orderBy('created_at', 'desc')
+                ->first();
+                break;  
+        }
+        // if questionnaire is null or has points then means its completed and a new one is created
+        if($questionnaire == null || $questionnaire->questionnaire->points != NULL){
+            $newQuestionnaire = true;
+        }
+        // if the questionnaire doesnt have points and the current chatbot response is a response to a question
+        // then fetch the last answered question, if the question number is bigger than the question of the current response of the parameters
+        // then a new questionnaire must be created
+        else if ($questionnaire != null && $questionnaire->questionnaire->points == NULL && $isQuestion){
+            $responseLastQuestion = ResponseQuestionnaire::where("questionnaire_id", "=", $questionnaire->questionnaire->id)
+            ->orderBy('question', 'desc')
+            ->first();
+            if($responseLastQuestion->question > $data["question"]){
+                $newQuestionnaire = true;
+            }
+        }
+        // Creates new questionnaire
+        if($newQuestionnaire){
+            switch($type){
+                case "GeriatricQuestionnaire":
+                    $questionnaire = new GeriatricQuestionnaire();
+                    break;
+                case "OxfordHappinessQuestionnaire": 
+                    $questionnaire = new OxfordHappinessQuestionnaire();
+                    break;  
+            }
+            $questionnaire->save();
+            $questionnaire->questionnaire()->create([
+                'client_id' => Auth::user()->userable->id
+            ]);
+        }
+        return $questionnaire;
+    }
+
+    public function handleQuestionnaire($data){
+        $isQuestion = array_key_exists("question", $data);
+        $questionnaire = $this->fetchQuestionnaire($data["questionnaire"], $data);
+        // Register's the response
+        if($isQuestion){
+            $response = new ResponseQuestionnaire();
+            $response->is_why = $data["is_why"];
+            $response->response = $data["response"];
+            $response->question = $data["question"];
+            $response->questionnaire()->associate($questionnaire->questionnaire->id);
+            $response->save();
+        }
+        // Register's the points
+        else if(array_key_exists("points", $data)){
+            $questionnaire->questionnaire()->update([
+                'points' => $data["points"]
+            ]);
+        }
+        $questionnaire->save();
+    }
+
+    public function sendToRasa($clientInput){
+        $client = new Client();
+        $headers = [
+        'Content-Type' => 'application/json; charset=utf-8',
+        ];
+        
+        $body = json_encode([
+            "sender" => Auth::user()->email,
+            "message" => $clientInput
+        ],
+        JSON_UNESCAPED_UNICODE);
+        $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
+        $response = $client->send($request);
+        return json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE); 
+    }
+    
+    public function handleIteration($emotion, $clientMessage){
+        $iteration = Iteration::where('emotion_name', "=", $emotion)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+        // If there's no iteration or if the creation date plus 30 minutes is greater than the current date and time 
+        if($iteration == null || !Carbon::createFromTimestamp($iteration->created_at)->addMinutes(30)->gt(Carbon::now())){
+            $iteration = new Iteration();
+            $iteration->emotion()->associate(Emotion::findOrFail($emotion));
+            $iteration->macaddress = "N/A";
+            $iteration->usage_id = Str::uuid();
+            $iteration->type = "best";
+            $iteration->client()->associate(Auth::user()->userable);
+            $iteration->save();
+        }
+        if($clientMessage == null){
+            return;
+        }
+        // Creates the content (parent) of the client message
+        $clientMessage->content()->create([
+            'emotion_name' => $iteration->emotion_name,
+            'accuracy' => $data["accuracy"],
+            'createdate' => Carbon::now(),
+            'iteration_id' => $iteration->id
+        ]);
+        // handles the client message SA predictions
+        $predictions = explode(";",$data["predictions"]);
+        foreach ($predictions as &$prediction) {
+
+            $classification = new Classification();
+            $aux = explode("#", $prediction, 2);
+            $classification->emotion()->associate(Emotion::find(strtolower($aux[0])));
+            $classification->accuracy = $aux[1];
+            $classification->content()->associate($clientMessage->content->id);
+            $classification->save();
         }
     }
 

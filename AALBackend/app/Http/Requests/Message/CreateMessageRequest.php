@@ -25,7 +25,8 @@ class CreateMessageRequest extends FormRequest
     {
         return [
             'isChatbot' => ['required','boolean'],
-            'body' => ['required','string']
+            'body' => ['string'],
+            'custom' => ['string'],
         ];
     }
 
@@ -34,8 +35,8 @@ class CreateMessageRequest extends FormRequest
         return [
             'isChatbot.required' => "Message's isChatbot is required",
             'isChatbot.boolean' => "Message's isChatbot must be a boolean",
-            'body.required' => "Message's body is required",
             'body.string' => "Message's body must be a string",
+            'custom.string' => "Message's custom must be a string",
         ];
     }
 }
