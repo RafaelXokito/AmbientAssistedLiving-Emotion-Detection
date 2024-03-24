@@ -114,7 +114,7 @@ class MessageController extends Controller
                     $erm = $this->fetchERM($emotion);
                     $finalMessages = $this->calculateRM($erm, $finalMessages);
                     // handle iteration
-                    $this->handleIteration($responseChatbot["custom"]);
+                    $this->handleIteration($emotion, $clientMessage, $responseChatbot["custom"]);
                 }
             }
             DB::commit();
@@ -144,7 +144,7 @@ class MessageController extends Controller
             case "OxfordHappinessQuestionnaire": 
                 $questionnaire = OxfordHappinessQuestionnaire::orderBy('created_at', 'desc')
                 ->first();
-                break;  
+                break;
         }
         // if questionnaire is null or has points then means its completed and a new one is created
         if($questionnaire == null || $questionnaire->questionnaire->points != NULL){
@@ -216,7 +216,8 @@ class MessageController extends Controller
         return json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE); 
     }
     
-    public function handleIteration($emotion, $clientMessage){
+    public function handleIteration($emotion, $clientMessage, $metadata){
+
         $iteration = Iteration::where('emotion_name', "=", $emotion)
                     ->orderBy('created_at', 'desc')
                     ->first();
@@ -231,18 +232,15 @@ class MessageController extends Controller
             $iteration->client()->associate(Auth::user()->userable);
             $iteration->save();
         }
-        if($clientMessage == null){
-            return;
-        }
         // Creates the content (parent) of the client message
         $clientMessage->content()->create([
             'emotion_name' => $iteration->emotion_name,
-            'accuracy' => $data["accuracy"],
+            'accuracy' => $metadata["accuracy"],
             'createdate' => Carbon::now(),
             'iteration_id' => $iteration->id
         ]);
         // handles the client message SA predictions
-        $predictions = explode(";",$data["predictions"]);
+        $predictions = explode(";",$metadata["predictions"]);
         foreach ($predictions as &$prediction) {
 
             $classification = new Classification();
