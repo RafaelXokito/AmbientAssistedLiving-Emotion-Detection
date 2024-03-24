@@ -455,6 +455,12 @@ CREATE TABLE `emotions_regulation_mechanisms` (
 );
 
 INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'happy', true);
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'angry', true);
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'disgust', true);
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'fear', true);
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'guilt', true);
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'sad', true);
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'shame', true);
 
 ALTER TABLE `regulation_mechanisms` ADD COLUMN display_name varchar(255) null;
 
