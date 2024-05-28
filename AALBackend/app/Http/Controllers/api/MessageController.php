@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Utils;
 use App\Models\Message;
+use App\Models\ResponseQuestionnaire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -32,10 +33,19 @@ class MessageController extends Controller
     public function index()
     {
         $order = request()->query('order') == "desc" ? "desc" : "asc";
-        $messages = Message::where("client_id", Auth::user()->userable->id)
-        ->select('*')
-        ->orderBy('created_at', $order)
-        ->get();
+        $limit = request()->query('limit') ? (int) request()->query('limit') : 0;
+        if($limit > 0){
+            $messages = Message::where("client_id", Auth::user()->userable->id)
+            ->select('*')
+            ->orderBy('created_at', $order)
+            ->take($limit)
+            ->get();
+        } else {
+            $messages = Message::where("client_id", Auth::user()->userable->id)
+            ->select('*')
+            ->orderBy('created_at', $order)
+            ->get();
+        }
         return new MessageCollection($messages);
     }
 
@@ -82,23 +92,9 @@ class MessageController extends Controller
             $responseArray = $this->sendToRasa($clientInput);
             
             $ermIsPossible = true;
+            $emotion = null;
             // Rasa return a custom json: "custom": { "ERM": "false" }, if ERM cannot be done
             // If property not present then its okay to do ERM
-            foreach ($responseArray as $responseChatbot) {
-                if(!array_key_exists("custom", $responseChatbot)){
-                    continue;
-                }
-                $response = $responseChatbot["custom"];
-                if(array_key_exists("ERM", $response) && 
-                   $response["ERM"] == "false"){ 
-                    $ermIsPossible = false;
-                }
-                if( array_key_exists("questionnaire", $response)){
-                    $this->handleQuestionnaire($response);
-                }
-            }
-            
-            // Save chatbot messages and handle ERM
             foreach ($responseArray as $responseChatbot) {
                 if(array_key_exists("text", $responseChatbot)){
                     $msg = new Message();
@@ -107,16 +103,29 @@ class MessageController extends Controller
                     $msg->client()->associate(Auth::user()->userable);
                     $msg->save();
                     array_push($finalMessages,$msg);
-                }else if($ermIsPossible == true && array_key_exists("emotion", $responseChatbot["custom"])){ 
-                    // If we have a prediction with emotions
-                    $emotion = $responseChatbot["custom"]["emotion"];
-                    // ERM
-                    $erm = $this->fetchERM($emotion);
-                    $finalMessages = $this->calculateRM($erm, $finalMessages);
-                    // handle iteration
-                    $this->handleIteration($emotion, $clientMessage, $responseChatbot["custom"]);
+                }
+                if(!array_key_exists("custom", $responseChatbot)){
+                    continue;
+                }
+                $response = $responseChatbot["custom"];
+                if(array_key_exists("ERM", $response) && 
+                   $response["ERM"] == "false"){ 
+                    $ermIsPossible = false;
+                }
+                if(array_key_exists("questionnaire", $response)){
+                    $this->handleQuestionnaire($response);
+                }
+                if(array_key_exists("emotion", $response)){
+                    $emotion = $response["emotion"];
+                    $this->handleIteration($emotion, $clientMessage, $response);
                 }
             }
+            if($ermIsPossible == true){
+                // ERM
+                $erm = $this->fetchERM($emotion);
+                $finalMessages = $this->calculateRM($erm, $finalMessages);
+            }
+
             DB::commit();
             return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
@@ -131,7 +140,7 @@ class MessageController extends Controller
             ), 400);
         }
     }
-    public function fetchQuestionnaire($type, $data){
+    public function fetchQuestionnaire($type, $data, $isQuestion){
         $newQuestionnaire = false;
         $questionnaire = null;
         // Fetch questionnaire by type
@@ -181,7 +190,7 @@ class MessageController extends Controller
 
     public function handleQuestionnaire($data){
         $isQuestion = array_key_exists("question", $data);
-        $questionnaire = $this->fetchQuestionnaire($data["questionnaire"], $data);
+        $questionnaire = $this->fetchQuestionnaire($data["questionnaire"], $data, $isQuestion);
         // Register's the response
         if($isQuestion){
             $response = new ResponseQuestionnaire();
@@ -257,9 +266,7 @@ class MessageController extends Controller
         ->where("emotion", $emotion)
         ->first();
         if($mechanism == null){
-            $mechanism = EmotionRegulationMechanism::where("is_default", '1')
-            ->where("emotion", $emotion)
-            ->first();
+            return null;
         }
         return $mechanism->regulation_mechanism;
     }
