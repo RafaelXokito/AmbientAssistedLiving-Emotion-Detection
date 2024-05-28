@@ -18,7 +18,6 @@ class EmotionRegulationMechanismResource extends JsonResource
             'id'=> $this->id,
             'regulation_mechanism'=> $this->regulationMechanism->display_name,
             'emotion'=> $this->emotionToRegulate->display_name,
-            'is_default'=> $this->is_default,
             'created_at'=> $this->created_at
         ];
     }

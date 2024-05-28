@@ -10,7 +10,7 @@
       <v-data-table :headers="headers" :items="emotionRegulationMechanisms" :loading="!(emotionRegulationMechanisms.length > 0)" sort-by=""
         class="elevation-1">
         <template v-slot:item.actions="{ item }">
-          <v-icon v-if='item.is_default==="Não"' small @click="deleteItem(item)">
+          <v-icon small @click="deleteItem(item)">
               mdi-delete
           </v-icon>
         </template>
@@ -71,7 +71,6 @@ export default {
       headers: [
         { text: 'Mecanismo de regulação', value: 'regulation_mechanism' },
         { text: 'Emoção', value: 'emotion' },
-        { text: 'Pré-definida', value: 'is_default' },
         { text: 'Data de criação', value: 'created_at' },
         { text: 'Ações', value: 'actions', sortable: false }
       ],
@@ -119,7 +118,6 @@ export default {
               id: erm.id,
               regulation_mechanism: erm.regulation_mechanism,
               emotion: erm.emotion,
-              is_default: erm.is_default == true ? "Sim" : "Não",
               created_at: new Date(erm.created_at).toLocaleString("pt-PT")
             })
         });

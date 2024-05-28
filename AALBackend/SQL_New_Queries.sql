@@ -134,8 +134,7 @@ create table if not exists iterations
 
 create table if not exists contents
 (
-    id             bigint auto_increment
-        primary key,
+    id             bigint auto_increment primary key,
     accuracy       float        null,
     emotion_name   varchar(255) null,
     createdate     timestamp    null,
@@ -433,17 +432,17 @@ ALTER TABLE `responses_questionnaire` DROP COLUMN `speech_id`;
 
 CREATE TABLE `regulation_mechanisms` (
     name       varchar(255) not null, 
+    display_name varchar(255) null,  
     PRIMARY KEY (`name`)
 );
 
-INSERT `regulation_mechanisms` (`name`) VALUES ('joke');
+INSERT `regulation_mechanisms` (`name`, `display_name`) VALUES ('joke', 'piadas');
 
 CREATE TABLE `emotions_regulation_mechanisms` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `client_id` bigint,
+    `client_id` bigint NOT NULL,
     `regulation_mechanism` varchar(255) NOT NULL,
     `emotion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
-    `is_default` boolean DEFAULT FALSE,
     `created_at`    timestamp    null,
     `updated_at`    timestamp    null,
     `deleted_at`    timestamp    null,
@@ -454,14 +453,37 @@ CREATE TABLE `emotions_regulation_mechanisms` (
     PRIMARY KEY (`id`)
 );
 
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'happy', true);
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'angry', true);
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'disgust', true);
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'fear', true);
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'guilt', true);
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'sad', true);
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `is_default`) VALUES ('joke', 'shame', true);
-
-ALTER TABLE `regulation_mechanisms` ADD COLUMN display_name varchar(255) null;
+INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `client_id`) VALUES ('joke', 'happy', 1);
 
 -- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend
+
+-- useful queries to check if iterations, contents, messages and classifications are being well writtend
+select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message'
+from contents as c 
+join iterations as i on (c.iteration_id = i.id) 
+join classifications as cla on (cla.content_id = c.id)
+join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
+where  i.created_at > '2024-05-28 00:00:00';
+
+select r.question, r.is_why, r.response
+join oh_questionnaires as oh on (q.questionnairable_id = oh.id)
+join responses_questionnaire as r on (q.id = r.questionnaire_id)
+join responses_questionnaire as r on (q.id = r.questionnaire_id)
+where  q.created_at > '2024-05-28 00:00:00';
+
+select r.question, r.is_why, r.response
+from questionnaires as q
+join geriatric_questionnaires as oh on (q.questionnairable_id = oh.id)
+join responses_questionnaire as r on (q.id = r.questionnaire_id)
+where  q.created_at > '2024-05-28 00:00:00';
+
+
+
+
+select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message', r.question, r.is_why
+from contents as c 
+join iterations as i on (c.iteration_id = i.id) 
+join classifications as cla on (cla.content_id = c.id)
+join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
+left join responses_questionnaire as r on (q.id = r.questionnaire_id)
+where  i.created_at > '2024-05-28 00:00:00';

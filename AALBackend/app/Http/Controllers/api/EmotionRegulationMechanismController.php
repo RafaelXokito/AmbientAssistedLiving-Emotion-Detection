@@ -24,10 +24,6 @@ class EmotionRegulationMechanismController extends Controller
     public function index()
     {
         $mechanisms = EmotionRegulationMechanism::where("client_id", Auth::user()->userable->id)->get();
-
-        if(count($mechanisms) == 0){
-            $mechanisms = EmotionRegulationMechanism::where("is_default", '1')->get();
-        }
         return new EmotionRegulationMechanismCollection($mechanisms);
     }
 
@@ -56,7 +52,6 @@ class EmotionRegulationMechanismController extends Controller
             $emotionRegulationMechanism->emotionToRegulate()->associate(Emotion::find($validated_data["emotion"]));
             $emotionRegulationMechanism->regulationMechanism()->associate(RegulationMechanism::find($validated_data["regulation_mechanism"]));
             $emotionRegulationMechanism->client()->associate(Auth::user()->userable);
-            $emotionRegulationMechanism->is_default = false;
             $emotionRegulationMechanism->save();
             DB::commit();
             return new EmotionRegulationMechanismResource($emotionRegulationMechanism);
@@ -77,7 +72,7 @@ class EmotionRegulationMechanismController extends Controller
     public function show($emotionRegulationMechanism)
     {
         $erm = EmotionRegulationMechanism::find($emotionRegulationMechanism);
-        if($erm->is_default == false and $erm->client != Auth::user()->userable){
+        if($erm->client != Auth::user()->userable){
             return response()->json(array(
                 'code'      =>  403,
                 'message'   =>  "Resource not available to your account"
