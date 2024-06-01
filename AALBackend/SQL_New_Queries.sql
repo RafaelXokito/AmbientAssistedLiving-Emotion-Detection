@@ -458,32 +458,29 @@ INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `
 -- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend
 
 -- useful queries to check if iterations, contents, messages and classifications are being well writtend
-select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message'
-from contents as c 
-join iterations as i on (c.iteration_id = i.id) 
-join classifications as cla on (cla.content_id = c.id)
-join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
-where  i.created_at > '2024-05-28 00:00:00';
+-- select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message'
+-- from contents as c 
+-- join iterations as i on (c.iteration_id = i.id) 
+-- join classifications as cla on (cla.content_id = c.id)
+-- join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
+-- where  i.created_at > '2024-05-28 00:00:00';
 
-select r.question, r.is_why, r.response
-join oh_questionnaires as oh on (q.questionnairable_id = oh.id)
-join responses_questionnaire as r on (q.id = r.questionnaire_id)
-join responses_questionnaire as r on (q.id = r.questionnaire_id)
-where  q.created_at > '2024-05-28 00:00:00';
+-- select r.question, r.is_why, r.response
+-- join oh_questionnaires as oh on (q.questionnairable_id = oh.id)
+-- join responses_questionnaire as r on (q.id = r.questionnaire_id)
+-- join responses_questionnaire as r on (q.id = r.questionnaire_id)
+-- where  q.created_at > '2024-05-28 00:00:00';
 
-select r.question, r.is_why, r.response
-from questionnaires as q
-join geriatric_questionnaires as oh on (q.questionnairable_id = oh.id)
-join responses_questionnaire as r on (q.id = r.questionnaire_id)
-where  q.created_at > '2024-05-28 00:00:00';
+-- select r.question, r.is_why, r.response
+-- from questionnaires as q
+-- join geriatric_questionnaires as oh on (q.questionnairable_id = oh.id)
+-- join responses_questionnaire as r on (q.id = r.questionnaire_id)
+-- where  q.created_at > '2024-05-28 00:00:00';
 
-
-
-
-select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message', r.question, r.is_why
-from contents as c 
-join iterations as i on (c.iteration_id = i.id) 
-join classifications as cla on (cla.content_id = c.id)
-join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
-left join responses_questionnaire as r on (q.id = r.questionnaire_id)
-where  i.created_at > '2024-05-28 00:00:00';
+-- select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message', r.question, r.is_why
+-- from contents as c 
+-- join iterations as i on (c.iteration_id = i.id) 
+-- join classifications as cla on (cla.content_id = c.id)
+-- join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
+-- left join responses_questionnaire as r on (q.id = r.questionnaire_id)
+-- where  i.created_at > '2024-05-28 00:00:00';

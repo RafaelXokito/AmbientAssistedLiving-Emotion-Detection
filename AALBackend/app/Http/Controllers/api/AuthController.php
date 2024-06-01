@@ -31,11 +31,18 @@ class AuthController extends BaseController
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
-
         request()->request->add([
             'grant_type' => 'password',
-            'client_id' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_ID_PI') : env('PASSPORT_CLIENT_ID_WEB'),
-            'client_secret' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_SECRET_PI') : env('PASSPORT_CLIENT_SECRET_WEB'),
+            'client_id' => $request->type == "RaspberryPi" 
+                                ? env('PASSPORT_CLIENT_ID_PI') 
+                                : ($request->type == "MobileApp" 
+                                    ? env('PASSPORT_CLIENT_ID_MOBILE')
+                                    : env('PASSPORT_CLIENT_ID_WEB')),
+            'client_secret' => $request->type == "RaspberryPi" 
+                                ? env('PASSPORT_CLIENT_SECRET_PI') 
+                                : ($request->type == "MobileApp" 
+                                    ? env('PASSPORT_CLIENT_SECRET_MOBILE')
+                                    : env('PASSPORT_CLIENT_SECRET_WEB')),
             'username' => $request->email,
             'password' => $request->password,
             'scope'         => '',
@@ -44,7 +51,6 @@ class AuthController extends BaseController
         $request = Request::create(env('PASSPORT_SERVER_URL') . '/oauth/token', 'POST');
         $response = Route::dispatch($request);
         $errorCode = $response->getStatusCode();
-
         if ($errorCode == '200') {
             $user = User::where('email',$validator->validated()["email"])->first();
             if (str_contains($user->userable_type, "Client") && ! $user->userable->is_active)
@@ -204,9 +210,17 @@ class AuthController extends BaseController
         request()->request->add([
             'refresh_token' => $request->refresh_token,
             'grant_type' => 'refresh_token',
-            'client_id' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_ID_PI') : env('PASSPORT_CLIENT_ID_WEB'),
-            'client_secret' => $request->type == "RaspberryPi" ? env('PASSPORT_CLIENT_SECRET_PI') : env('PASSPORT_CLIENT_SECRET_WEB'),
-            'scope'         => '',
+            'client_id' => $request->type == "RaspberryPi" 
+                                ? env('PASSPORT_CLIENT_ID_PI') 
+                                : ($request->type == "MobileApp" 
+                                    ? env('PASSPORT_CLIENT_ID_MOBILE')
+                                    : env('PASSPORT_CLIENT_ID_WEB')),
+            'client_secret' => $request->type == "RaspberryPi" 
+                                ? env('PASSPORT_CLIENT_SECRET_PI') 
+                                : ($request->type == "MobileApp" 
+                                    ? env('PASSPORT_CLIENT_SECRET_MOBILE')
+                                    : env('PASSPORT_CLIENT_SECRET_WEB')),
+                    'scope'         => '',
         ]);
 
         $request = Request::create(env('PASSPORT_SERVER_URL') . '/oauth/token', 'POST');
