@@ -455,7 +455,6 @@ CREATE TABLE `emotions_regulation_mechanisms` (
 
 INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `client_id`) VALUES ('joke', 'happy', 1);
 
--- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend
 
 -- useful queries to check if iterations, contents, messages and classifications are being well writtend
 -- select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message'
@@ -484,3 +483,7 @@ INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `
 -- join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
 -- left join responses_questionnaire as r on (q.id = r.questionnaire_id)
 -- where  i.created_at > '2024-05-28 00:00:00';
+
+
+
+-- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend

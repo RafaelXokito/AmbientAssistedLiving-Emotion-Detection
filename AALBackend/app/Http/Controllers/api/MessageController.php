@@ -37,12 +37,16 @@ class MessageController extends Controller
         if($limit > 0){
             $messages = Message::where("client_id", Auth::user()->userable->id)
             ->select('*')
+            ->where('body', 'NOT LIKE', 'start_geriatric_form')
+            ->where('body', 'NOT LIKE', 'start_oxford_happiness_form')
             ->orderBy('created_at', $order)
             ->take($limit)
             ->get();
         } else {
             $messages = Message::where("client_id", Auth::user()->userable->id)
             ->select('*')
+            ->where('body', 'NOT LIKE', 'start_geriatric_form')
+            ->where('body', 'NOT LIKE', 'start_oxford_happiness_form')
             ->orderBy('created_at', $order)
             ->get();
         }
@@ -91,9 +95,10 @@ class MessageController extends Controller
             //-------------- Send to Rasa --------------
             $responseArray = $this->sendToRasa($clientInput);
             
+            $chatbotMessagesHasShortQuestion = false;
             $ermIsPossible = true;
             $emotion = null;
-            // Rasa return a custom json: "custom": { "ERM": "false" }, if ERM cannot be done
+            // Rasa return a custom json: "custom": { "ERM": "false" } or { "IS_QUESTION": "true", "ERM": "false" }, if ERM cannot be done
             // If property not present then its okay to do ERM
             foreach ($responseArray as $responseChatbot) {
                 if(array_key_exists("text", $responseChatbot)){
@@ -112,6 +117,10 @@ class MessageController extends Controller
                    $response["ERM"] == "false"){ 
                     $ermIsPossible = false;
                 }
+                if(array_key_exists("IS_SHORT_QUESTION", $response) && 
+                   $response["IS_SHORT_QUESTION"] == "true"){ 
+                    $chatbotMessagesHasShortQuestion = true;
+                }
                 if(array_key_exists("questionnaire", $response)){
                     $this->handleQuestionnaire($response);
                 }
@@ -127,6 +136,15 @@ class MessageController extends Controller
             }
 
             DB::commit();
+            // temporary volatile message to indicate that a short question is present
+            if($chatbotMessagesHasShortQuestion == true){
+                $tempMsg = new Message();
+                $tempMsg->isChatbot = true;
+                $tempMsg->body = "#IS_SHORT_QUESTION#";
+                $tempMsg->client()->associate(Auth::user()->userable);
+                array_push($finalMessages,$tempMsg);
+            }                    
+            
             return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
             DB::rollBack();
