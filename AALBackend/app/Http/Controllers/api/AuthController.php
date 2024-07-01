@@ -75,7 +75,7 @@ class AuthController extends BaseController
     public function activateClient(Request $request){
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
@@ -89,6 +89,7 @@ class AuthController extends BaseController
             $user->userable->save();
             return response()->json(['success' => 'Client activated!'], 200);
         }
+        dd($user);
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 

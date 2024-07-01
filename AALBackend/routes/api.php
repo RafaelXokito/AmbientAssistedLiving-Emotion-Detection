@@ -45,6 +45,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // RASA uses this endpoint
 Route::get('/questionnaires/{questionnaire}', [QuestionnaireTypeController::class, 'show']);
 
+Route::post('/clients', [ClientController::class, 'store']);
+Route::patch('/auth/activateClient', [AuthController::class, 'activateClient']);
+
 Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/emotions', [EmotionController::class, 'index']);
     Route::get('/emotions/groups/{group}', [EmotionController::class, 'showEmotionsByGroup']);
@@ -75,13 +78,14 @@ Route::group(['middleware' =>  'auth:api'], function() {
 Route::group(['middleware' =>  'auth:api', 'admin'], function() {
     Route::resources([
         'administrators' => AdministratorController::class,
-        'clients' => ClientController::class,
         'emotions' => EmotionController::class,
         'logs' => LogController::class
     ]);
+    Route::get('/clients', [ClientController::class, 'index']);
+    Route::put('/clients/{client}', [ClientController::class, 'update']);
+    Route::get('/clients/{client}', [ClientController::class, 'show']);
+    Route::delete('/clients/{client}', [ClientController::class, 'destroy']);
 });
-
-
 
 // Client restrict
 Route::group(['middleware' =>  'auth:api', 'client'], function() {
@@ -119,7 +123,6 @@ Route::group([
     'prefix' => 'auth'
 ], function ($router) {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::patch('/activateClient', [AuthController::class, 'activateClient']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user', [AuthController::class, 'userProfile']);

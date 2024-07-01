@@ -26,13 +26,13 @@ class CreateClientRequest extends FormRequest
         return [
             'name'              => ['required', 'string'],
             'email'             => ['required', 'email', 'unique:App\Models\User,email'],
-            'password'          => ['required', 'string'],
+            'password'          => ['required', 'string', 'min:6'],
             'birthdate'         => ['required', 'bail', 'date', 'before:today'],
-            'contact'           => ['required', function ($attribute, $value, $fail) {
+            /*'contact'           => ['required', function ($attribute, $value, $fail) {
                 if (!preg_match("/^([9][1236])[0-9]*?$/", $value)) {
                     $fail('The phone number need to follow the portuguese number.');
                 }
-            }]
+            }]*/
         ];
     }
 
@@ -49,7 +49,7 @@ class CreateClientRequest extends FormRequest
             'birthdate.required' => "Client's birth date is required",
             'birthdate.date' => "Client's birth date must be a date",
             'birthdate.before' => "Client's birth date must be before today",
-            'contact.required' => "Client's phone number is required",
+            //'contact.required' => "Client's phone number is required",
         ];
     }
 }

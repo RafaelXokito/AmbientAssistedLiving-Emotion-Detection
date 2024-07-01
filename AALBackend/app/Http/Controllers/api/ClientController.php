@@ -35,6 +35,7 @@ class ClientController extends Controller
         abort(404);
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
@@ -49,9 +50,10 @@ class ClientController extends Controller
         try {
             DB::beginTransaction();
 
-            $client->contact = $validated_data["contact"];
+            //$client->contact = $validated_data["contact"];
             $client->birthdate = $validated_data["birthdate"];
-            $client->administrator()->associate(Auth::user()->userable);
+            
+            //$client->administrator()->associate(Auth::user()->userable);
 
             $client->save();
 
@@ -136,16 +138,31 @@ class ClientController extends Controller
      */
     public function destroy(Client $Client)
     {
-        $oldName = $Client->user->name;
-        $oldEmail = $Client->user->email;
+        try {
+                DB::beginTransaction();
 
-        $Client->user->delete();
-        $Client->delete();
+                $oldName = $Client->user->name;
+                $oldEmail = $Client->user->email;
 
-        return response()->json(array(
-            'code'      =>  200,
-            'message'   =>  "Client was removed [". $oldEmail ."]:". $oldName ."!"
-        ), 200);
+                $Client->user->delete();
+                $Client->delete();
+
+                DB::commit();
+
+                return response()->json(array(
+                    'code'      =>  200,
+                    'message'   =>  "Client was removed [". $oldEmail ."]:". $oldName ."!"
+                ), 200);
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(array(
+                'code'      =>  400,
+                'message'   =>  $th->getMessage()
+            ), 400);
+        }
+        
     }
 
     public function getMe(){
