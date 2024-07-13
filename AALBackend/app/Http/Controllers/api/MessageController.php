@@ -96,6 +96,7 @@ class MessageController extends Controller
             $responseArray = $this->sendToRasa($clientInput);
             
             $chatbotMessagesHasShortQuestion = false;
+            $questionnaireType = "";
             $ermIsPossible = true;
             $emotion = null;
             // Rasa return a custom json: "custom": { "ERM": "false" } or { "IS_QUESTION": "true", "ERM": "false" }, if ERM cannot be done
@@ -120,14 +121,16 @@ class MessageController extends Controller
                 if(array_key_exists("IS_SHORT_QUESTION", $response) && 
                    $response["IS_SHORT_QUESTION"] == "true"){ 
                     $chatbotMessagesHasShortQuestion = true;
-                }
-                if(array_key_exists("questionnaire", $response)){
-                    $this->handleQuestionnaire($response);
-                }
-                if(array_key_exists("emotion", $response)){
-                    $emotion = $response["emotion"];
-                    $this->handleIteration($emotion, $clientMessage, $response);
-                }
+                    $questionnaireType = $response["questionnaire"];
+                }else{
+                    if(array_key_exists("questionnaire", $response)){
+                        $this->handleQuestionnaire($response);
+                    }
+                    if(array_key_exists("emotion", $response)){
+                        $emotion = $response["emotion"];
+                        $this->handleIteration($emotion, $clientMessage, $response);
+                    }
+                }                
             }
             if($ermIsPossible == true){
                 // ERM
@@ -140,7 +143,7 @@ class MessageController extends Controller
             if($chatbotMessagesHasShortQuestion == true){
                 $tempMsg = new Message();
                 $tempMsg->isChatbot = true;
-                $tempMsg->body = "#IS_SHORT_QUESTION#";
+                $tempMsg->body = "#IS_SHORT_QUESTION#" . $questionnaireType;
                 $tempMsg->client()->associate(Auth::user()->userable);
                 array_push($finalMessages,$tempMsg);
             }                    
