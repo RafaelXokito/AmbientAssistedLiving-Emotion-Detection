@@ -42,7 +42,7 @@ class EmotionRegulationMechanism extends Model
      * @var array
      */
     protected $casts = [
-        'regulation_mechanism' => 'string', 'emotion' => 'string'
+        'emotion' => 'string'
     ];
 
     /**
@@ -74,7 +74,7 @@ class EmotionRegulationMechanism extends Model
     */
     public function regulationMechanism()
     {
-        return $this->belongsTo(RegulationMechanism::class, 'regulation_mechanism', 'name');
+        return $this->belongsTo(RegulationMechanism::class, 'regulation_mechanism', 'id');
     }
 
     /**

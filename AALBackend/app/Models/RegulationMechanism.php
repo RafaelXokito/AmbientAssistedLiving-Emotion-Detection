@@ -17,10 +17,9 @@ class RegulationMechanism extends Model
      *
      * @var string
      */
-    protected $primaryKey = 'name';
-    public $incrementing = false;
-    protected $keyType = 'string';
- /**
+    protected $primaryKey = 'id';
+    
+    /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
@@ -34,16 +33,44 @@ class RegulationMechanism extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'display_name'
+        'client_id', 'description'
     ];
-    public $timestamps = false;
+
+    public $timestamps = true;
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'created_at', 'updated_at', 'deleted_at'
+    ];
+
+
+     // Relations ...
+    /**
+    * Get the client associated with the message.
+    */
+   public function client()
+   {
+       return $this->belongsTo(Client::class, 'client_id', 'id');
+   }
+
+    // Relations ...
+    /**
+     * Get the emotions regulation mechanisms associated with the mechanism.
+     */
+    public function emotionRegulationMechanisms()
+    {
+        return $this->hasMany(EmotionRegulationMechanism::class, 'regulation_mechanism', 'id');
+    }
 
     // Relations ...
     /**
      * Get the regulation mechanisms associated with the mechanism.
      */
-    public function emotionRegulationMechanisms()
+    public function regulationMechanismsContents()
     {
-        return $this->hasMany(EmotionRegulationMechanism::class, 'regulation_mechanism', 'name');
+        return $this->hasMany(EmotionRegulationContent::class, 'regulation_mechanism', 'id');
     }
 }

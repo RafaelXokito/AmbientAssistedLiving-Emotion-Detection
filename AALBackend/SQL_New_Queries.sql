@@ -430,30 +430,51 @@ INSERT INTO `questionnaire_result_mappings` (`points_min`, `points_max`, `messag
 ALTER TABLE `responses_questionnaire` DROP CONSTRAINT `responsesQuestionnaire_ibfk_2`;
 ALTER TABLE `responses_questionnaire` DROP COLUMN `speech_id`;
 
+-- recreate the 3 tables: regulation_mechanisms, regulation_mechanisms_content and emotions_regulation_mechanisms
+
+-- TODO create the model, controller, and run this in the db and create the view in the web
+-- modify the message controller to obtain from the db the RM contents for the emotion (alter method: calculateRM)
+-- alter the Message entity to have the body type as well
+
 CREATE TABLE `regulation_mechanisms` (
-    name       varchar(255) not null, 
-    display_name varchar(255) null,  
-    PRIMARY KEY (`name`)
+    id bigint NOT NULL AUTO_INCREMENT, 
+    description varchar(255) null,
+    client_id bigint NOT NULL,
+    created_at    timestamp    null,
+    updated_at    timestamp    null,
+    deleted_at    timestamp    null,
+    CONSTRAINT `regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
+    CONSTRAINT `regulation_mechanisms_unique` UNIQUE (`client_id`, `description`),
+    PRIMARY KEY (`id`)
 );
 
-INSERT `regulation_mechanisms` (`name`, `display_name`) VALUES ('joke', 'piadas');
+CREATE TABLE `regulation_mechanisms_contents` (
+    id bigint NOT NULL AUTO_INCREMENT, 
+    regulation_mechanism bigint NOT NULL,
+    content_type ENUM('text', 'image', 'audio', 'video') NOT NULL,
+    file_path TEXT,
+    text TEXT,
+    created_at    timestamp    null,
+    updated_at    timestamp    null,
+    deleted_at    timestamp    null,
+    CONSTRAINT `regulation_mechanisms_content_ibfk_1` FOREIGN KEY (`regulation_mechanism`) REFERENCES `regulation_mechanisms` (`id`),
+    PRIMARY KEY (`id`)
+);
 
 CREATE TABLE `emotions_regulation_mechanisms` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `client_id` bigint NOT NULL,
-    `regulation_mechanism` varchar(255) NOT NULL,
+    `regulation_mechanism` bigint NOT NULL,
     `emotion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
     `created_at`    timestamp    null,
     `updated_at`    timestamp    null,
     `deleted_at`    timestamp    null,
     CONSTRAINT `emotion_regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
-    CONSTRAINT `emotion_regulation_mechanisms_ibfk_2` FOREIGN KEY (`regulation_mechanism`) REFERENCES `regulation_mechanisms` (`name`),
+    CONSTRAINT `emotion_regulation_mechanisms_ibfk_2` FOREIGN KEY (`regulation_mechanism`) REFERENCES `regulation_mechanisms` (`id`),
     CONSTRAINT `emotion_regulation_mechanisms_ibfk_3` FOREIGN KEY (`emotion`) REFERENCES `emotions` (`name`),
     CONSTRAINT `emotion_regulation_mechanisms_unique` UNIQUE (`client_id`, `regulation_mechanism`, `emotion`),
     PRIMARY KEY (`id`)
 );
-
-INSERT INTO emotions_regulation_mechanisms (`regulation_mechanism`, `emotion`, `client_id`) VALUES ('joke', 'happy', 1);
 
 
 -- useful queries to check if iterations, contents, messages and classifications are being well writtend
