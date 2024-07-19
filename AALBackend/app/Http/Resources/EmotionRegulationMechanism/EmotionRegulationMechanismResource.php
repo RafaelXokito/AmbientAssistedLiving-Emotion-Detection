@@ -16,7 +16,7 @@ class EmotionRegulationMechanismResource extends JsonResource
     {
         return [
             'id'=> $this->id,
-            'regulation_mechanism'=> $this->regulationMechanism->display_name,
+            'regulation_mechanism'=> $this->regulationMechanism->description,
             'emotion'=> $this->emotionToRegulate->display_name,
             'created_at'=> $this->created_at
         ];

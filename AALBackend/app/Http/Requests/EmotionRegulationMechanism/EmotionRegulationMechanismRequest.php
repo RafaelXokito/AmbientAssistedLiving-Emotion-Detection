@@ -15,7 +15,7 @@ class EmotionRegulationMechanismRequest extends FormRequest
     {
         return [
             'emotion' => ['required','string','exists:emotions,name'],
-            'regulation_mechanism' => ['required','string','exists:regulation_mechanisms,name']
+            'regulation_mechanism' => ['required','int','exists:regulation_mechanisms,id']
         ];
     }
 
@@ -27,9 +27,9 @@ class EmotionRegulationMechanismRequest extends FormRequest
             'emotion.exists' => "Emotion Regulation Mechanisms's emotion name doesnt exists",
 
 
-            'regulation_mechanism.required' => "Emotion Regulation Mechanisms's regulation mechanism name is required",
-            'regulation_mechanism.string' => "Emotion Regulation Mechanisms's regulation mechanism name must be a string",
-            'regulation_mechanism.exists' => "Emotion Regulation Mechanisms's regulation mechanism name doesnt exists",
+            'regulation_mechanism.required' => "Emotion Regulation Mechanisms's regulation mechanism mechanism is required",
+            'regulation_mechanism.int' => "Emotion Regulation Mechanisms's regulation mechanism id must be a integre",
+            'regulation_mechanism.exists' => "Emotion Regulation Mechanisms's regulation mechanism mechanism doesnt exists",
         ];
     }
 }

@@ -72,12 +72,6 @@ class EmotionRegulationMechanismController extends Controller
     public function show($emotionRegulationMechanism)
     {
         $erm = EmotionRegulationMechanism::find($emotionRegulationMechanism);
-        if($erm->client != Auth::user()->userable){
-            return response()->json(array(
-                'code'      =>  403,
-                'message'   =>  "Resource not available to your account"
-            ), 403);
-        }
         return new EmotionRegulationMechanismResource($erm);
     }
 

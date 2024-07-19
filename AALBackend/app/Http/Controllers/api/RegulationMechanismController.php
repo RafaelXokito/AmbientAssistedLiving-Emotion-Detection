@@ -14,7 +14,7 @@ class RegulationMechanismController extends Controller
 {
     public function index()
     {
-        $mechanisms = RegulationMechanism::all();
+        $mechanisms = RegulationMechanism::where("client_id", Auth::user()->userable->id)->get();
         return new RegulationMechanismCollection($mechanisms);
     }
 
