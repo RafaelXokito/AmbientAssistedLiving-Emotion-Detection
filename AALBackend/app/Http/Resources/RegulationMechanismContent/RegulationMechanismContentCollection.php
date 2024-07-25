@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\RegulationMechanism;
+namespace App\Http\Resources\RegulationMechanismContent;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class RegulationMechanismCollection extends ResourceCollection
+class RegulationMechanismContentCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.

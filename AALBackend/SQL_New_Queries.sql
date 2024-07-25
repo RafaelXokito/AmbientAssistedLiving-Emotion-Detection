@@ -285,7 +285,7 @@ create table `responses_questionnaire`
 
 CREATE TABLE `messages` (
     `id`                  bigint NOT NULL AUTO_INCREMENT,
-    `body`                varchar(255) not null,
+    `body`                TEXT not null,
     `client_id`           bigint not null,
     `isChatbot`           boolean not null,
    `created_at`           timestamp null default null,
@@ -430,49 +430,29 @@ INSERT INTO `questionnaire_result_mappings` (`points_min`, `points_max`, `messag
 ALTER TABLE `responses_questionnaire` DROP CONSTRAINT `responsesQuestionnaire_ibfk_2`;
 ALTER TABLE `responses_questionnaire` DROP COLUMN `speech_id`;
 
--- recreate the 3 tables: regulation_mechanisms, regulation_mechanisms_content and emotions_regulation_mechanisms
-
--- TODO create the model, controller, and run this in the db and create the view in the web
--- modify the message controller to obtain from the db the RM contents for the emotion (alter method: calculateRM)
--- alter the Message entity to have the body type as well
-
-CREATE TABLE `regulation_mechanisms` (
-    id bigint NOT NULL AUTO_INCREMENT, 
-    description varchar(255) null,
-    client_id bigint NOT NULL,
-    created_at    timestamp    null,
-    updated_at    timestamp    null,
-    deleted_at    timestamp    null,
-    CONSTRAINT `regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
-    CONSTRAINT `regulation_mechanisms_unique` UNIQUE (`client_id`, `description`),
+CREATE TABLE `emotions_regulation_mechanisms` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `client_id` bigint NOT NULL,
+    `emotion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+    `created_at`    timestamp    null,
+    `updated_at`    timestamp    null,
+    `deleted_at`    timestamp    null,
+    CONSTRAINT `emotion_regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
+    CONSTRAINT `emotion_regulation_mechanisms_ibfk_3` FOREIGN KEY (`emotion`) REFERENCES `emotions` (`name`),
+    CONSTRAINT `emotion_regulation_mechanisms_unique` UNIQUE (`client_id`, `emotion`),
     PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `regulation_mechanisms_contents` (
     id bigint NOT NULL AUTO_INCREMENT, 
-    regulation_mechanism bigint NOT NULL,
+    emotion_regulation_mechanism bigint NOT NULL,
     content_type ENUM('text', 'image', 'audio', 'video') NOT NULL,
     file_path TEXT,
     text TEXT,
     created_at    timestamp    null,
     updated_at    timestamp    null,
     deleted_at    timestamp    null,
-    CONSTRAINT `regulation_mechanisms_content_ibfk_1` FOREIGN KEY (`regulation_mechanism`) REFERENCES `regulation_mechanisms` (`id`),
-    PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `emotions_regulation_mechanisms` (
-    `id` bigint NOT NULL AUTO_INCREMENT,
-    `client_id` bigint NOT NULL,
-    `regulation_mechanism` bigint NOT NULL,
-    `emotion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
-    `created_at`    timestamp    null,
-    `updated_at`    timestamp    null,
-    `deleted_at`    timestamp    null,
-    CONSTRAINT `emotion_regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
-    CONSTRAINT `emotion_regulation_mechanisms_ibfk_2` FOREIGN KEY (`regulation_mechanism`) REFERENCES `regulation_mechanisms` (`id`),
-    CONSTRAINT `emotion_regulation_mechanisms_ibfk_3` FOREIGN KEY (`emotion`) REFERENCES `emotions` (`name`),
-    CONSTRAINT `emotion_regulation_mechanisms_unique` UNIQUE (`client_id`, `regulation_mechanism`, `emotion`),
+    CONSTRAINT `regulation_mechanisms_content_ibfk_1` FOREIGN KEY (`emotion_regulation_mechanism`) REFERENCES `emotions_regulation_mechanisms` (`id`),
     PRIMARY KEY (`id`)
 );
 
@@ -504,7 +484,5 @@ CREATE TABLE `emotions_regulation_mechanisms` (
 -- join messages as m on (c.childable_type='App\\Models\\Message' and c.childable_id = m.id)
 -- left join responses_questionnaire as r on (q.id = r.questionnaire_id)
 -- where  i.created_at > '2024-05-28 00:00:00';
-
-
 
 -- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend

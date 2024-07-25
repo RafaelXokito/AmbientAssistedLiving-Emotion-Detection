@@ -69,12 +69,13 @@ class EmotionRegulationMechanism extends Model
         return $this->belongsTo(Emotion::class, 'emotion', 'name');
     }
 
+    // Relations ...
     /**
-     * Get the regulation mechanism associated with the emotion regulation mechanism.
-    */
-    public function regulationMechanism()
+     * Get the regulation mechanisms associated with the mechanism.
+     */
+    public function regulationMechanismsContents()
     {
-        return $this->belongsTo(RegulationMechanism::class, 'regulation_mechanism', 'id');
+        return $this->hasMany(RegulationMechanismContent::class, 'emotion_regulation_mechanism', 'id');
     }
 
     /**

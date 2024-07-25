@@ -5,7 +5,6 @@ namespace App\Http\Controllers\api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\EmotionRegulationMechanism;
-use App\Models\RegulationMechanism;
 use App\Models\Client;
 use App\Models\Emotion;
 use App\Http\Resources\EmotionRegulationMechanism\EmotionRegulationMechanismResource;
@@ -50,7 +49,6 @@ class EmotionRegulationMechanismController extends Controller
         try{
             DB::beginTransaction();
             $emotionRegulationMechanism->emotionToRegulate()->associate(Emotion::find($validated_data["emotion"]));
-            $emotionRegulationMechanism->regulationMechanism()->associate(RegulationMechanism::find($validated_data["regulation_mechanism"]));
             $emotionRegulationMechanism->client()->associate(Auth::user()->userable);
             $emotionRegulationMechanism->save();
             DB::commit();

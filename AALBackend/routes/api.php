@@ -25,7 +25,7 @@ use App\Http\Controllers\api\OxfordHappinessQuestionnaireController;
 use App\Http\Controllers\api\MessageController;
 use App\Http\Controllers\api\QuestionnaireTypeController;
 use App\Http\Controllers\api\EmotionRegulationMechanismController;
-use App\Http\Controllers\api\RegulationMechanismController;
+use App\Http\Controllers\api\RegulationMechanismContentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +59,7 @@ Route::group(['middleware' =>  'auth:api'], function() {
     Route::get('/contents/graphData', [ContentController::class, 'showClassificationGraphData']);
 
     Route::get('/frames/last', [FrameController::class, 'last']); // Isto devia de esta
-    Route::get('/multiModalEmotions/last', [MultiModalEmotionController::class, 'last']); // Isto devia de estar apenas para os clientsr apenas para os clients
+    Route::get('/multiModalEmotions/last', [MultiModalEmotionController::class, 'last']); // Isto devia de estar apenas para os clients apenas para os clients
 
     Route::get('/iterations/graphData', [IterationController::class, 'showGraphData']);
 
@@ -100,7 +100,7 @@ Route::group(['middleware' =>  'auth:api', 'client'], function() {
         'OxfordHappinessQuestionnaires' => OxfordHappinessQuestionnaireController::class,
         'messages' => MessageController::class,
         'emotionRegulationMechanisms' => EmotionRegulationMechanismController::class,
-        'regulationMechanisms' => RegulationMechanismController::class,
+        'regulationMechanismContents' => RegulationMechanismContentController::class
     ]);
 
     Route::get('/me', [ClientController::class, 'getMe']);

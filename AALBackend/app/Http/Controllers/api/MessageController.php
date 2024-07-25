@@ -22,6 +22,7 @@ use App\Models\GeriatricQuestionnaire;
 use App\Models\OxfordHappinessQuestionnaire;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Enums\RegulationMechanismContentTypes;
 
 class MessageController extends Controller
 {
@@ -31,7 +32,7 @@ class MessageController extends Controller
      * @return MessageCollection
      */
     public function index()
-    {
+    {       
         $order = request()->query('order') == "desc" ? "desc" : "asc";
         $limit = request()->query('limit') ? (int) request()->query('limit') : 0;
         if($limit > 0){
@@ -134,8 +135,7 @@ class MessageController extends Controller
             }
             if($ermIsPossible == true){
                 // ERM
-                $erm = $this->fetchERM($emotion);
-                $finalMessages = $this->calculateRM($erm, $finalMessages);
+                $finalMessages = $this->calculateRM($emotion, $finalMessages);
             }
 
             DB::commit();
@@ -282,42 +282,31 @@ class MessageController extends Controller
         }
     }
 
-    public function fetchERM($emotion){
-        $mechanism = EmotionRegulationMechanism::where("client_id", Auth::user()->userable->id)
+    public function calculateRM($emotion, $messages){
+        
+        $erms = EmotionRegulationMechanism::where("client_id", Auth::user()->userable->id)
         ->where("emotion", $emotion)
-        ->first();
-        if($mechanism == null){
-            return null;
-        }
-        return $mechanism->regulation_mechanism;
-    }
+        ->whereHas('regulationMechanismsContents')
+        ->get();
 
-    public function calculateRM($mechanism, $messages){
-        switch ($mechanism) {
-            case "joke":
-                $path = storage_path('app/regulation_mechanisms/jokes.json');
-                $type = pathinfo($path, PATHINFO_EXTENSION);
-                $contents = file_get_contents($path);
-                // If you want to decode the JSON
-                $jsonData = json_decode($contents, true);
-                $randomKey = array_rand($jsonData);
-                // Access the random entry using the random key
-                $rm = $jsonData[$randomKey];
-                $msgJoke = new Message();
-                $msgJoke->isChatbot = true;
-                $msgJoke->body = $rm['joke'];
-                $msgJoke->client()->associate(Auth::user()->userable);
-                $msgJoke->save();
-                $msgAnswer = new Message();
-                $msgAnswer->isChatbot = true;
-                $msgAnswer->body = $rm['answer'];
-                $msgAnswer->client()->associate(Auth::user()->userable);
-                $msgAnswer->save();
-                array_push($messages, $msgJoke);
-                array_push($messages, $msgAnswer);
-                break;
+        if($erms->count() == 0){
+            return;
         }
-        return $messages;
+
+        $erm = $erms->random();
+        $content = $erm->regulationMechanismsContents->random();
+
+        $msgAnswer = new Message();
+        if($content->content_type->value == RegulationMechanismContentTypes::Text->value){
+            $msgAnswer->body = $content->text;
+        }else{
+            $msgAnswer->body = $content->file_path;
+        }
+        $msgAnswer->isChatbot = true;
+        $msgAnswer->body = $content;
+        $msgAnswer->client()->associate(Auth::user()->userable);
+        $msgAnswer->save();
+        array_push($messages, $msgJoke);
     }
 
     /**

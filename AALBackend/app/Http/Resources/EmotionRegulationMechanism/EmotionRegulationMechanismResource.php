@@ -14,11 +14,6 @@ class EmotionRegulationMechanismResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id'=> $this->id,
-            'regulation_mechanism'=> $this->regulationMechanism->description,
-            'emotion'=> $this->emotionToRegulate->display_name,
-            'created_at'=> $this->created_at
-        ];
+        return parent::toArray($request);
     }
 }

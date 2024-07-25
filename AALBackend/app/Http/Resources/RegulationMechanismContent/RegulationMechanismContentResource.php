@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\RegulationMechanism;
+namespace App\Http\Resources\RegulationMechanismContent;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RegulationMechanismResource extends JsonResource
+class RegulationMechanismContentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,6 +14,6 @@ class RegulationMechanismResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return parent::toArray($request);       
     }
 }

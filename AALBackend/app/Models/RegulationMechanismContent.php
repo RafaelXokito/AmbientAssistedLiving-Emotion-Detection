@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\RegulationMechanismContentTypes;
 
 class RegulationMechanismContent extends Model
 {
@@ -28,14 +29,19 @@ class RegulationMechanismContent extends Model
     protected $hidden = [
 
     ];
+    
     /**
      * Attributes that should be mass-assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'regulation_mechanism', 'content_type', 'file_path', 'text'
+        'emotion_regulation_mechanism', 'content_type', 'file_path', 'text'
     ];
+
+    protected $casts = [
+        'content_type' => RegulationMechanismContentTypes::class
+        ];
 
     public $timestamps = true;
     /**
@@ -51,8 +57,8 @@ class RegulationMechanismContent extends Model
     /**
     * Get the regulation mechanism associated with the the content
     */
-   public function regulationMechanism()
+   public function emotionRegulationMechanism()
    {
-       return $this->belongsTo(RegulationMechanism::class, 'regulation_mechanism', 'id');
+       return $this->belongsTo(EmotionRegulationMechanism::class, 'emotion_regulation_mechanism', 'id');
    }
 }
