@@ -295,7 +295,7 @@ export default {
     },
   },
   mounted() {
-    this.socket = this.$nuxtSocket({ persist: 'mySocket' })
+    // = this.$nuxtSocket({ persist: 'mySocket' })
   },
   async created() {
     await this.getEmotions()
@@ -321,7 +321,7 @@ export default {
             '", "image": "' +
             base64 +
             '"}'
-          this.socket.emit('newFrameMessage', jsonData)
+          //this.socket.emit('newFrameMessage', jsonData)
           this.hideModal()
           this.collectGraphData()
         })

@@ -132,7 +132,6 @@ export default {
     },
   },
   created() {
-    console.log("/api/" + this.type + "/" + this.id + "?details=true");
     this.$axios.$get("/api/" + this.type + "/" + this.id + "?details=true").then(response => {
       this.questionnaire = response.data
       console.log(response.data)

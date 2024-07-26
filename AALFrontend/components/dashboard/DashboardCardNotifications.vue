@@ -54,7 +54,7 @@ export default {
   },
   created(){
     this.getNotifications()
-    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+    /*this.socket = this.$nuxtSocket({ persist: 'mySocket'})
     this.socket.on('newNotificationMessage', data=> {
       console.log(data)
       const aux = data.data.split(';')
@@ -68,7 +68,7 @@ export default {
        if (this.notifications.length > 5) {
           this.notifications.pop()
         }
-      })
+      })*/
   },
   methods: {
     getNotifications() {

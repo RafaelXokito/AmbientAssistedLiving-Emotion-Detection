@@ -217,12 +217,12 @@ export default {
         }
       }).then(e => {
         this.$axios.defaults.headers.common = {Authorization: `${e.data.token_type} ${e.data.access_token}`}
-        this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+       /* this.socket = this.$nuxtSocket({ persist: 'mySocket'})
         if(this.$auth.user.scope === "Client"){
           this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "C"})
         }else{
           this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "A"})
-        }
+        }*/
         this.$router.go(-1)
       }).catch(e => {
         if (e.response && e.response.data)
@@ -256,12 +256,12 @@ export default {
             }
           }).then(e => {
             this.$axios.defaults.headers.common = {Authorization: `${e.data.type} ${e.data.token}`}
-            this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+           /*this.socket  = this.$nuxtSocket({ persist: 'mySocket'})
             if(this.$auth.user.scope === "Client"){
               this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "C"})
             }else{
               this.socket.emit("logged_in", {"username": this.$auth.user.id.toString(), "userType": "A"})
-            }
+            }*/
             this.$router.go(-1)
           })
         })

@@ -272,7 +272,7 @@ export default {
     }
   },
   mounted() {
-    this.socket = this.$nuxtSocket({ persist: 'mySocket' })
+   // this.socket = this.$nuxtSocket({ persist: 'mySocket' })
   },
   async created() {
     await this.getQuestionnariesTypes()

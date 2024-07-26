@@ -76,7 +76,6 @@ export default {
       emotionsClassified: [],
       socket: null,
       emotion: "",
-      reveal: []
     }
   },
   computed: {
@@ -105,11 +104,9 @@ export default {
           createdate: new Date(content.createdate * 1000).toLocaleString("pt-PT")
         }
         switch (content.type) {
-          case "ResponseQuestionnaire":
-            result['title'] = "Resposta do questionário nº " + data.questionnaire_id;
-            result['response'] = data.response;
-            result['questionnaire'] = data.questionnaire_id;
-            result['question'] = data.question;
+          case "Message":
+            result['title'] = "Mensagem nº " + data.id;
+            result['text'] = data.body;
             break;
           case "Frame":
             this.$axios
@@ -126,7 +123,6 @@ export default {
             break;
         } 
         this.contents.push(result);
-        this.reveal.push(false);
       })
     })
   },
@@ -155,7 +151,7 @@ export default {
               base64 +
               '"}'
 
-            this.socket.emit('newFrameMessage', jsonData)
+          //  this.socket.emit('newFrameMessage', jsonData)
           })
       } else {
         this.$axios
@@ -168,6 +164,7 @@ export default {
               .goAway(3000)
           })
       }
+      // classify message chatbot too
     },
   }
 }
