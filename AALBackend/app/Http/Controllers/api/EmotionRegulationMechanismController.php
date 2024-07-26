@@ -50,6 +50,7 @@ class EmotionRegulationMechanismController extends Controller
             DB::beginTransaction();
             $emotionRegulationMechanism->emotionToRegulate()->associate(Emotion::find($validated_data["emotion"]));
             $emotionRegulationMechanism->client()->associate(Auth::user()->userable);
+            $emotionRegulationMechanism->threshold = $validated_data["threshold"];
             $emotionRegulationMechanism->save();
             DB::commit();
             return new EmotionRegulationMechanismResource($emotionRegulationMechanism);

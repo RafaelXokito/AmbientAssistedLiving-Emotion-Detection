@@ -14,7 +14,8 @@ class EmotionRegulationMechanismRequest extends FormRequest
     public function rules()
     {
         return [
-            'emotion' => ['required','string','exists:emotions,name']
+            'emotion' => ['required','string','exists:emotions,name'],
+            'threshold' => ['required','integer','between:1,100']
         ];
     }
 

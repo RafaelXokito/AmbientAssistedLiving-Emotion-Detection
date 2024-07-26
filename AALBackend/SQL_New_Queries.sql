@@ -434,12 +434,13 @@ CREATE TABLE `emotions_regulation_mechanisms` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `client_id` bigint NOT NULL,
     `emotion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+    'threshold' bigint NOT NULL,
     `created_at`    timestamp    null,
     `updated_at`    timestamp    null,
     `deleted_at`    timestamp    null,
     CONSTRAINT `emotion_regulation_mechanisms_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`),
     CONSTRAINT `emotion_regulation_mechanisms_ibfk_3` FOREIGN KEY (`emotion`) REFERENCES `emotions` (`name`),
-    CONSTRAINT `emotion_regulation_mechanisms_unique` UNIQUE (`client_id`, `emotion`),
+    CONSTRAINT `emotion_regulation_mechanisms_unique` UNIQUE (`client_id`, `emotion`)
     PRIMARY KEY (`id`)
 );
 

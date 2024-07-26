@@ -100,6 +100,7 @@ class MessageController extends Controller
             $questionnaireType = "";
             $ermIsPossible = true;
             $emotion = null;
+            $accuracy = 0;
             // Rasa return a custom json: "custom": { "ERM": "false" } or { "IS_QUESTION": "true", "ERM": "false" }, if ERM cannot be done
             // If property not present then its okay to do ERM
             foreach ($responseArray as $responseChatbot) {
@@ -130,12 +131,13 @@ class MessageController extends Controller
                     if(array_key_exists("emotion", $response)){
                         $emotion = $response["emotion"];
                         $this->handleIteration($emotion, $clientMessage, $response);
+                        $accuracy = $response["accuracy"];
                     }
                 }                
             }
             if($ermIsPossible == true){
                 // ERM
-                $finalMessages = $this->calculateRM($emotion, $finalMessages);
+                $finalMessages = $this->calculateRM($emotion, $finalMessages, $accuracy);
             }
 
             DB::commit();
@@ -282,10 +284,11 @@ class MessageController extends Controller
         }
     }
 
-    public function calculateRM($emotion, $messages){
+    public function calculateRM($emotion, $messages, $accuracy){
         
         $erms = EmotionRegulationMechanism::where("client_id", Auth::user()->userable->id)
         ->where("emotion", $emotion)
+        ->where("threshold", "<=", $accuracy)
         ->whereHas('regulationMechanismsContents')
         ->get();
 
