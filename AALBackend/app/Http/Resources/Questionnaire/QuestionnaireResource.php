@@ -16,10 +16,10 @@ class QuestionnaireResource extends JsonResource
     public function toArray($request)
     {
         $questionnaireType = QuestionnaireType::where('questionnairable_model_name',$this->questionnaire->questionnairable_type)->first();
-            $finalMessage = "";
+            $finalMessage = null;
             $result_mappings = $questionnaireType->result_mappings;
             foreach ($result_mappings as $result_mapping) {
-                if($this->questionnaire->points < $result_mapping->points_min) continue;
+                if($this->questionnaire->points == null || $this->questionnaire->points < $result_mapping->points_min) continue;
                 if($result_mapping->points_max_inclusive ){
                     if($this->questionnaire->points <= $result_mapping->points_max){
                         $finalMessage = $result_mapping->short_message;

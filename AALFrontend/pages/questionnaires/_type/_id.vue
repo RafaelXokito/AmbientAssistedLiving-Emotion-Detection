@@ -4,7 +4,7 @@
     <div>
         <h2 class="text-center">Questionário nº {{ id }}</h2>
         <v-row class="mt-10">
-          <v-col cols="4">
+          <v-col cols="4" v-if="questionnaire.points != null">
             <v-card height="100%">
               <v-card-title>
                 <v-row>
@@ -16,10 +16,17 @@
               </v-card-title>
             </v-card>
           </v-col>
-          <v-col cols="4">
+          <v-col cols="4" v-if="questionnaire.points != null">
             <v-card height="100%">
               <v-card-title>
                 {{ questionnaire.short_message }}
+              </v-card-title>
+            </v-card>
+          </v-col>
+          <v-col cols="8" v-else>
+            <v-card height="100%">
+              <v-card-title>
+                O questionário ainda não está completo.
               </v-card-title>
             </v-card>
           </v-col>
@@ -89,11 +96,6 @@ export default {
           sortDirection: "desc",
         },
         {
-          value: "emotion",
-          text: "Emoção detetada",
-          sortDirection: "desc",
-        },
-        {
           value: "created_at",
           text: "Data",
           sortDirection: "desc",
@@ -130,6 +132,7 @@ export default {
     },
   },
   created() {
+    console.log("/api/" + this.type + "/" + this.id + "?details=true");
     this.$axios.$get("/api/" + this.type + "/" + this.id + "?details=true").then(response => {
       this.questionnaire = response.data
       console.log(response.data)

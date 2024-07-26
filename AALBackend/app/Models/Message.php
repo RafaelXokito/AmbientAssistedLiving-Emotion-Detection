@@ -74,8 +74,8 @@ class Message extends Model
        return $this->belongsTo(Client::class, 'client_id', 'id');
    }
 
-    /**
-     * Get the speech's content.
+    /*
+     * Get the message's content
      */
     public function content()
     {
