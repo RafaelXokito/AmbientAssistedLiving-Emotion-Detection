@@ -26,7 +26,7 @@ class EmotionRegulationMechanism extends Model
      * @var array
      */
     protected $fillable = [
-        'client_id', 'regulation_mechanism', 'emotion', 'threshold'
+        'client_id', 'emotion', 'threshold'
     ];
      /**
      * The attributes excluded from the model's JSON form.
