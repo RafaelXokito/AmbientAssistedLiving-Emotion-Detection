@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\RegulationMechanismContentTypes;
 
 class Message extends Model
 {
@@ -26,7 +27,7 @@ class Message extends Model
      * @var array
      */
     protected $fillable = [
-        'client_id', 'isChatbot','body'
+        'client_id', 'isChatbot','body', 'content_type'
     ];
 
     /**
@@ -45,6 +46,7 @@ class Message extends Model
      */
     protected $casts = [
         'body' => 'string',
+        'content_type' => RegulationMechanismContentTypes::class,
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp'
     ];

@@ -288,8 +288,9 @@ CREATE TABLE `messages` (
     `body`                TEXT not null,
     `client_id`           bigint not null,
     `isChatbot`           boolean not null,
-   `created_at`           timestamp null default null,
+    `created_at`           timestamp null default null,
     `updated_at`          timestamp null default null,
+    content_type ENUM('text', 'image', 'audio', 'video') NOT NULL,
     primary key (`id`),
     constraint `messages_ibfk_1` foreign key (`client_id`) references clients (`id`)
 );

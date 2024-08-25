@@ -19,6 +19,7 @@ class MessageResource extends JsonResource
             "id" => $this->id,
             "isChatbot" => $this->isChatbot,
             "client" => $client,
+            "content_type" => $this->content_type,
             "body" => $this->body,
             "body" => $this->body,
             "created_at" => $this->created_at,

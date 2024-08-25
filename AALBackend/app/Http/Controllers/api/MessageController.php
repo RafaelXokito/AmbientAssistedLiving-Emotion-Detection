@@ -88,6 +88,7 @@ class MessageController extends Controller
                 $clientMessage = new Message();
                 $clientMessage->isChatbot = $validated_data["isChatbot"];
                 $clientMessage->body = $clientInput;
+                $clientMessage->content_type = RegulationMechanismContentTypes::Text->value;
                 $clientMessage->client()->associate(Auth::user()->userable);
                 $clientMessage->save();
                 array_push($finalMessages, $clientMessage);
@@ -108,6 +109,7 @@ class MessageController extends Controller
                     $msg = new Message();
                     $msg->isChatbot = true;
                     $msg->body = $responseChatbot["text"];
+                    $msg->content_type = RegulationMechanismContentTypes::Text->value;
                     $msg->client()->associate(Auth::user()->userable);
                     $msg->save();
                     array_push($finalMessages,$msg);
@@ -145,6 +147,7 @@ class MessageController extends Controller
             if($chatbotMessagesHasShortQuestion == true){
                 $tempMsg = new Message();
                 $tempMsg->isChatbot = true;
+                $msg->content_type = RegulationMechanismContentTypes::Text->value;
                 $tempMsg->body = "#IS_SHORT_QUESTION#" . $questionnaireType;
                 $tempMsg->client()->associate(Auth::user()->userable);
                 array_push($finalMessages,$tempMsg);
@@ -305,6 +308,7 @@ class MessageController extends Controller
         }else{
             $msgAnswer->body = $content->file_path;
         }
+        $msgAnswer->content_type = $content->content_type->value;
         $msgAnswer->isChatbot = true;
         $msgAnswer->body = $content;
         $msgAnswer->client()->associate(Auth::user()->userable);
