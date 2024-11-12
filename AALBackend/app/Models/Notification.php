@@ -7,10 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property string  $title
  * @property string  $content
- * @property string  $emotion_name
+ * @property int     $client_id
  * @property int     $created_at
- * @property float   $duration
- * @property float   $accuracy
  * @property boolean $notificationseen
  */
 class Notification extends Model
@@ -35,7 +33,7 @@ class Notification extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'content', 'created_at', 'duration', 'emotion_name', 'notificationseen', 'client_id', 'accuracy', 'path'
+        'title', 'content', 'created_at', 'notificationseen', 'client_id'
     ];
 
     /**
@@ -53,7 +51,7 @@ class Notification extends Model
      * @var array
      */
     protected $casts = [
-        'title' => 'string', 'content' => 'string', 'created_at' => 'timestamp', 'duration' => 'float', 'emotion_name' => 'string', 'notificationseen' => 'boolean', 'accuracy' => 'float', 'path' => 'string'
+        'title' => 'string', 'content' => 'string', 'created_at' => 'timestamp','notificationseen' => 'boolean'
     ];
 
     /**
@@ -70,20 +68,13 @@ class Notification extends Model
      *
      * @var boolean
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     // Scopes...
 
     // Functions ...
 
     // Relations ...
-    /**
-     * Get the emotion associated with the notification.
-     */
-    public function emotion()
-    {
-        return $this->belongsTo(Emotion::class, 'emotion_name', 'name');
-    }
     /**
      * Get the client associated with the notification.
      */

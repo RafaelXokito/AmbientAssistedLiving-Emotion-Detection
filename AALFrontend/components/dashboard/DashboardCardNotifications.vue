@@ -54,21 +54,20 @@ export default {
   },
   created(){
     this.getNotifications()
-    /*this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-    this.socket.on('newNotificationMessage', data=> {
+    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+    this.socket.on('newNotificationMessage', data => {
       console.log(data)
-      const aux = data.data.split(';')
       this.notifications.unshift({
-        id: aux[aux.length-5],
-        title: aux[aux.length-4],
-        content: aux[aux.length-3],
-        notificationSeen: aux[aux.length-2] === 'true',
-        created_at: aux[aux.length-1]
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        notificationSeen: false,
+        created_at: "2024-11-09"
       })
        if (this.notifications.length > 5) {
           this.notifications.pop()
         }
-      })*/
+      })
   },
   methods: {
     getNotifications() {

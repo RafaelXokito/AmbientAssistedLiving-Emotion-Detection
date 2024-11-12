@@ -518,7 +518,7 @@ export default {
             }
           }
         })
-    },
+    }
   },
 }
 </script>

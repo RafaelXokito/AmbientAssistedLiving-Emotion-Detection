@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Models\Emotion;
 use App\Models\Notification;
+use App\Models\Client;
 use http\Exception\InvalidArgumentException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,12 +30,7 @@ class NotificationController extends Controller
         return new NotificationCollection(Notification::orderBy('created_at', 'DESC')->where('client_id', '=', Auth::user()->userable->id)->get());
     }
 
-    public function top()
-    {
-        $topNotification = Auth::user()->userable->notifications()->orderBy('created_at', 'desc')->take(10)->get();
-        return new NotificationResource($topNotification);
-    }
-
+ 
     /**
      * Show the form for creating a new resource.
      *
@@ -58,46 +54,39 @@ class NotificationController extends Controller
 
         try{
             DB::beginTransaction();
-            $notification->emotion()->associate(Emotion::find($validated_data["emotion_name"]));
-            $notification->client()->associate(Auth::user()->userable);
-            $notification->title = "Emotion '".$validated_data["emotion_name"]."' was detected continuosly!";
-            $notification->content = "The elder in your care has been showing ".$validated_data["emotion_name"]." emotions continuously.\n\nThe '".$validated_data["emotion_name"]."' values were higher than the defined limit of '".$validated_data["accuracy"]."' and these feelings have lasted over the specified duration of ".$validated_data["duration"]." seconds.\n\nPlease make sure to contact your elder and check on his/her health!\n\nYou can access more details in http://aalemotion.dei.estg.ipleiria.pt/inbox";
-            $notification->accuracy = $validated_data["accuracy"];
-            $notification->duration = $validated_data["duration"];
+            $client = Client::findOrFail($validated_data["userId"]);
+            $notification->client()->associate($client);
+            $notification->title = $validated_data["title"];
+            $notification->content = $validated_data["content"];
+            $notification->created_at = $validated_data["created_at"];
             $notification->notificationseen = false;
-
-            $notification->save();
-
-            $file = $createNotificationRequest->file('file');
-            $notification->path = basename(Storage::disk('local')->putFileAs('\\notifications\\'.Auth::user()->userable_id, $file, $notification->id . '.jpg'));
-
             $notification->save();
 
             DB::commit();
 
             $newNotification = new NotificationResource($notification);
 
-            if (Auth::user()->notifiable) {
-                Mail::raw($notification->content, function($message) use($notification)
-                {
-                    $message->from(env("MAIL_USERNAME"),'Smart Emotion - AAL');
-                    $message->to(Auth::user()->email);
-                    $message->subject($notification->title);
-                });
+            // if (Auth::user()->notifiable) {
+            //     Mail::raw($notification->content, function($message) use($notification)
+            //     {
+            //         $message->from(env("MAIL_USERNAME"),'Smart Emotion - AAL');
+            //         $message->to(Auth::user()->email);
+            //         $message->subject($notification->title);
+            //     });
 
-                $basic  = new \Vonage\Client\Credentials\Basic(getenv("VONAGE_KEY"), getenv("VONAGE_SECRET"));
-                $client = new \Vonage\Client($basic);
+            //     $basic  = new \Vonage\Client\Credentials\Basic(getenv("VONAGE_KEY"), getenv("VONAGE_SECRET"));
+            //     $client = new \Vonage\Client($basic);
 
-                $response = $client->sms()->send(
-                    new \Vonage\SMS\Message\SMS("+351".Auth::user()->userable->contact, "AALEmotion", $notification->content)
-                );
+            //     $response = $client->sms()->send(
+            //         new \Vonage\SMS\Message\SMS("+351".Auth::user()->userable->contact, "AALEmotion", $notification->content)
+            //     );
 
-                $message = $response->current();
+            //     $message = $response->current();
 
-                if ($message->getStatus() != 0) {
-                    throw new InvalidArgumentException(getenv("VONAGE_KEY"));
-                }
-            }
+            //     if ($message->getStatus() != 0) {
+            //         throw new InvalidArgumentException(getenv("VONAGE_KEY"));
+            //     }
+            // }
 
             return $newNotification;
         }catch(\Throwable $th){
@@ -155,7 +144,7 @@ class NotificationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        abort(404);
     }
 
  /**

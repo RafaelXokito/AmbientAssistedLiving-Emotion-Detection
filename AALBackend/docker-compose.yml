@@ -49,6 +49,13 @@ services:
             - sail
         depends_on:
             - mysql
+    # image built from ./Websoockets - docker build -t websockets .
+    websockets:
+        image: websockets  
+        ports:
+        - "8081:8081"
+        networks:
+            - sail           
     chatbot:
         # image built from ERNUI/ChatbotBackend - docker build -t chatbot .
         image: chatbot

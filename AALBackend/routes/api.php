@@ -44,6 +44,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // RASA uses this endpoint
 Route::get('/questionnaires/{questionnaire}', [QuestionnaireTypeController::class, 'show']);
+Route::get('/emotionsDetails', [EmotionController::class, 'index']);
+Route::post('/notifications', [NotificationController::class, 'store']);
 
 Route::post('/clients', [ClientController::class, 'store']);
 Route::patch('/auth/activateClient', [AuthController::class, 'activateClient']);
@@ -65,13 +67,13 @@ Route::group(['middleware' =>  'auth:api'], function() {
 
     Route::get('/statistics', [StatisticController::class, 'index']);
 
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/{notification}', [NotificationController::class, 'show']);
+    Route::patch('/notifications/{notification}', [NotificationController::class, 'patch']);
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
     Route::get('/notifications/download/{notification}', [NotificationController::class, 'showFoto']);
-    Route::get('/notifications/top', [NotificationController::class, 'top']);
 
     Route::get('/speeches/last', [SpeechController::class, 'last']);
-    Route::resources([
-        'notifications' => NotificationController::class
-    ]);
 });
 
 // Admin restrict

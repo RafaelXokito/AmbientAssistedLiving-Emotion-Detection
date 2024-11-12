@@ -24,23 +24,29 @@ class CreateNotificationRequest extends FormRequest
     public function rules()
     {
         return [
-            "duration" => ['required','integer','min:1'],
-            "accuracy" => ['required','numeric','between:0.00,100.00'],
-            "emotion_name" => ['required','string','exists:emotions,name'],
-            'file' => ['required', 'image', 'mimes:jpg,bmp,png', 'max:512'],
+            'userId' => ['required','int','exists:clients,id'],
+            "title" => ['required','string'],
+            "content" => ['required','string'],
+            "created_at" => ['required','string','date_format:H:i d/m/Y']
         ];
     }
 
     public function messages()
     {
         return [
-            "duration.required" => "Notifications's duration is required",
-            'duration.integer' => "Notification's duration must be a integer",
-            'duration.min' => "Notification's duration must be bigger than 0",
+            "userId.required" => "Notifications's user id is required",
+            'userId.string' => "Notification's user id must be a integer",
+            'userId.exists' => "Notification's user id must be a valid client",
 
-            'emotion_name.required' => "Notification's emotion name is required",
-            'emotion_name.string' => "Notification's emotion name must be a string",
-            'emotion_name.exists' => "Notification's emotion name doesnt exists"
+            "title.required" => "Notifications's title is required",
+            'title.string' => "Notification's title must be a string",
+        
+            "content.required" => "Notifications's content is required",
+            'content.string' => "Notification's content must be a string",    
+
+            "created_at.required" => "Notifications's creation date is required",
+            'created_at.string' => "Notification's creation date must be a string",
+            'created_at.date_format' => "Notification's creation date must be in the format of 'H:i d/m/Y'"
         ];
     }
 }

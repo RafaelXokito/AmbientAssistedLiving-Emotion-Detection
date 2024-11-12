@@ -125,17 +125,10 @@ export default {
   },
   created(){
     this.getNotifications()
-   /* this.socket = this.$nuxtSocket({ persist: 'mySocket'})
+   this.socket = this.$nuxtSocket({ persist: 'mySocket'})
     this.socket.on('newNotificationMessage', data => {
-      const aux = data.data.split(';')
-      this.notifications.unshift({
-        id: aux[aux.length-5],
-        title: aux[aux.length-4],
-        content: aux[aux.length-3],
-        notificationseen: aux[aux.length-2] === 'true',
-        created_at: aux[aux.length-1]
-      })
-    })*/
+      this.notifications.unshift(data)
+    })
   },
   methods: {
     async getImage(id){

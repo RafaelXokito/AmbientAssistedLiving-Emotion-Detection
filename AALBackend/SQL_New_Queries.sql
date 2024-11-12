@@ -458,6 +458,17 @@ CREATE TABLE `regulation_mechanisms_contents` (
     PRIMARY KEY (`id`)
 );
 
+ALTER TABLE notifications
+    DROP FOREIGN KEY notifications_ibfk_1,
+    DROP FOREIGN KEY notifications_ibfk_2;
+
+ALTER TABLE notifications
+    DROP COLUMN accuracy,
+    DROP COLUMN duration,
+    DROP COLUMN emotion_name,
+    DROP COLUMN path,
+    DROP COLUMN updated_at;
+
 
 -- useful queries to check if iterations, contents, messages and classifications are being well writtend
 -- select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message'

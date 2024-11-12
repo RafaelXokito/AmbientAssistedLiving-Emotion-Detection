@@ -7,12 +7,14 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Utils;
 use App\Models\Message;
+use App\Models\Client as ClientM;
 use App\Models\ResponseQuestionnaire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Message\MessageResource;
 use App\Http\Resources\Message\MessageCollection;
+use App\Http\Resources\EmotionNotification\EmotionNotificationCollection;
 use App\Http\Requests\Message\CreateMessageRequest;
 use App\Models\EmotionRegulationMechanism;
 use App\Models\Iteration;
@@ -240,12 +242,17 @@ class MessageController extends Controller
         $headers = [
         'Content-Type' => 'application/json; charset=utf-8',
         ];
-        
+    
+        $emotionsSettings = ClientM::findOrFail(Auth::user()->userable_id)->emotionNotifications->toArray();
+
         $body = json_encode([
-            "sender" => Auth::user()->email,
-            "message" => $clientInput
-        ],
-        JSON_UNESCAPED_UNICODE);
+            "sender" => Auth::user()->userable_id,
+            "message" => $clientInput,
+            "metadata" => [
+                "emotionsSettings" => $emotionsSettings
+            ]
+        ], JSON_UNESCAPED_UNICODE);
+
         $request = new GuzzleRequest('POST', 'http://chatbot:5005/webhooks/rest/webhook', $headers, Utils::streamFor($body));
         $response = $client->send($request);
         return json_decode($response->getBody()->getContents(), true, 512, JSON_UNESCAPED_UNICODE); 

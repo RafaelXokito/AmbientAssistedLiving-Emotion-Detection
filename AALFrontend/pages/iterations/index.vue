@@ -313,7 +313,7 @@ export default {
             .goAway(3000)
 
           // Connection opened
-          // console.log(this.socket)
+          console.log(this.socket)
           const jsonData =
             '{ "userId": ' + this.$auth.user.id +
             ',"emotion" : "' +
