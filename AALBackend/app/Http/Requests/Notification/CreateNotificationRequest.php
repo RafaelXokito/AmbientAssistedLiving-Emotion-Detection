@@ -27,7 +27,7 @@ class CreateNotificationRequest extends FormRequest
             'userId' => ['required','int','exists:clients,id'],
             "title" => ['required','string'],
             "content" => ['required','string'],
-            "created_at" => ['required','string','date_format:H:i d/m/Y']
+            "created_at" => ['required','string','date_format:Y-m-d H:i:s']
         ];
     }
 
@@ -46,7 +46,7 @@ class CreateNotificationRequest extends FormRequest
 
             "created_at.required" => "Notifications's creation date is required",
             'created_at.string' => "Notification's creation date must be a string",
-            'created_at.date_format' => "Notification's creation date must be in the format of 'H:i d/m/Y'"
+            'created_at.date_format' => "Notification's creation date must be in the format of 'Y-m-d H:i:s'"
         ];
     }
 }

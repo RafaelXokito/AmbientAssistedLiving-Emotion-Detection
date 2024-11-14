@@ -115,7 +115,6 @@ import {
 export default {
   data() {
     return {
-      notifications: [],
       countNewNotification: 0
     }
   },
@@ -141,7 +140,7 @@ export default {
   created(){
     this.getNotifications()
     this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-    this.socket.on('newNotificationMessage', () => {
+    this.socket.on('newNotificationMessage', data => {
       this.countNewNotification++
     })
   },
@@ -165,32 +164,6 @@ export default {
                 this.countNewNotification++
             })
         })
-    },
-    timeSince(date) {
-      const seconds = Math.floor((new Date().getTime() - new Date(date*1000).getTime()) / 1000)
-      let interval = seconds / 31536000
-
-      if (interval > 1) {
-        return Math.floor(interval) + " anos"
-      }
-      interval = seconds / 2592000
-      if (interval > 1) {
-        return Math.floor(interval) + " meses"
-      }
-      interval = seconds / 86400
-      if (interval > 1) {
-        return Math.floor(interval) + " dias"
-      }
-      interval = seconds / 3600
-      if (interval > 1) {
-        return Math.floor(interval) + " horas"
-      }
-      interval = seconds / 60
-      if (interval > 1) {
-        return Math.floor(interval) + " minutos"
-      }
-
-      return Math.floor(seconds) + " segundos"
     }
   }
 }

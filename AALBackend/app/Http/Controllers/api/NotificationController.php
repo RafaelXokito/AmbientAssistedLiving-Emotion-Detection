@@ -65,29 +65,6 @@ class NotificationController extends Controller
             DB::commit();
 
             $newNotification = new NotificationResource($notification);
-
-            // if (Auth::user()->notifiable) {
-            //     Mail::raw($notification->content, function($message) use($notification)
-            //     {
-            //         $message->from(env("MAIL_USERNAME"),'Smart Emotion - AAL');
-            //         $message->to(Auth::user()->email);
-            //         $message->subject($notification->title);
-            //     });
-
-            //     $basic  = new \Vonage\Client\Credentials\Basic(getenv("VONAGE_KEY"), getenv("VONAGE_SECRET"));
-            //     $client = new \Vonage\Client($basic);
-
-            //     $response = $client->sms()->send(
-            //         new \Vonage\SMS\Message\SMS("+351".Auth::user()->userable->contact, "AALEmotion", $notification->content)
-            //     );
-
-            //     $message = $response->current();
-
-            //     if ($message->getStatus() != 0) {
-            //         throw new InvalidArgumentException(getenv("VONAGE_KEY"));
-            //     }
-            // }
-
             return $newNotification;
         }catch(\Throwable $th){
             DB::rollback();

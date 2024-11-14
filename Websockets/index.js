@@ -7,6 +7,13 @@ const io = require("socket.io")(httpServer, {
         credentials: true
     }
 })
+
+require('dotenv').config();
+
+// Now you can access the environment variables via process.env
+const apiUrl = process.env.API_URL;
+console.log(`Laravel API URL: ${apiUrl}`)
+
 httpServer.listen(8081, function () {
     console.log('listening on *:8081')
 })
@@ -39,8 +46,25 @@ io.on('connection', function (socket) {
     })
 
     socket.on('newNotificationMessage', function (data) {
-        console.log('newNotificationMessage',data)
-        io.to('notificationsocket/'+data.userId).emit('newNotificationMessage', data)
+        const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+        
+        fetch(apiUrl + "/notifications", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            console.log('notification saved, now sending to subscribers');
+            io.to('notificationsocket/'+data.userId).emit('newNotificationMessage', data);
+        })
+        .catch(error => {
+            console.log('Error in saving notification: ' + error);
+        });
+        
+        
     })
     
 })

@@ -31,7 +31,7 @@
                       class="row-pointer"
                       :elevation="hover ? 16 : 2"
                       :class="{ 'on-hover': hover }"
-                      @click="openNotification(notification)">
+                      @click="markNotificationAsRead(notification)">
 
                 <v-card-title class="text-h5">
                   <v-row>
@@ -69,35 +69,6 @@
       </v-container>
     </v-card>
     <h3 v-else class="text-center">Não existem notificações</h3>
-    <v-dialog
-      v-model="showNotification"
-      max-width="600px"
-    >
-      <v-card shaped>
-        <v-card-title class="text-h5">
-          {{ notification.title }}
-        </v-card-title>
-        <div class="text-center">
-          <v-avatar
-            class="ma-3"
-            size="125"
-            tile
-          >
-            <v-img :src="notification.base64"></v-img>
-          </v-avatar>
-        </div>
-        <v-card-text>{{ notification.content }}</v-card-text>
-        <v-card-actions>
-          <v-btn
-            color="primary"
-            text
-            @click="closeNotification"
-          >
-            Fechar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -110,7 +81,6 @@ export default {
   data(){
     return {
       notifications: [],
-      showNotification: false,
       notification: {
         title: '',
         content: '',
@@ -125,82 +95,33 @@ export default {
   },
   created(){
     this.getNotifications()
-   this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-    this.socket.on('newNotificationMessage', data => {
-      this.notifications.unshift(data)
-    })
   },
   methods: {
-    async getImage(id){
-      let aux = ""
-      await this.$axios
-        .$get("/api/notifications/download/" + id)
-        .then(imageBase64 => {
-          aux = imageBase64
-        })
-
-return aux
+    markNotificationAsRead(notification){
+      this.$axios.$patch("/api/notifications/"+notification.id).then(({data}) => {
+       const index = this.notifications.findIndex(item => item.id === data.id);
+       this.$set(this.notifications, index, data);
+      })
     },
     getNotifications() {
       this.$axios
         .$get("/api/notifications?is-short=yes")
         .then( notifications => {
           this.notifications = notifications.data
-
         })
         .catch(() => {
           this.$toast.info("No notifications found").goAway(3000)
         })
 
     },
-    openNotification(notification){
-
-      this.$axios
-        .$patch("/api/notifications/"+notification.id)
-        .then( async () => {
-          notification.notificationseen = true
-          await this.$axios
-            .$get('/api/notifications/download/' + notification.id)
-            .then(imageBase64 => {
-              this.notification = notification
-              this.notification.base64 = imageBase64
-              console.log(this.notification)
-            })
-        })
-        .catch(() => {
-          this.$toast.info("Notification not found").goAway(3000)
-        })
-      this.showNotification = true
-    },
-    closeNotification(){
-      this.showNotification = false
-      this.notification = this.deafultNotification
-    },
-    timeSince(date) {
-      const seconds = Math.floor((new Date().getTime() - new Date(date*1000).getTime()) / 1000)
-      let interval = seconds / 31536000
-
-      if (interval > 1) {
-        return Math.floor(interval) + " years"
-      }
-      interval = seconds / 2592000
-      if (interval > 1) {
-        return Math.floor(interval) + " months"
-      }
-      interval = seconds / 86400
-      if (interval > 1) {
-        return Math.floor(interval) + " days"
-      }
-      interval = seconds / 3600
-      if (interval > 1) {
-        return Math.floor(interval) + " hours"
-      }
-      interval = seconds / 60
-      if (interval > 1) {
-        return Math.floor(interval) + " minutes"
-      }
-
-      return Math.floor(seconds) + " seconds"
+    timeSince(timestamp) {
+      const date = new Date(timestamp * 1000);
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${hours}:${minutes} ${day}/${month}/${year}`;
     },
   },
 }
