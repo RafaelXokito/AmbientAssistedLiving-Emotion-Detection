@@ -108,7 +108,7 @@ import { mdiMagnify, mdiBellOutline, mdiBellRingOutline, mdiGithub } from '@mdi/
 import VerticalNavMenu from '@/components/vertical-nav-menu/VerticalNavMenu.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import AppBarUserMenu from '@/components/AppBarUserMenu.vue'
-
+import { mapState } from 'vuex';
 export default {
   components: {
     VerticalNavMenu,
@@ -118,7 +118,7 @@ export default {
   computed: {
     currentUser() {
       return this.$auth.user
-    },
+    }
   },
   setup() {
     const isDrawerOpen = ref(null)
@@ -126,6 +126,7 @@ export default {
     return {
       isDrawerOpen,
 
+      socket: null,
       // Icons
       icons: {
         mdiMagnify,
@@ -134,6 +135,12 @@ export default {
         mdiBellRingOutline
       },
     }
+  },
+  created() {
+    this.socket = this.$nuxtSocket({ persist: 'mySocket' })
+    this.socket.on('newNotificationMessage', data => {
+      this.$store.dispatch('notifications/addNotification', data);
+    })
   },
   methods: {
     notifiable(){

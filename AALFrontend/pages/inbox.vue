@@ -39,7 +39,7 @@
                       {{ notification.title }}
                     </v-col>
                     <v-col cols="3" class="text-right">
-                      <h6>{{ timeSince(notification.created_at) }}</h6>
+                      <h6>{{ notification.created_at }}</h6>
                     </v-col>
                   </v-row>
                 </v-card-title>
@@ -74,55 +74,21 @@
 
 <script>
 import VueAuthImage from 'vue-auth-image'
+import { mapState } from 'vuex';
 
 export default {
   components: {VueAuthImage},
   middleware: ('auth'),
-  data(){
-    return {
-      notifications: [],
-      notification: {
-        title: '',
-        content: '',
-        base64: ''
-      },
-      deafultNotification: {
-        title: '',
-        content: '',
-        base64: ''
-      }
-    }
-  },
-  created(){
-    this.getNotifications()
+  computed: {
+    ...mapState('notifications', ['notifications']) 
   },
   methods: {
     markNotificationAsRead(notification){
       this.$axios.$patch("/api/notifications/"+notification.id).then(({data}) => {
        const index = this.notifications.findIndex(item => item.id === data.id);
-       this.$set(this.notifications, index, data);
+       this.$store.dispatch('notifications/updateNotification', index);
       })
-    },
-    getNotifications() {
-      this.$axios
-        .$get("/api/notifications?is-short=yes")
-        .then( notifications => {
-          this.notifications = notifications.data
-        })
-        .catch(() => {
-          this.$toast.info("No notifications found").goAway(3000)
-        })
-
-    },
-    timeSince(timestamp) {
-      const date = new Date(timestamp * 1000);
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${hours}:${minutes} ${day}/${month}/${year}`;
-    },
+    }
   },
 }
 </script>

@@ -116,6 +116,7 @@ import {
 } from '@mdi/js'
 import DashboardStatisticsCard from '@/components/dashboard/DashboardStatisticsCard.vue'
 import DashboardCardNotifications from "~/components/dashboard/DashboardCardNotifications"
+import { mapState } from 'vuex';
 
 export default {
   components: {
@@ -267,10 +268,15 @@ export default {
       ],
     }
   },
+
+  asyncData({ store }) {
+    return store.dispatch('notifications/fetchNotifications');
+  },
   computed: {
     currentUser() {
       return this.$auth.user
     },
+    ...mapState('notifications', ['notifications']) 
   },
   mounted() {
     this.loadStatistics()

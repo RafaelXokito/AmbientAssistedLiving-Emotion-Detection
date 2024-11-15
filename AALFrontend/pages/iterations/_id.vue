@@ -126,9 +126,6 @@ export default {
       })
     })
   },
-  mounted() {
-    this.socket = this.$nuxtSocket({ persist: 'mySocket' })
-  },
   methods: {
     firstCapitalLetter(str = "") {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)

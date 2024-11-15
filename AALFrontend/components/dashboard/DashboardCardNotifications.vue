@@ -40,72 +40,10 @@
 </template>
 
 <script>
-
+import { mapState } from 'vuex';
 export default {
-  data(){
-    return {
-      notifications: []
-    }
-  },
-  methods: {
-    getNotifications() {
-      this.$axios
-        .$get("/api/notifications?is-short=yes")
-        .then( notifications => {
-          notifications.data.forEach(notification => {
-            this.notifications.push({
-              id: notification.id,
-              title: notification.title,
-              content: notification.content,
-              notificationseen: notification.notificationseen,
-              created_at: this.timeSinceFromEpochTime(notification.created_at)
-            })
-          })
-        })
-        .catch(() => {
-          this.$toast.info("No notifications found").goAway(3000)
-        })
-    },
-    timeSinceFromEpochTime(timestamp) {
-      const date = new Date(timestamp * 1000);
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${hours}:${minutes} ${day}/${month}/${year}`;
-    },
-    formatDate(dateString) {
-        // Parse the date string
-        const date = new Date(dateString.replace(" ", "T"));
-
-        // Extract components
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
-        const year = date.getFullYear();
-        console.log(`${hours}:${minutes} ${day}/${month}/${year}`);
-        // Format the output
-        return `${hours}:${minutes} ${day}/${month}/${year}`;
-    }
-  },
-  created(){
-    this.getNotifications()
-    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-    this.socket.on('newNotificationMessage', data => {
-      console.log(data)
-      this.notifications.unshift({
-        id: data.id,
-        title: data.title,
-        content: data.content,
-        notificationseen: data.notificationseen,
-        created_at: this.formatDate(data.created_at)
-      })
-       if (this.notifications.length > 5) {
-          this.notifications.pop()
-        }
-      })
+  computed: {
+    ...mapState('notifications', ['notifications']) 
   }
 }
 </script>

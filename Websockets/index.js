@@ -56,9 +56,11 @@ io.on('connection', function (socket) {
             headers: headers,
             body: JSON.stringify(data)
         })
-        .then(() => {
-            console.log('notification saved, now sending to subscribers');
-            io.to('notificationsocket/'+data.userId).emit('newNotificationMessage', data);
+        .then((response) => response.text())
+        .then((notification) => 
+        {
+            console.log("Emitting newNotificationMessage to user "+data.userId);
+            io.to('notificationsocket/'+data.userId).emit('newNotificationMessage', JSON.parse(notification).data)
         })
         .catch(error => {
             console.log('Error in saving notification: ' + error);

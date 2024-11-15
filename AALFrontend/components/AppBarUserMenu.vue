@@ -111,13 +111,8 @@ import {
   mdiHelpCircleOutline,
   mdiLogoutVariant,
 } from '@mdi/js'
-
+import { mapState } from 'vuex';
 export default {
-  data() {
-    return {
-      countNewNotification: 0
-    }
-  },
   setup() {
     return {
       icons: {
@@ -136,13 +131,10 @@ export default {
     currentUser(){
       return this.$auth.user
     },
-  },
-  created(){
-    this.getNotifications()
-    this.socket = this.$nuxtSocket({ persist: 'mySocket'})
-    this.socket.on('newNotificationMessage', data => {
-      this.countNewNotification++
-    })
+    ...mapState('notifications', ['notifications']),
+    countNewNotification() {
+    return this.notifications.filter(notification => notification.notificationseen === false).length;
+  }
   },
   methods: {
     async logout() {
@@ -153,17 +145,6 @@ export default {
         this.socket.emit("logged_out", {"username": this.$auth.user.id, "userType": "A"});
       }
       await this.$auth.logout()
-    },
-    getNotifications() {
-      this.$axios
-        .$get("/api/notifications?is-short=false")
-        .then( data => {
-          this.notifications = data.data
-          this.notifications.forEach(n => {
-              if (!n.notificationseen)
-                this.countNewNotification++
-            })
-        })
     }
   }
 }

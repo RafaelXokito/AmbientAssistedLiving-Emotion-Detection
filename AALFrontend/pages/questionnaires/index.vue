@@ -198,7 +198,6 @@ export default {
         }
       ],
       questionnaires: [],
-      socket: null,
       perPage: 10,
       currentPage: 1,
       showQuestionnaireChartOptions: false,
@@ -270,9 +269,6 @@ export default {
       this.questionnaireChartOptions.yAxis.categories = labels;
       this.getQuestionnariesByType(this.questionnaireTypeData.name, this.questionnaireTypeData.display_name);
     }
-  },
-  mounted() {
-   this.socket = this.$nuxtSocket({ persist: 'mySocket' })
   },
   async created() {
     await this.getQuestionnariesTypes()
