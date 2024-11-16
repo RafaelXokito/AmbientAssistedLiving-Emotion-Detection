@@ -139,11 +139,11 @@ class MessageController extends Controller
                     }
                 }                
             }
+
             if($ermIsPossible == true){
                 // ERM
                 $finalMessages = $this->calculateRM($emotion, $finalMessages, $accuracy);
             }
-
             DB::commit();
             // temporary volatile message to indicate that a short question is present
             if($chatbotMessagesHasShortQuestion == true){
@@ -153,8 +153,7 @@ class MessageController extends Controller
                 $tempMsg->body = "#IS_SHORT_QUESTION#" . $questionnaireType;
                 $tempMsg->client()->associate(Auth::user()->userable);
                 array_push($finalMessages,$tempMsg);
-            }                    
-            
+            }         
             return new MessageCollection($finalMessages);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -183,6 +182,7 @@ class MessageController extends Controller
                 ->first();
                 break;
         }
+
         // if questionnaire is null or has points then means its completed and a new one is created
         if($questionnaire == null || $questionnaire->questionnaire->points != NULL){
             $newQuestionnaire = true;
@@ -263,7 +263,6 @@ class MessageController extends Controller
         $iteration = Iteration::where('emotion_name', "=", $emotion)
                     ->orderBy('created_at', 'desc')
                     ->first();
-
         // If there's no iteration or if the creation date plus 30 minutes is greater than the current date and time 
         if($iteration == null || !Carbon::createFromTimestamp($iteration->created_at)->addMinutes(30)->gt(Carbon::now())){
             $iteration = new Iteration();
@@ -301,9 +300,9 @@ class MessageController extends Controller
         ->where("threshold", "<=", $accuracy)
         ->whereHas('regulationMechanismsContents')
         ->get();
-
+        
         if($erms->count() == 0){
-            return;
+            return $messages;
         }
 
         $erm = $erms->random();
@@ -321,6 +320,7 @@ class MessageController extends Controller
         $msgAnswer->client()->associate(Auth::user()->userable);
         $msgAnswer->save();
         array_push($messages, $msgJoke);
+        return $messages;
     }
 
     /**
