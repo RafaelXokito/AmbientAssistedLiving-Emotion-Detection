@@ -319,7 +319,7 @@ class MessageController extends Controller
         $msgAnswer->body = $content;
         $msgAnswer->client()->associate(Auth::user()->userable);
         $msgAnswer->save();
-        array_push($messages, $msgJoke);
+        array_push($messages, $msgAnswer);
         return $messages;
     }
 

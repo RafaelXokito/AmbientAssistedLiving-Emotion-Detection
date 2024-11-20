@@ -154,12 +154,16 @@ class IterationController extends Controller
 
         $date = Carbon::now()->subDays(7);
 
-        $query = Iteration::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(iterations.created_at,'.$pattern.') as d'))
-            ->groupBy(DB::raw('DATE_FORMAT(iterations.created_at,'.$pattern.')'));
-        if(str_contains(strtolower(Auth::user()->userable_type), "client")) {
+        // Query with dynamic date formatting
+        $query = Iteration::select(DB::raw('count(*) as c'), DB::raw('DATE_FORMAT(iterations.created_at,' . $pattern . ') as d'))
+            ->groupBy(DB::raw('DATE_FORMAT(iterations.created_at,' . $pattern . ')'));
+
+        // Filter by client if necessary
+        if (str_contains(strtolower(Auth::user()->userable_type), "client")) {
             $query = $query->where('iterations.client_id', '=', Auth::user()->userable_id)->get();
-        }else
+        } else {
             $query = $query->get();
+        }
 
         return $query;
     }

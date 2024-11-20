@@ -46,15 +46,21 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import { mdiAccountArrowUpOutline, mdiCogRefreshOutline, mdiTrendingUp, mdiLabelOutline } from '@mdi/js'
+import { mdiBellRing, mdiCog, mdiAccountArrowUpOutline, mdiTimerSync, mdiContentSaveCog, mdiMessageText, mdiMessageTextClock, mdiBellCog, mdiCogRefreshOutline, mdiTrendingUp, mdiLabelOutline, mdiChatQuestion, mdiCalendarRange } from '@mdi/js'
 
 export default {
   setup() {
     const resolveStatisticsIconVariation = data => {
-      if (data === 'Nº de notificações') return { icon: mdiTrendingUp, color: 'primary' }
-      if (data === 'Emoção com mais notificações') return { icon: mdiAccountArrowUpOutline, color: 'success' }
-      if (data === 'Data da última iteração') return { icon: mdiLabelOutline, color: 'warning' }
-      if (data === 'Emoção com menos notificações configuradas') return { icon: mdiCogRefreshOutline, color: 'info' }
+      if (data === 'Nº de notificações da última semana') return { icon: mdiBellRing, color: 'warning' }
+      if (data === 'Nº de configurações para notificações') return { icon: mdiBellCog, color: 'info' }     
+      if (data === 'Nº de iterações da última semana') return { icon: mdiTimerSync, color: 'warning' }
+      if (data === 'Data da última iteração') return { icon: mdiCalendarRange, color: 'info' }
+      if (data === 'Nº de mecanismos de regulações de emoções') return { icon: mdiCog, color: 'primary' }
+      if (data === 'Nº de conteúdos para regulação de emoções') return { icon: mdiContentSaveCog, color: 'primary' }
+      if (data === 'Nº de questionários iniciados') return { icon: mdiChatQuestion, color: 'primary' }
+      if (data === 'Nº de questionários completados') return { icon: mdiChatQuestion, color: 'success' }   
+      if (data === 'Nº de mensagens da última semana') return { icon: mdiMessageText, color: 'warning' }
+      if (data === 'Data da última mensagem') return { icon: mdiMessageTextClock, color: 'info' }
 
       return { icon: mdiAccountArrowUpOutline, color: 'success' }
     }

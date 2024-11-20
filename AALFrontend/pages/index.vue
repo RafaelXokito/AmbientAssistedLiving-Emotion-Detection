@@ -102,6 +102,7 @@
     >
       <dashboard-card-notifications></dashboard-card-notifications>
     </v-col>
+  
   </v-row>
 </template>
 
@@ -133,29 +134,30 @@ export default {
         mdiMenuDown,
         mdiMinus
       },
-      months:[
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
+      months: [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro"
       ],
       weekdays: [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
+        "Domingo",
+        "Segunda-feira",
+        "Terça-feira",
+        "Quarta-feira",
+        "Quinta-feira",
+        "Sexta-feira",
+        "Sábado"
       ],
+
       pattern: [],
       generalChartOptions: {
         chart: {
@@ -382,6 +384,7 @@ export default {
                 name: value,
                 data: [number],
               })
+            console.log( graphData)
             }
 
           }

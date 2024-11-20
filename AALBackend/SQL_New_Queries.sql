@@ -469,6 +469,9 @@ ALTER TABLE notifications
     DROP COLUMN path,
     DROP COLUMN updated_at;
 
+ALTER TABLE emotionsnotifications
+ADD CONSTRAINT unique_emotion_client
+UNIQUE (emotion_name, client_id);
 
 -- useful queries to check if iterations, contents, messages and classifications are being well writtend
 -- select i.id as 'iteration', cla.accuracy, cla.emotion_name, m.body as 'message'
@@ -499,3 +502,7 @@ ALTER TABLE notifications
 -- where  i.created_at > '2024-05-28 00:00:00';
 
 -- mysql -u sail -p -h 127.0.0.1 -P 3306 AALBackend
+
+-- mysql -u root -p
+
+-- SET GLOBAL lc_time_names = 'pt_PT';
