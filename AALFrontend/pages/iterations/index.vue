@@ -243,7 +243,7 @@ export default {
           categories: [],
         },
         xAxis: {
-          type: "timestamps",
+          type: "datetime",
           title: {
             text: "Tempo",
           },
@@ -252,16 +252,7 @@ export default {
           }
         },
         series: [
-          /* {
-            name:  "Time",
-            data: [],
-            color: "#03045e",
-            marker: {
-                enabled: true,
-                radius: 5
-            },
-          }, */
-        ],
+        ]
       },
       frameOpened: {
         showHLForm: false,
@@ -429,29 +420,39 @@ export default {
       return str.toString().charAt(0).toUpperCase() + str.toString().slice(1)
     },
     async collectGraphData() {
-      const graphData = []
-      this.iterationsChartOptions.series = []
-      var dates = []
-      for (let i = 0; i < this.yLabels.length; i++) {
-        var iterations = this.iterations.filter(iteration => {
-          return this.firstCapitalLetter(iteration.emotion.display_name) === this.yLabels[i];
-        });
-        var data = [];
-        iterations.forEach(iteration => {
-          var idx = this.yLabels.indexOf(this.firstCapitalLetter(iteration.emotion.display_name));
-          var date = iteration.created_at * 1000;
-          data.push([date, idx])
-          dates.push(date)
-        });
-        graphData[i] = data;
-        this.iterationsChartOptions.series.push({
-          name: this.yLabels[i],
-          data: graphData[i]
-        })
+  const graphData = [];
+  this.iterationsChartOptions.series = [];
+  var dates = [];
+
+  for (let i = 0; i < this.yLabels.length; i++) {
+    // Filter iterations by emotion label
+    var iterations = this.iterations.filter(iteration => {
+      return this.firstCapitalLetter(iteration.emotion.display_name) === this.yLabels[i];
+    });
+
+    var data = [];
+    iterations.forEach(iteration => {
+      var idx = this.yLabels.indexOf(this.firstCapitalLetter(iteration.emotion.display_name));
+      // Convert to timestamp in milliseconds for Highcharts
+      var timestamp = iteration.created_at * 1000; // Convert to milliseconds
+      data.push([timestamp, idx]); // Use timestamp instead of formatted date
+      dates.push(timestamp);
+    });
+
+    graphData[i] = data;
+    this.iterationsChartOptions.series.push({
+      name: this.yLabels[i],
+      data: graphData[i],
+      marker: {
+        enabled: true, 
       }
-      this.showIterationChart = true
-      return graphData
-    },
+    });
+  }
+
+  this.showIterationChart = true;
+  return graphData;
+},
+
     async getEmotions() {
       await this.$axios.get("/api/emotions").then(response => {
         const emotions = response.data.data
