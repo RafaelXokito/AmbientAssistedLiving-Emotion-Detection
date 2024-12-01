@@ -21,7 +21,6 @@ class MessageResource extends JsonResource
             "client" => $client,
             "content_type" => $this->content_type,
             "body" => $this->body,
-            "body" => $this->body,
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at
         ];

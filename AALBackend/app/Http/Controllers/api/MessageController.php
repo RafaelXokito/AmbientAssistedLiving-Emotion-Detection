@@ -98,7 +98,6 @@ class MessageController extends Controller
             
             //-------------- Send to Rasa --------------
             $responseArray = $this->sendToRasa($clientInput);
-            
             $chatbotMessagesHasShortQuestion = false;
             $questionnaireType = "";
             $ermIsPossible = true;
@@ -129,15 +128,15 @@ class MessageController extends Controller
                     $chatbotMessagesHasShortQuestion = true;
                     $questionnaireType = $response["questionnaire"];
                 }else{
-                    if(array_key_exists("questionnaire", $response)){
-                        $this->handleQuestionnaire($response);
-                    }
                     if(array_key_exists("emotion", $response)){
                         $emotion = $response["emotion"];
                         $this->handleIteration($emotion, $clientMessage, $response);
                         $accuracy = $response["accuracy"];
                     }
-                }                
+                }    
+                if(array_key_exists("questionnaire", $response)){
+                    $this->handleQuestionnaire($response);
+                }            
             }
 
             if($ermIsPossible == true){
@@ -170,6 +169,7 @@ class MessageController extends Controller
     public function fetchQuestionnaire($type, $data, $isQuestion){
         $newQuestionnaire = false;
         $questionnaire = null;
+        
         // Fetch questionnaire by type
         switch($type){
             case "GeriatricQuestionnaire":
@@ -194,7 +194,8 @@ class MessageController extends Controller
             $responseLastQuestion = ResponseQuestionnaire::where("questionnaire_id", "=", $questionnaire->questionnaire->id)
             ->orderBy('question', 'desc')
             ->first();
-            if($responseLastQuestion->question > $data["question"]){
+
+            if($responseLastQuestion != null && $responseLastQuestion->question > $data["question"]){
                 $newQuestionnaire = true;
             }
         }
@@ -307,7 +308,7 @@ class MessageController extends Controller
 
         $erm = $erms->random();
         $content = $erm->regulationMechanismsContents->random();
-
+        
         $msgAnswer = new Message();
         if($content->content_type->value == RegulationMechanismContentTypes::Text->value){
             $msgAnswer->body = $content->text;
@@ -316,7 +317,6 @@ class MessageController extends Controller
         }
         $msgAnswer->content_type = $content->content_type->value;
         $msgAnswer->isChatbot = true;
-        $msgAnswer->body = $content;
         $msgAnswer->client()->associate(Auth::user()->userable);
         $msgAnswer->save();
         array_push($messages, $msgAnswer);
